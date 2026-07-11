@@ -642,6 +642,8 @@ async function serve() {
   const { fileURLToPath } = await import('url')
   const { resolve, dirname } = await import('path')
   const { readFileSync, existsSync } = await import('fs')
+  const { listAgents, getAgent } = await import('./custom-agents.js')
+  const { MODELS, getModelsByProvider } = await import('./models.js')
 
   const __dirname = dirname(fileURLToPath(import.meta.url))
   const htmlPath = resolve(__dirname, 'web', 'index.html')
@@ -668,13 +670,38 @@ async function serve() {
       if (url.pathname === '/api/infer' && req.method === 'POST') {
         try {
           const body = await req.json()
-          const { prompt: userPrompt, model: modelId, stream: shouldStream } = body
+          const { prompt: userPrompt, model: modelId, agent: agentId, messages: history, stream: shouldStream } = body
 
-          if (!userPrompt) {
-            return new Response(JSON.stringify({ error: 'No prompt provided' }), {
+          if (!userPrompt && (!history || history.length === 0)) {
+            return new Response(JSON.stringify({ error: 'No prompt or messages provided' }), {
               status: 400,
               headers: { 'Content-Type': 'application/json' },
             })
+          }
+
+          // Build messages with optional agent system prompt + conversation history
+          const messages = []
+          if (agentId) {
+            const agent = getAgent(agentId)
+            if (agent && agent.systemPrompt) {
+              messages.push({ role: 'system', content: agent.systemPrompt })
+            }
+          }
+          // Include conversation history if provided
+          if (Array.isArray(history) && history.length > 0) {
+            // Don't duplicate the system prompt
+            for (const msg of history) {
+              if (msg.role !== 'system' || !messages.find(m => m.role === 'system')) {
+                messages.push(msg)
+              }
+            }
+          }
+          // Add current user message if not already in history
+          if (userPrompt) {
+            const lastMsg = messages.length > 0 ? messages[messages.length - 1] : null
+            if (!lastMsg || lastMsg.role !== 'user' || lastMsg.content !== userPrompt) {
+              messages.push({ role: 'user', content: userPrompt })
+            }
           }
 
           if (shouldStream) {
@@ -682,10 +709,9 @@ async function serve() {
             const writer = writable.getWriter()
             const encoder = new TextEncoder()
 
-            // Run inference without streaming (the stream flag in infer is for the CLI)
             infer({
               model: modelId,
-              messages: [{ role: 'user', content: userPrompt }],
+              messages,
               stream: false,
               onChunk: (chunk) => {
                 writer.write(encoder.encode(JSON.stringify({ chunk }) + '\n'))
@@ -705,7 +731,7 @@ async function serve() {
 
           const result = await infer({
             model: modelId,
-            messages: [{ role: 'user', content: userPrompt }],
+            messages,
             stream: false,
           })
 
@@ -720,9 +746,29 @@ async function serve() {
         }
       }
 
+      if (url.pathname === '/api/agents') {
+        const agentId = url.searchParams.get('id')
+        if (agentId) {
+          const agent = getAgent(agentId)
+          if (!agent) {
+            return new Response(JSON.stringify({ error: 'Agent not found' }), {
+              status: 404,
+              headers: { 'Content-Type': 'application/json' },
+            })
+          }
+          return new Response(JSON.stringify({ agent }), {
+            headers: { 'Content-Type': 'application/json' },
+          })
+        }
+        const agents = listAgents()
+        return new Response(JSON.stringify({ agents }), {
+          headers: { 'Content-Type': 'application/json' },
+        })
+      }
+
       if (url.pathname === '/api/models') {
-        const { MODELS } = await import('./models.js')
-        return new Response(JSON.stringify({ models: MODELS }), {
+        const byProvider = getModelsByProvider()
+        return new Response(JSON.stringify({ models: MODELS, byProvider }), {
           headers: { 'Content-Type': 'application/json' },
         })
       }

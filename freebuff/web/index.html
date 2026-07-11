@@ -15,93 +15,69 @@
       --bg: #0a0a0f;
       --bg-card: #111118;
       --bg-hover: #1a1a28;
+      --bg-input: #151520;
       --text: #e0e0ee;
       --text-dim: #8888aa;
       --text-muted: #55557a;
       --accent: #00ff88;
       --accent-dim: #00cc66;
-      --accent-glow: rgba(0, 255, 136, 0.15);
+      --accent-glow: rgba(0, 255, 136, 0.12);
       --purple: #8855ff;
-      --purple-glow: rgba(136, 85, 255, 0.15);
+      --purple-glow: rgba(136, 85, 255, 0.12);
       --red: #ff4466;
-      --red-glow: rgba(255, 68, 102, 0.15);
       --orange: #ff8844;
-      --orange-glow: rgba(255, 136, 68, 0.15);
       --blue: #4488ff;
       --border: #1e1e30;
       --radius: 12px;
       --radius-sm: 8px;
+      --radius-xs: 6px;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-sans: 'Inter', -apple-system, sans-serif;
     }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      font-family: 'Inter', -apple-system, sans-serif;
+      font-family: var(--font-sans);
       background: var(--bg);
       color: var(--text);
-      line-height: 1.6;
       min-height: 100vh;
       overflow-x: hidden;
     }
 
-    /* ── Animated Background Grid ── */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+    /* ── Animated Background ── */
     .bg-grid {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 0;
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 0;
       background-image:
         linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
       background-size: 60px 60px;
     }
-
     .bg-glow {
-      position: fixed;
-      top: -30%;
-      left: -20%;
-      width: 140%;
-      height: 140%;
-      pointer-events: none;
-      z-index: 0;
+      position: fixed; top: -30%; left: -20%; width: 140%; height: 140%;
+      pointer-events: none; z-index: 0;
       background: radial-gradient(ellipse at 50% 0%, rgba(0, 255, 136, 0.03) 0%, transparent 60%);
       animation: glowPulse 8s ease-in-out infinite alternate;
     }
-
     @keyframes glowPulse {
       0% { opacity: 0.5; transform: scale(1); }
       100% { opacity: 1; transform: scale(1.05); }
     }
-
-    /* ── Floating Particles ── */
     .particles {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 0;
-      overflow: hidden;
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 0; overflow: hidden;
     }
-
     .particle {
-      position: absolute;
-      width: 2px;
-      height: 2px;
-      background: var(--accent);
-      border-radius: 50%;
-      opacity: 0;
+      position: absolute; width: 2px; height: 2px;
+      background: var(--accent); border-radius: 50%; opacity: 0;
       animation: particleFloat linear infinite;
     }
-
     @keyframes particleFloat {
       0% { transform: translateY(100vh) scale(0); opacity: 0; }
       10% { opacity: 0.6; }
@@ -109,719 +85,163 @@
       100% { transform: translateY(-10vh) scale(1); opacity: 0; }
     }
 
-    /* ── Page Content ── */
-    .page {
-      position: relative;
-      z-index: 1;
-    }
+    .page { position: relative; z-index: 1; }
 
     /* ── Header ── */
     header {
-      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 1rem;
       padding: 1rem 2rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
+      border-bottom: 1px solid var(--border);
       background: rgba(10, 10, 15, 0.8);
       backdrop-filter: blur(12px);
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      position: sticky; top: 0; z-index: 100;
     }
-
-    .header-icon {
-      width: 28px;
-      height: 28px;
-      border-radius: 6px;
-      flex-shrink: 0;
-      transition: transform 0.3s;
-    }
-
-    .header-icon:hover {
-      transform: rotate(15deg) scale(1.1);
-    }
-
+    .header-icon { width: 28px; height: 28px; border-radius: 6px; transition: transform 0.3s; }
+    .header-icon:hover { transform: rotate(15deg) scale(1.1); }
     .logo {
-      font-family: 'JetBrains Mono', monospace;
-      font-weight: 900;
-      font-size: 1.4rem;
+      font-family: var(--font-mono); font-weight: 900; font-size: 1.4rem;
       background: linear-gradient(135deg, var(--accent), var(--purple));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
+    .logo-sub { color: var(--text-dim); font-size: 0.8rem; margin-left: auto; }
+    .header-nav { display: flex; gap: 1.5rem; margin-left: auto; align-items: center; }
+    .header-nav a { color: var(--text-dim); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+    .header-nav a:hover { color: var(--accent); }
 
-    .logo-sub {
-      color: var(--text-dim);
-      font-size: 0.8rem;
-      margin-left: auto;
-    }
-
-    .header-nav {
-      display: flex;
-      gap: 1.5rem;
-      margin-left: auto;
-      align-items: center;
-    }
-
-    .header-nav a {
-      color: var(--text-dim);
-      text-decoration: none;
-      font-size: 0.85rem;
-      transition: color 0.2s;
-    }
-
-    .header-nav a:hover {
-      color: var(--accent);
-    }
-
-    /* ── Smooth Sections ── */
-    section {
-      scroll-margin-top: 80px;
-    }
+    section { scroll-margin-top: 80px; }
 
     /* ── Hero ── */
-    .hero {
-      text-align: center;
-      padding: 6rem 2rem 4rem;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-
+    .hero { text-align: center; padding: 6rem 2rem 4rem; max-width: 800px; margin: 0 auto; }
     .hero h1 {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 4rem;
-      font-weight: 900;
+      font-family: var(--font-mono); font-size: 4rem; font-weight: 900;
       background: linear-gradient(135deg, var(--accent), var(--purple), var(--red));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 0.5rem;
-      line-height: 1.1;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      margin-bottom: 0.5rem; line-height: 1.1;
       animation: fadeInUp 0.8s ease-out;
     }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .hero-subtitle { font-size: 1.2rem; color: var(--text-dim); max-width: 600px; margin: 0 auto 1.5rem; min-height: 1.8em; }
+    .hero-subtitle .cursor-blink { display: inline-block; width: 2px; height: 1.2em; background: var(--accent); animation: blink 0.8s step-end infinite; vertical-align: text-bottom; margin-left: 2px; }
+    @keyframes blink { 50% { opacity: 0; } }
 
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .hero-subtitle {
-      font-size: 1.2rem;
-      color: var(--text-dim);
-      max-width: 600px;
-      margin: 0 auto 1.5rem;
-      min-height: 1.8em;
-    }
-
-    .hero-subtitle .cursor-blink {
-      display: inline-block;
-      width: 2px;
-      height: 1.2em;
-      background: var(--accent);
-      animation: blink 0.8s step-end infinite;
-      vertical-align: text-bottom;
-      margin-left: 2px;
-    }
-
-    @keyframes blink {
-      50% { opacity: 0; }
-    }
-
-    .badges {
-      display: flex;
-      gap: 0.75rem;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-bottom: 2rem;
-      animation: fadeInUp 0.8s ease-out 0.2s both;
-    }
-
-    .badge {
-      padding: 0.4rem 1rem;
-      border-radius: 999px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      border: 1px solid var(--border);
-      transition: all 0.3s;
-      cursor: default;
-    }
-
-    .badge:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    }
-
+    .badges { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem; animation: fadeInUp 0.8s ease-out 0.2s both; }
+    .badge { padding: 0.4rem 1rem; border-radius: 999px; font-size: 0.85rem; font-weight: 600; border: 1px solid var(--border); transition: all 0.3s; cursor: default; }
+    .badge:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
     .badge.green { background: rgba(0, 255, 136, 0.1); color: var(--accent); border-color: rgba(0, 255, 136, 0.2); }
     .badge.green:hover { background: rgba(0, 255, 136, 0.2); border-color: var(--accent); }
     .badge.purple { background: rgba(136, 85, 255, 0.1); color: var(--purple); border-color: rgba(136, 85, 255, 0.2); }
-    .badge.purple:hover { background: rgba(136, 85, 255, 0.2); border-color: var(--purple); }
     .badge.red { background: rgba(255, 68, 102, 0.1); color: var(--red); border-color: rgba(255, 68, 102, 0.2); }
-    .badge.red:hover { background: rgba(255, 68, 102, 0.2); border-color: var(--red); }
     .badge.orange { background: rgba(255, 136, 68, 0.1); color: var(--orange); border-color: rgba(255, 136, 68, 0.2); }
-    .badge.orange:hover { background: rgba(255, 136, 68, 0.2); border-color: var(--orange); }
 
-    /* ── CTA Button ── */
-    .cta-group {
-      display: flex;
-      gap: 1rem;
-      justify-content: center;
-      flex-wrap: wrap;
-      animation: fadeInUp 0.8s ease-out 0.4s both;
-    }
-
+    .cta-group { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; animation: fadeInUp 0.8s ease-out 0.4s both; }
     .cta {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.9rem 2rem;
-      border-radius: var(--radius);
-      font-size: 1rem;
-      font-weight: 700;
-      text-decoration: none;
-      background: linear-gradient(135deg, var(--accent), var(--accent-dim));
-      color: #000;
-      transition: all 0.3s;
-      position: relative;
-      overflow: hidden;
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.9rem 2rem; border-radius: var(--radius); font-size: 1rem; font-weight: 700;
+      text-decoration: none; background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+      color: #000; transition: all 0.3s; position: relative; overflow: hidden; cursor: pointer;
     }
-
     .cta::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: linear-gradient(
-        45deg,
-        transparent 40%,
-        rgba(255,255,255,0.1) 45%,
-        rgba(255,255,255,0.1) 55%,
-        transparent 60%
-      );
-      transition: transform 0.6s;
-      transform: translateX(-100%) rotate(45deg);
+      content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+      background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.1) 45%, rgba(255,255,255,0.1) 55%, transparent 60%);
+      transition: transform 0.6s; transform: translateX(-100%) rotate(45deg);
     }
-
-    .cta:hover::before {
-      transform: translateX(100%) rotate(45deg);
-    }
-
-    .cta:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 30px rgba(0, 255, 136, 0.3);
-    }
-
-    .cta:active {
-      transform: translateY(-1px);
-    }
-
-    .cta.secondary {
-      background: transparent;
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-
+    .cta:hover::before { transform: translateX(100%) rotate(45deg); }
+    .cta:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0, 255, 136, 0.3); }
+    .cta:active { transform: translateY(-1px); }
+    .cta.secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
     .cta.secondary::before { display: none; }
-
-    .cta.secondary:hover {
-      border-color: var(--text-dim);
-      box-shadow: none;
-    }
+    .cta.secondary:hover { border-color: var(--text-dim); box-shadow: none; }
 
     /* ── Terminal Animation ── */
-    .terminal-wrapper {
-      max-width: 700px;
-      margin: 0 auto 3rem;
-      animation: fadeInUp 0.8s ease-out 0.3s both;
-    }
-
-    .terminal {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.85rem;
-      transition: box-shadow 0.3s;
-    }
-
-    .terminal:hover {
-      box-shadow: 0 0 40px rgba(0, 255, 136, 0.05);
-    }
-
-    .terminal-header {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.7rem 1rem;
-      background: rgba(255,255,255,0.03);
-      border-bottom: 1px solid var(--border);
-      user-select: none;
-    }
-
-    .terminal-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      transition: opacity 0.2s;
-    }
-
-    .terminal:hover .terminal-dot {
-      opacity: 0.8;
-    }
-
+    .terminal-wrapper { max-width: 700px; margin: 0 auto 3rem; animation: fadeInUp 0.8s ease-out 0.3s both; }
+    .terminal { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; font-family: var(--font-mono); font-size: 0.85rem; transition: box-shadow 0.3s; }
+    .terminal:hover { box-shadow: 0 0 40px rgba(0, 255, 136, 0.05); }
+    .terminal-header { display: flex; align-items: center; gap: 0.5rem; padding: 0.7rem 1rem; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); user-select: none; }
+    .terminal-dot { width: 10px; height: 10px; border-radius: 50%; transition: opacity 0.2s; }
+    .terminal:hover .terminal-dot { opacity: 0.8; }
     .terminal-dot.red { background: #ff5f56; }
     .terminal-dot.yellow { background: #ffbd2e; }
     .terminal-dot.green { background: #27c93f; }
-
-    .terminal-title {
-      color: var(--text-dim);
-      font-size: 0.75rem;
-      margin-left: 0.5rem;
-    }
-
-    .terminal-body {
-      padding: 1rem;
-      min-height: 200px;
-      max-height: 300px;
-      overflow-y: auto;
-      scroll-behavior: smooth;
-    }
-
-    .terminal-body::-webkit-scrollbar {
-      width: 4px;
-    }
-
-    .terminal-body::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    .terminal-body::-webkit-scrollbar-thumb {
-      background: var(--border);
-      border-radius: 2px;
-    }
-
-    .terminal-line {
-      white-space: pre-wrap;
-      margin-bottom: 0.3rem;
-      animation: lineFadeIn 0.3s ease-out;
-    }
-
-    @keyframes lineFadeIn {
-      from { opacity: 0; transform: translateY(4px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
+    .terminal-title { color: var(--text-dim); font-size: 0.75rem; margin-left: 0.5rem; }
+    .terminal-body { padding: 1rem; min-height: 200px; max-height: 300px; overflow-y: auto; }
+    .terminal-line { white-space: pre-wrap; margin-bottom: 0.3rem; animation: lineFadeIn 0.3s ease-out; }
+    @keyframes lineFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
     .terminal-line .prompt { color: var(--accent); }
     .terminal-line .output { color: var(--text); }
     .terminal-line .dim { color: var(--text-dim); }
     .terminal-line .error { color: var(--red); }
     .terminal-line .highlight { color: var(--purple); }
+    .terminal-line .cursor-char { display: inline-block; width: 8px; height: 1rem; background: var(--accent); animation: blink 1s step-end infinite; vertical-align: text-bottom; }
+    .terminal-progress { display: flex; gap: 0.3rem; margin: 0.3rem 0; }
+    .terminal-progress-bar { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+    .terminal-progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--purple)); border-radius: 2px; transition: width 0.3s; }
+    .terminal-restart-btn { display: none; text-align: center; padding: 0.5rem; color: var(--text-dim); font-size: 0.75rem; cursor: pointer; border-top: 1px solid var(--border); transition: color 0.2s, background 0.2s; }
+    .terminal-restart-btn:hover { color: var(--accent); background: rgba(0, 255, 136, 0.03); }
 
-    .terminal-line .cursor-char {
-      display: inline-block;
-      width: 8px;
-      height: 1rem;
-      background: var(--accent);
-      animation: blink 1s step-end infinite;
-      vertical-align: text-bottom;
-    }
-
-    .terminal-progress {
-      display: flex;
-      gap: 0.3rem;
-      margin: 0.3rem 0;
-    }
-
-    .terminal-progress-bar {
-      flex: 1;
-      height: 4px;
-      background: var(--border);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-
-    .terminal-progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--accent), var(--purple));
-      border-radius: 2px;
-      transition: width 0.3s;
-    }
-
-    .terminal-restart-btn {
-      display: none;
-      text-align: center;
-      padding: 0.5rem;
-      color: var(--text-dim);
-      font-size: 0.75rem;
-      cursor: pointer;
-      border-top: 1px solid var(--border);
-      transition: color 0.2s, background 0.2s;
-    }
-
-    .terminal-restart-btn:hover {
-      color: var(--accent);
-      background: rgba(0, 255, 136, 0.03);
-    }
-
-    /* ── Copy Command ── */
     .command-block {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 0.6rem 1rem;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.8rem;
-      color: var(--text);
-      cursor: pointer;
-      transition: all 0.3s;
-      user-select: none;
-      margin: 0 auto;
-      max-width: 100%;
-      overflow: hidden;
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 0.6rem 1rem; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text);
+      cursor: pointer; transition: all 0.3s; user-select: none; margin: 0 auto; max-width: 100%; overflow: hidden;
     }
-
-    .command-block:hover {
-      border-color: var(--text-dim);
-      background: var(--bg-hover);
-    }
-
-    .command-block .cmd-text {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .command-block .cmd-icon {
-      flex-shrink: 0;
-      font-size: 1rem;
-      transition: transform 0.3s;
-    }
-
-    .command-block.copied .cmd-icon {
-      color: var(--accent);
-    }
-
-    .toast {
-      position: fixed;
-      bottom: 2rem;
-      left: 50%;
-      transform: translateX(-50%) translateY(100px);
-      background: var(--accent);
-      color: #000;
-      padding: 0.6rem 1.2rem;
-      border-radius: var(--radius-sm);
-      font-size: 0.85rem;
-      font-weight: 600;
-      opacity: 0;
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      z-index: 200;
-      pointer-events: none;
-    }
-
-    .toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
+    .command-block:hover { border-color: var(--text-dim); background: var(--bg-hover); }
+    .command-block .cmd-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .command-block .cmd-icon { flex-shrink: 0; font-size: 1rem; transition: transform 0.3s; }
+    .command-block.copied .cmd-icon { color: var(--accent); }
+    .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--accent); color: #000; padding: 0.6rem 1.2rem; border-radius: var(--radius-sm); font-size: 0.85rem; font-weight: 600; opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 200; pointer-events: none; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
     /* ── Features ── */
-    .features {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.5rem;
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 2rem 2rem 4rem;
-    }
-
-    .feature-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.5rem;
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      position: relative;
-      overflow: hidden;
-      opacity: 0;
-      transform: translateY(20px);
-    }
-
-    .feature-card.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .feature-card::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, var(--accent), var(--purple));
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-
-    .feature-card:hover::after {
-      opacity: 1;
-    }
-
-    .feature-card:hover {
-      border-color: transparent;
-      transform: translateY(-4px) scale(1.01);
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-    }
-
+    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; max-width: 1000px; margin: 0 auto; padding: 2rem 2rem 4rem; }
+    .feature-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden; opacity: 0; transform: translateY(20px); }
+    .feature-card.visible { opacity: 1; transform: translateY(0); }
+    .feature-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent), var(--purple)); opacity: 0; transition: opacity 0.3s; }
+    .feature-card:hover::after { opacity: 1; }
+    .feature-card:hover { border-color: transparent; transform: translateY(-4px) scale(1.01); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3); }
     .feature-card:nth-child(1) { transition-delay: 0.05s; }
     .feature-card:nth-child(2) { transition-delay: 0.1s; }
     .feature-card:nth-child(3) { transition-delay: 0.15s; }
     .feature-card:nth-child(4) { transition-delay: 0.2s; }
     .feature-card:nth-child(5) { transition-delay: 0.25s; }
     .feature-card:nth-child(6) { transition-delay: 0.3s; }
+    .feature-icon { font-size: 1.8rem; margin-bottom: 0.75rem; display: inline-block; transition: transform 0.3s; }
+    .feature-card:hover .feature-icon { transform: scale(1.2) rotate(-5deg); }
+    .feature-card h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+    .feature-card p { font-size: 0.9rem; color: var(--text-dim); line-height: 1.5; }
 
-    .feature-icon {
-      font-size: 1.8rem;
-      margin-bottom: 0.75rem;
-      display: inline-block;
-      transition: transform 0.3s;
-    }
-
-    .feature-card:hover .feature-icon {
-      transform: scale(1.2) rotate(-5deg);
-    }
-
-    .feature-card h3 {
-      font-size: 1.1rem;
-      margin-bottom: 0.5rem;
-      color: var(--text);
-    }
-
-    .feature-card p {
-      font-size: 0.9rem;
-      color: var(--text-dim);
-      line-height: 1.5;
-    }
-
-    /* ── Stats Section ── */
-    .stats-section {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 0 2rem 4rem;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .stat-card {
-      text-align: center;
-      padding: 2rem 1rem;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      transition: all 0.3s;
-    }
-
-    .stat-card:hover {
-      border-color: var(--accent);
-      transform: translateY(-2px);
-    }
-
-    .stat-number {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 2.5rem;
-      font-weight: 900;
-      background: linear-gradient(135deg, var(--accent), var(--purple));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .stat-label {
-      color: var(--text-dim);
-      font-size: 0.9rem;
-      margin-top: 0.3rem;
-    }
+    /* ── Stats ── */
+    .stats-section { max-width: 1000px; margin: 0 auto; padding: 0 2rem 4rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem; }
+    .stat-card { text-align: center; padding: 2rem 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); transition: all 0.3s; }
+    .stat-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .stat-number { font-family: var(--font-mono); font-size: 2.5rem; font-weight: 900; background: linear-gradient(135deg, var(--accent), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .stat-label { color: var(--text-dim); font-size: 0.9rem; margin-top: 0.3rem; }
 
     /* ── Models Grid ── */
-    .models-section {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 0 2rem 4rem;
-    }
+    .models-section { max-width: 1000px; margin: 0 auto; padding: 0 2rem 4rem; }
+    .models-section h2 { font-family: var(--font-mono); font-size: 1.8rem; margin-bottom: 0.5rem; text-align: center; }
+    .models-subtitle { text-align: center; color: var(--text-dim); font-size: 0.95rem; margin-bottom: 2rem; }
+    .models-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+    .model-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.2rem; text-align: center; transition: all 0.3s; cursor: pointer; position: relative; overflow: hidden; }
+    .model-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, var(--purple-glow) 0%, transparent 60%); opacity: 0; transition: opacity 0.4s; pointer-events: none; }
+    .model-card:hover::before { opacity: 1; }
+    .model-card:hover { border-color: var(--purple); transform: translateY(-3px); box-shadow: 0 8px 25px rgba(136, 85, 255, 0.1); }
+    .model-card .model-provider { display: none; font-size: 0.75rem; color: var(--accent); margin-top: 0.4rem; font-weight: 500; }
+    .model-card.expanded .model-provider { display: block; animation: fadeInUp 0.3s ease-out; }
+    .model-name { font-family: var(--font-mono); font-weight: 700; font-size: 0.9rem; position: relative; z-index: 1; }
+    .model-desc { font-size: 0.8rem; color: var(--text-dim); margin-top: 0.3rem; position: relative; z-index: 1; }
 
-    .models-section h2 {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 1.8rem;
-      margin-bottom: 0.5rem;
-      text-align: center;
-    }
-
-    .models-subtitle {
-      text-align: center;
-      color: var(--text-dim);
-      font-size: 0.95rem;
-      margin-bottom: 2rem;
-    }
-
-    .models-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-    }
-
-    .model-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1rem 1.2rem;
-      text-align: center;
-      transition: all 0.3s;
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .model-card::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, var(--purple-glow) 0%, transparent 60%);
-      opacity: 0;
-      transition: opacity 0.4s;
-      pointer-events: none;
-    }
-
-    .model-card:hover::before {
-      opacity: 1;
-    }
-
-    .model-card:hover {
-      border-color: var(--purple);
-      transform: translateY(-3px);
-      box-shadow: 0 8px 25px rgba(136, 85, 255, 0.1);
-    }
-
-    .model-card:active {
-      transform: translateY(-1px);
-    }
-
-    .model-card .model-provider {
-      display: none;
-      font-size: 0.75rem;
-      color: var(--accent);
-      margin-top: 0.4rem;
-      font-weight: 500;
-    }
-
-    .model-card.expanded .model-provider {
-      display: block;
-      animation: fadeInUp 0.3s ease-out;
-    }
-
-    .model-card.expanded {
-      border-color: var(--accent);
-    }
-
-    .model-name {
-      font-family: 'JetBrains Mono', monospace;
-      font-weight: 700;
-      font-size: 0.9rem;
-      color: var(--text);
-      position: relative;
-      z-index: 1;
-    }
-
-    .model-desc {
-      font-size: 0.8rem;
-      color: var(--text-dim);
-      margin-top: 0.3rem;
-      position: relative;
-      z-index: 1;
-    }
-
-    /* ── Rewards Section ── */
-    .rewards-section {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 0 2rem 4rem;
-    }
-
-    .rewards-section h2 {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 1.8rem;
-      margin-bottom: 0.5rem;
-      text-align: center;
-    }
-
-    .rewards-subtitle {
-      text-align: center;
-      color: var(--text-dim);
-      font-size: 0.95rem;
-      margin-bottom: 2rem;
-    }
-
-    .rewards-tiers {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-
-    .reward-tier {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.5rem 1rem;
-      text-align: center;
-      transition: all 0.3s;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .reward-tier:hover {
-      transform: translateY(-3px);
-    }
-
-    .reward-tier .tier-badge {
-      font-size: 2.5rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .reward-tier .tier-name {
-      font-family: 'JetBrains Mono', monospace;
-      font-weight: 700;
-      font-size: 1rem;
-      margin-bottom: 0.3rem;
-    }
-
-    .reward-tier .tier-points {
-      font-size: 0.8rem;
-      color: var(--text-dim);
-      margin-bottom: 0.8rem;
-    }
-
-    .reward-tier .tier-perks {
-      list-style: none;
-      text-align: left;
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      line-height: 1.7;
-    }
-
-    .reward-tier .tier-perks li::before {
-      content: '✦ ';
-      color: var(--accent);
-    }
-
+    /* ── Rewards ── */
+    .rewards-section { max-width: 1000px; margin: 0 auto; padding: 0 2rem 4rem; }
+    .rewards-section h2 { font-family: var(--font-mono); font-size: 1.8rem; margin-bottom: 0.5rem; text-align: center; }
+    .rewards-subtitle { text-align: center; color: var(--text-dim); font-size: 0.95rem; margin-bottom: 2rem; }
+    .rewards-tiers { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .reward-tier { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem 1rem; text-align: center; transition: all 0.3s; position: relative; overflow: hidden; }
+    .reward-tier:hover { transform: translateY(-3px); }
+    .reward-tier .tier-badge { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .reward-tier .tier-name { font-family: var(--font-mono); font-weight: 700; font-size: 1rem; margin-bottom: 0.3rem; }
+    .reward-tier .tier-points { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0.8rem; }
+    .reward-tier .tier-perks { list-style: none; text-align: left; font-size: 0.78rem; color: var(--text-muted); line-height: 1.7; }
+    .reward-tier .tier-perks li::before { content: '✦ '; color: var(--accent); }
     .reward-tier.bronze { border-color: rgba(0, 255, 136, 0.2); }
     .reward-tier.bronze:hover { border-color: var(--accent); }
     .reward-tier.silver { border-color: rgba(136, 85, 255, 0.2); }
@@ -832,72 +252,218 @@
     .reward-tier.diamond:hover { border-color: var(--blue); }
     .reward-tier.legend { border-color: rgba(255, 68, 102, 0.2); }
     .reward-tier.legend:hover { border-color: var(--red); }
+    .rewards-cta { text-align: center; margin-top: 1rem; }
+    .rewards-cta a { color: var(--accent); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+    .rewards-cta a:hover { color: var(--accent-dim); text-decoration: underline; }
 
-    .rewards-cta {
-      text-align: center;
-      margin-top: 1rem;
+    /* ── Chat Section Divider ── */
+    .chat-divider {
+      display: flex; align-items: center; gap: 1rem;
+      max-width: 1000px; margin: 0 auto 2rem; padding: 0 2rem;
+    }
+    .chat-divider::before, .chat-divider::after {
+      content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent);
+    }
+    .chat-divider span { font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-muted); white-space: nowrap; }
+
+    /* ── Chat Section ── */
+    .chat-section {
+      max-width: 1000px; margin: 0 auto; padding: 0 2rem 2rem;
+      display: flex; flex-direction: column; gap: 0;
+    }
+    .chat-section h2 { font-family: var(--font-mono); font-size: 1.5rem; margin-bottom: 0.25rem; text-align: center; }
+    .chat-subtitle { text-align: center; color: var(--text-dim); font-size: 0.9rem; margin-bottom: 1.5rem; }
+
+    .chat-container {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+      overflow: hidden; display: flex; flex-direction: column; min-height: 500px; max-height: 700px;
     }
 
-    .rewards-cta a {
-      color: var(--accent);
-      text-decoration: none;
-      font-size: 0.9rem;
-      transition: color 0.2s;
+    /* ── Top Bar: Agent + Model pickers ── */
+    .chat-topbar {
+      display: flex; gap: 0.75rem; padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border); flex-shrink: 0; align-items: center; flex-wrap: wrap;
+    }
+    .chat-topbar label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 600; }
+    .agent-chips { display: flex; gap: 0.35rem; flex-wrap: wrap; flex: 1; }
+    .agent-chip {
+      display: flex; align-items: center; gap: 0.25rem;
+      padding: 0.3rem 0.6rem; border-radius: 999px; border: 1px solid var(--border);
+      background: transparent; color: var(--text-dim); font-size: 0.75rem;
+      cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    }
+    .agent-chip:hover { border-color: var(--text-muted); background: var(--bg-hover); color: var(--text); }
+    .agent-chip.active {
+      border-color: var(--accent); background: rgba(0, 255, 136, 0.08);
+      color: var(--accent); box-shadow: 0 0 12px var(--accent-glow);
+    }
+    .agent-chip .chip-emoji { font-size: 0.85rem; }
+
+    .chip-with-tip { position: relative; }
+    .chip-tooltip {
+      display: none; position: fixed; z-index: 200;
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 0.75rem; width: 280px; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    }
+    .chip-with-tip:hover .chip-tooltip { display: block; }
+    .chip-tooltip .tip-name { font-weight: 700; font-size: 0.85rem; margin-bottom: 0.2rem; }
+    .chip-tooltip .tip-desc { color: var(--text-dim); font-size: 0.75rem; margin-bottom: 0.4rem; }
+    .chip-tooltip .tip-prompt { font-size: 0.72rem; color: var(--text-muted); background: rgba(0,0,0,0.2); border-radius: 4px; padding: 0.4rem; max-height: 70px; overflow-y: auto; line-height: 1.3; }
+
+    .model-select {
+      background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-xs);
+      color: var(--text); font-family: var(--font-mono); font-size: 0.75rem;
+      padding: 0.35rem 0.6rem; cursor: pointer; outline: none; min-width: 180px;
+    }
+    .model-select:hover, .model-select:focus { border-color: var(--text-muted); }
+    .model-select option { background: var(--bg-card); color: var(--text); }
+
+    .chat-current {
+      display: flex; align-items: center; gap: 0.5rem; font-size: 0.7rem; color: var(--text-dim);
+      padding: 0.2rem 0; white-space: nowrap;
+    }
+    .chat-current .tag {
+      padding: 0.15rem 0.4rem; border-radius: 4px; background: var(--bg-hover);
     }
 
-    .rewards-cta a:hover {
-      color: var(--accent-dim);
-      text-decoration: underline;
+    .clear-chat-btn {
+      background: none; border: 1px solid var(--border); border-radius: 4px;
+      color: var(--text-dim); font-size: 0.65rem; padding: 0.2rem 0.4rem; cursor: pointer;
+      transition: all 0.2s; margin-left: auto;
     }
+    .clear-chat-btn:hover { border-color: var(--red); color: var(--red); }
+
+    /* ── Chat Messages Area ── */
+    .chat-messages {
+      flex: 1; overflow-y: auto; padding: 0.75rem 1rem;
+      display: flex; flex-direction: column; gap: 0.6rem;
+    }
+    .chat-messages:empty::after {
+      content: 'Select an agent persona and model, then type a message below.';
+      display: block; text-align: center; color: var(--text-muted);
+      font-size: 0.85rem; padding: 3rem 1rem; font-style: italic;
+    }
+
+    .msg {
+      display: flex; gap: 0.6rem; max-width: 100%;
+      animation: msgIn 0.3s ease-out;
+    }
+    @keyframes msgIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .msg.user { align-self: flex-end; flex-direction: row-reverse; }
+    .msg.assistant { align-self: flex-start; }
+
+    .msg-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem; flex-shrink: 0;
+      background: var(--bg-hover); border: 1px solid var(--border);
+    }
+    .msg.user .msg-avatar { background: var(--accent-glow); border-color: rgba(0, 255, 136, 0.2); }
+    .msg-bubble {
+      padding: 0.6rem 0.85rem; border-radius: var(--radius-sm);
+      font-size: 0.85rem; line-height: 1.55;
+      background: var(--bg-input); border: 1px solid var(--border);
+      max-width: 85%; overflow-wrap: break-word;
+    }
+    .msg.user .msg-bubble {
+      background: rgba(0, 255, 136, 0.05); border-color: rgba(0, 255, 136, 0.12);
+    }
+    .msg-bubble p { margin-bottom: 0.4rem; }
+    .msg-bubble p:last-child { margin-bottom: 0; }
+    .msg-bubble code { font-family: var(--font-mono); font-size: 0.8rem; background: rgba(255,255,255,0.05); padding: 0.08rem 0.25rem; border-radius: 3px; }
+    .msg-bubble pre { font-family: var(--font-mono); font-size: 0.8rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem; margin: 0.4rem 0; overflow-x: auto; }
+    .msg-bubble pre code { background: none; padding: 0; }
+
+    /* ── Typing Indicator ── */
+    .typing-indicator {
+      display: none; align-items: center; gap: 0.4rem;
+      padding: 0.4rem 1rem; color: var(--text-dim); font-size: 0.78rem;
+    }
+    .typing-indicator.active { display: flex; }
+    .typing-dots { display: flex; gap: 3px; }
+    .typing-dots span { width: 5px; height: 5px; border-radius: 50%; background: var(--text-muted); animation: dotBounce 1.4s ease-in-out infinite; }
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes dotBounce { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-4px); } }
+
+    /* ── Input Area ── */
+    .chat-input-area {
+      display: flex; gap: 0.5rem; padding: 0.6rem 1rem;
+      border-top: 1px solid var(--border); flex-shrink: 0;
+    }
+    .chat-input-area textarea {
+      flex: 1; background: var(--bg-input); border: 1px solid var(--border);
+      border-radius: var(--radius-xs); color: var(--text); font-family: var(--font-sans);
+      font-size: 0.85rem; padding: 0.5rem 0.75rem; resize: none; outline: none;
+      min-height: 38px; max-height: 120px; line-height: 1.4; transition: border-color 0.2s;
+    }
+    .chat-input-area textarea:focus { border-color: var(--accent); box-shadow: 0 0 12px var(--accent-glow); }
+    .chat-input-area textarea::placeholder { color: var(--text-muted); }
+    .chat-input-area textarea:disabled { opacity: 0.5; }
+
+    .chat-actions { display: flex; gap: 0.35rem; flex-shrink: 0; }
+    .send-btn, .stop-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 38px; height: 38px; border-radius: var(--radius-xs); border: none;
+      cursor: pointer; transition: all 0.2s; flex-shrink: 0; font-size: 1rem;
+    }
+    .send-btn {
+      background: linear-gradient(135deg, var(--accent), var(--accent-dim)); color: #000;
+    }
+    .send-btn:hover:not(:disabled) { transform: scale(1.05); box-shadow: 0 4px 12px rgba(0, 255, 136, 0.25); }
+    .send-btn:active:not(:disabled) { transform: scale(0.95); }
+    .send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .stop-btn { background: rgba(255, 68, 102, 0.15); color: var(--red); border: 1px solid rgba(255, 68, 102, 0.2); display: none; }
+    .stop-btn:hover { background: rgba(255, 68, 102, 0.25); }
+    .stop-btn.show { display: flex; }
+    .send-btn.hide { display: none; }
+
+    /* ── Error Toast ── */
+    .error-toast {
+      position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: rgba(255, 68, 102, 0.1); border: 1px solid rgba(255, 68, 102, 0.2);
+      color: var(--red); padding: 0.5rem 1rem; border-radius: var(--radius-sm);
+      font-size: 0.8rem; opacity: 0; transition: all 0.3s; z-index: 300;
+      pointer-events: none; backdrop-filter: blur(8px);
+    }
+    .error-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
     /* ── Footer ── */
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 2rem;
-      text-align: center;
-      color: var(--text-dim);
-      font-size: 0.85rem;
-    }
-
-    footer a {
-      color: var(--accent);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    footer a:hover {
-      color: var(--accent-dim);
-      text-decoration: underline;
-    }
+    footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center; color: var(--text-dim); font-size: 0.85rem; }
+    footer a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
+    footer a:hover { color: var(--accent-dim); text-decoration: underline; }
 
     /* ── Responsive ── */
     @media (max-width: 600px) {
       .hero h1 { font-size: 2.5rem; }
       .hero { padding: 3rem 1rem 2rem; }
-      .features, .models-section { padding: 0 1rem 3rem; }
+      .features, .models-section, .rewards-section { padding: 0 1rem 3rem; }
       .header-nav { display: none; }
       .stat-number { font-size: 2rem; }
+      .chat-section { padding: 0 0.5rem 1rem; }
+      .chat-container { min-height: 400px; max-height: 600px; border-radius: var(--radius-sm); }
+      .chat-topbar { flex-direction: column; align-items: stretch; gap: 0.4rem; }
+      .agent-chips { gap: 0.25rem; }
+      .agent-chip { font-size: 0.7rem; padding: 0.2rem 0.45rem; }
+      .chat-current { display: none; }
+      .msg-bubble { max-width: 95%; font-size: 0.82rem; }
     }
     @media (max-width: 380px) {
       .hero h1 { font-size: 1.8rem; }
-      .hero { padding: 2rem 0.5rem 1.5rem; }
       .badge { font-size: 0.75rem; padding: 0.3rem 0.7rem; }
       .cta { font-size: 0.85rem; padding: 0.7rem 1.2rem; }
-      .terminal { font-size: 0.75rem; }
     }
   </style>
 </head>
 <body>
 
-<!-- ── Background Effects ── -->
 <div class="bg-grid"></div>
 <div class="bg-glow"></div>
 <div class="particles" id="particles"></div>
 
-<!-- ── Toast Notification ── -->
 <div class="toast" id="toast">✓ Copied to clipboard</div>
+<div class="error-toast" id="errorToast"></div>
 
-<!-- ── Page ── -->
 <div class="page">
 
 <header>
@@ -906,6 +472,7 @@
   <nav class="header-nav">
     <a href="#features">Features</a>
     <a href="#models">Models</a>
+    <a href="#chat">Chat</a>
     <a href="https://github.com/constanza8999">GitHub</a>
   </nav>
   <span class="logo-sub">by CONSTANZA</span>
@@ -914,18 +481,13 @@
 <!-- ── Hero ── -->
 <section class="hero">
   <h1>AIGENEV7</h1>
-  <p class="hero-subtitle" id="subtitle">
-    <span id="subtitle-text"></span><span class="cursor-blink"></span>
-  </p>
-
+  <p class="hero-subtitle"><span id="subtitle-text"></span><span class="cursor-blink"></span></p>
   <div class="badges">
     <span class="badge green">✦ Unlimited</span>
     <span class="badge purple">✦ Uncensored</span>
     <span class="badge red">✦ All Models</span>
     <span class="badge orange">✦ Free Forever</span>
   </div>
-
-  <!-- Terminal -->
   <div class="terminal-wrapper">
     <div class="terminal" id="terminal">
       <div class="terminal-header">
@@ -938,235 +500,127 @@
       <div class="terminal-restart-btn" id="terminal-restart">↻ Replay</div>
     </div>
   </div>
-
-  <!-- CTA Buttons -->
   <div class="cta-group">
-    <a href="https://github.com/constanza8999/aigenev7.com" class="cta">
-      <span>↓</span> Get Started on GitHub
-    </a>
-    <a href="#features" class="cta secondary">
-      Learn More →
-    </a>
-  </div>
-
-  <!-- Copy Command -->
-  <div style="margin-top: 1.5rem; display: flex; justify-content: center;">
-    <div class="command-block" id="copy-command">
-      <span class="cmd-icon">📋</span>
-      <span class="cmd-text">bun freebuff/local-api-server.js &amp;&amp; ./aigenev7.exe</span>
-    </div>
+    <a href="https://github.com/constanza8999/aigenev7.com" class="cta"><span>↓</span> Get Started</a>
+    <a href="#chat" class="cta secondary">Try Agent Chat →</a>
   </div>
 </section>
 
 <!-- ── Stats ── -->
 <section class="stats-section">
-  <div class="stat-card">
-    <div class="stat-number" data-target="10">0</div>
-    <div class="stat-label">LLM Providers</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-number" data-target="28">0</div>
-    <div class="stat-label">Models Supported</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-number" data-target="0">∞</div>
-    <div class="stat-label">Usage Limits</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-number" data-target="100">0</div>
-    <div class="stat-label">% Local & Private</div>
-  </div>
+  <div class="stat-card"><div class="stat-number" data-target="10">0</div><div class="stat-label">LLM Providers</div></div>
+  <div class="stat-card"><div class="stat-number" id="modelsStat" data-target="41">0</div><div class="stat-label">Models Supported</div></div>
+  <div class="stat-card"><div class="stat-number">∞</div><div class="stat-label">Usage Limits</div></div>
+  <div class="stat-card"><div class="stat-number" data-target="100">0</div><div class="stat-label">% Local & Private</div></div>
 </section>
 
 <!-- ── Features ── -->
 <section class="features" id="features">
-  <div class="feature-card">
-    <div class="feature-icon">🔥</div>
-    <h3>Unlimited Usage</h3>
-    <p>No token limits, no rate limits, no session caps. Code as long as you want — truly unlimited.</p>
-  </div>
-  <div class="feature-card">
-    <div class="feature-icon">🚫</div>
-    <h3>Uncensored</h3>
-    <p>No content filters, no safety classifiers, no output restrictions. Complete creative freedom.</p>
-  </div>
-  <div class="feature-card">
-    <div class="feature-icon">🌐</div>
-    <h3>All Models</h3>
-    <p>Claude, GPT, DeepSeek, Gemini, Grok, Kimi, MiMo, MiniMax — any model from any provider.</p>
-  </div>
-  <div class="feature-card">
-    <div class="feature-icon">⚡</div>
-    <h3>Zero Config</h3>
-    <p>Install via npm and start coding. No subscriptions, no credit cards, no account required.</p>
-  </div>
-  <div class="feature-card">
-    <div class="feature-icon">🛠️</div>
-    <h3>Full Agent</h3>
-    <p>Edits files, runs commands, searches code, browses the web. A complete coding assistant.</p>
-  </div>
-  <div class="feature-card">
-    <div class="feature-icon">🔓</div>
-    <h3>Open Source</h3>
-    <p>MIT licensed. Fork it, modify it, self-host it. Built on the Freebuff/Codebuff engine.</p>
-  </div>
+  <div class="feature-card"><div class="feature-icon">🔥</div><h3>Unlimited Usage</h3><p>No token limits, no rate limits, no session caps. Code as long as you want.</p></div>
+  <div class="feature-card"><div class="feature-icon">🚫</div><h3>Uncensored</h3><p>No content filters, no safety classifiers, no output restrictions.</p></div>
+  <div class="feature-card"><div class="feature-icon">🌐</div><h3>All Models</h3><p>Claude, GPT, DeepSeek, Gemini, Grok, Kimi, MiMo, MiniMax — any model.</p></div>
+  <div class="feature-card"><div class="feature-icon">⚡</div><h3>Zero Config</h3><p>No subscriptions, no credit cards, no account required.</p></div>
+  <div class="feature-card"><div class="feature-icon">🛠️</div><h3>Full Agent</h3><p>Edits files, runs commands, searches code, browses the web.</p></div>
+  <div class="feature-card"><div class="feature-icon">🔓</div><h3>Open Source</h3><p>MIT licensed. Fork it, modify it, self-host it.</p></div>
 </section>
 
-<!-- ── Models ── -->
+<!-- ── Models Grid ── -->
 <section class="models-section" id="models">
   <h2>Supported Models</h2>
   <p class="models-subtitle">Click any model for details</p>
   <div class="models-grid">
-    <div class="model-card" data-provider="Anthropic">
-      <div class="model-name">Fable 5</div>
-      <div class="model-desc">Smartest & Multimodal</div>
-      <div class="model-provider">via Anthropic</div>
-    </div>
-    <div class="model-card" data-provider="DeepSeek">
-      <div class="model-name">DeepSeek V4 Pro</div>
-      <div class="model-desc">Smartest reasoning</div>
-      <div class="model-provider">via DeepSeek</div>
-    </div>
-    <div class="model-card" data-provider="OpenAI">
-      <div class="model-name">GPT-5</div>
-      <div class="model-desc">Latest flagship</div>
-      <div class="model-provider">via OpenAI</div>
-    </div>
-    <div class="model-card" data-provider="Google">
-      <div class="model-name">Gemini 2.5 Pro</div>
-      <div class="model-desc">Premium reasoning</div>
-      <div class="model-provider">via Google</div>
-    </div>
-    <div class="model-card" data-provider="xAI">
-      <div class="model-name">Grok 4</div>
-      <div class="model-desc">Uncensored by design</div>
-      <div class="model-provider">via xAI</div>
-    </div>
-    <div class="model-card" data-provider="Moonshot">
-      <div class="model-name">Kimi K2.6</div>
-      <div class="model-desc">Balanced performance</div>
-      <div class="model-provider">via Moonshot</div>
-    </div>
-    <div class="model-card" data-provider="MiMo">
-      <div class="model-name">MiMo 2.5 Pro</div>
-      <div class="model-desc">Deep thinking</div>
-      <div class="model-provider">via MiMo</div>
-    </div>
-    <div class="model-card" data-provider="MiniMax">
-      <div class="model-name">MiniMax M3</div>
-      <div class="model-desc">Smartest & Fastest</div>
-      <div class="model-provider">via MiniMax</div>
-    </div>
-    <div class="model-card" data-provider="OpenRouter">
-      <div class="model-name">OpenRouter</div>
-      <div class="model-desc">200+ models via one API</div>
-      <div class="model-provider">via OpenRouter</div>
-    </div>
-    <div class="model-card" data-provider="Local">
-      <div class="model-name">Ollama</div>
-      <div class="model-desc">Run on your hardware</div>
-      <div class="model-provider">Local — no API key needed</div>
-    </div>
+    <div class="model-card" data-provider="Anthropic"><div class="model-name">Fable 5</div><div class="model-desc">Smartest & Multimodal</div><div class="model-provider">via Anthropic</div></div>
+    <div class="model-card" data-provider="DeepSeek"><div class="model-name">DeepSeek V4 Pro</div><div class="model-desc">Smartest reasoning</div><div class="model-provider">via DeepSeek</div></div>
+    <div class="model-card" data-provider="OpenAI"><div class="model-name">GPT-5</div><div class="model-desc">Latest flagship</div><div class="model-provider">via OpenAI</div></div>
+    <div class="model-card" data-provider="Google"><div class="model-name">Gemini 2.5 Pro</div><div class="model-desc">Premium reasoning</div><div class="model-provider">via Google</div></div>
+    <div class="model-card" data-provider="xAI"><div class="model-name">Grok 4</div><div class="model-desc">Uncensored by design</div><div class="model-provider">via xAI</div></div>
+    <div class="model-card" data-provider="Moonshot"><div class="model-name">Kimi K2.6</div><div class="model-desc">Balanced performance</div><div class="model-provider">via Moonshot</div></div>
+    <div class="model-card" data-provider="MiMo"><div class="model-name">MiMo 2.5 Pro</div><div class="model-desc">Deep thinking</div><div class="model-provider">via MiMo</div></div>
+    <div class="model-card" data-provider="MiniMax"><div class="model-name">MiniMax M3</div><div class="model-desc">Smartest & Fastest</div><div class="model-provider">via MiniMax</div></div>
+    <div class="model-card" data-provider="OpenRouter"><div class="model-name">OpenRouter</div><div class="model-desc">200+ models via one API</div><div class="model-provider">via OpenRouter</div></div>
+    <div class="model-card" data-provider="NVIDIA"><div class="model-name">NVIDIA NIM</div><div class="model-desc">Llama, Mistral, Nemotron</div><div class="model-provider">via NVIDIA API</div></div>
   </div>
 </section>
 
 <!-- ── Rewards ── -->
 <section class="rewards-section">
   <h2>Contributor Rewards</h2>
-  <p class="rewards-subtitle">Free forever. Rewarded by impact. Earn points, unlock tiers, get recognized.</p>
-
+  <p class="rewards-subtitle">Free forever. Earn points, unlock tiers, get recognized.</p>
   <div class="rewards-tiers">
-    <div class="reward-tier bronze">
-      <div class="tier-badge">🥉</div>
-      <div class="tier-name" style="color: var(--accent);">Bronze</div>
-      <div class="tier-points">25+ points</div>
-      <ul class="tier-perks">
-        <li>Name in CONTRIBUTORS.md</li>
-        <li>Release notes shoutout</li>
-        <li>Bronze badge</li>
-      </ul>
-    </div>
-    <div class="reward-tier silver">
-      <div class="tier-badge">🥈</div>
-      <div class="tier-name" style="color: var(--purple);">Silver</div>
-      <div class="tier-points">100+ points</div>
-      <ul class="tier-perks">
-        <li>All Bronze rewards</li>
-        <li>Priority issue assignment</li>
-        <li>Early access to features</li>
-        <li>Vote on features</li>
-      </ul>
-    </div>
-    <div class="reward-tier gold">
-      <div class="tier-badge">🥇</div>
-      <div class="tier-name" style="color: var(--orange);">Gold</div>
-      <div class="tier-points">500+ points</div>
-      <ul class="tier-perks">
-        <li>All Silver rewards</li>
-        <li>Direct roadmap input</li>
-        <li>Private core chat</li>
-        <li>Co-author credit</li>
-      </ul>
-    </div>
-    <div class="reward-tier diamond">
-      <div class="tier-badge">💎</div>
-      <div class="tier-name" style="color: var(--blue);">Diamond</div>
-      <div class="tier-points">2,000+ points</div>
-      <ul class="tier-perks">
-        <li>All Gold rewards</li>
-        <li>Direct line to maintainer</li>
-        <li>Priority project support</li>
-        <li>Featured on website</li>
-      </ul>
-    </div>
-    <div class="reward-tier legend">
-      <div class="tier-badge">👑</div>
-      <div class="tier-name" style="color: var(--red);">Legend</div>
-      <div class="tier-points">10,000+ points</div>
-      <ul class="tier-perks">
-        <li>All Diamond rewards</li>
-        <li>Maintainer access</li>
-        <li>Co-creator credit</li>
-        <li>Project governance</li>
-      </ul>
-    </div>
+    <div class="reward-tier bronze"><div class="tier-badge">🥉</div><div class="tier-name" style="color:var(--accent)">Bronze</div><div class="tier-points">25+ points</div><ul class="tier-perks"><li>Name in CONTRIBUTORS.md</li><li>Release notes shoutout</li></ul></div>
+    <div class="reward-tier silver"><div class="tier-badge">🥈</div><div class="tier-name" style="color:var(--purple)">Silver</div><div class="tier-points">100+ points</div><ul class="tier-perks"><li>All Bronze</li><li>Early access to features</li></ul></div>
+    <div class="reward-tier gold"><div class="tier-badge">🥇</div><div class="tier-name" style="color:var(--orange)">Gold</div><div class="tier-points">500+ points</div><ul class="tier-perks"><li>All Silver</li><li>Private core chat</li></ul></div>
+    <div class="reward-tier diamond"><div class="tier-badge">💎</div><div class="tier-name" style="color:var(--blue)">Diamond</div><div class="tier-points">2,000+ points</div><ul class="tier-perks"><li>All Gold</li><li>Direct line to maintainer</li></ul></div>
+    <div class="reward-tier legend"><div class="tier-badge">👑</div><div class="tier-name" style="color:var(--red)">Legend</div><div class="tier-points">10,000+ points</div><ul class="tier-perks"><li>All Diamond</li><li>Project governance</li></ul></div>
   </div>
+</section>
 
-  <div class="rewards-cta">
-    <p>Every contribution counts — <a href="https://github.com/constanza8999/AIGENEV7---ALL-MODELS-UNLOCKED/blob/main/CONTRIBUTING.md">Read the full guide →</a></p>
+<!-- ── Chat Divider ── -->
+<div class="chat-divider" id="chat"><span>✦ Agent Chat ✦</span></div>
+
+<!-- ── Agent Chat Section ── -->
+<section class="chat-section">
+  <div class="chat-container" id="chatContainer">
+    <!-- Top Bar -->
+    <div class="chat-topbar">
+      <label>Agent:</label>
+      <div class="agent-chips" id="agentChips"></div>
+      <label>Model:</label>
+      <select class="model-select" id="modelSelect"></select>
+      <div class="chat-current">
+        <span class="tag" id="currentAgentTag">🤖 Coding Assistant</span>
+      </div>
+      <button class="clear-chat-btn" id="clearChatBtn">✕ Clear</button>
+    </div>
+
+    <!-- Messages -->
+    <div class="chat-messages" id="chatMessages"></div>
+
+    <!-- Typing -->
+    <div class="typing-indicator" id="typingIndicator">
+      <span>Thinking</span>
+      <div class="typing-dots"><span></span><span></span><span></span></div>
+    </div>
+
+    <!-- Input -->
+    <div class="chat-input-area">
+      <textarea id="chatInput" rows="1" placeholder="Type a message... (Enter to send, Shift+Enter for new line)" disabled></textarea>
+      <div class="chat-actions">
+        <button class="stop-btn" id="stopBtn">■</button>
+        <button class="send-btn" id="sendBtn">➤</button>
+      </div>
+    </div>
   </div>
 </section>
 
 <footer>
-  <p>Built by <strong>CONSTANZA</strong> with ❤️ for the community — <a href="https://github.com/constanza8999">@constanza8999</a></p>
-  <p><a href="https://github.com/constanza8999/aigenev7.com">AIGENEV7</a> — Free AI for everyone. Free forever. MIT License.</p>
+  <p>Built by <strong>CONSTANZA</strong> — <a href="https://github.com/constanza8999">@constanza8999</a></p>
+  <p><a href="https://github.com/constanza8999/aigenev7.com">AIGENEV7</a> — Free AI for everyone. MIT License.</p>
 </footer>
 
-</div><!-- /page -->
+</div>
 
 <script>
 // ───────────────────────────────────────────────────────────────────────────
 // 1. PARTICLES
 // ───────────────────────────────────────────────────────────────────────────
-(function createParticles() {
-  const container = document.getElementById('particles');
-  const isMobile = window.matchMedia('(max-width: 600px)').matches;
-  const count = isMobile ? 15 : 40;
-  for (let i = 0; i < count; i++) {
+(function() {
+  const c = document.getElementById('particles');
+  for (let i = 0; i < (window.matchMedia('(max-width:600px)').matches ? 15 : 40); i++) {
     const p = document.createElement('div');
     p.className = 'particle';
     p.style.left = Math.random() * 100 + '%';
     p.style.animationDuration = (15 + Math.random() * 25) + 's';
     p.style.animationDelay = (Math.random() * 20) + 's';
     p.style.width = p.style.height = (1 + Math.random() * 2) + 'px';
-    container.appendChild(p);
+    c.appendChild(p);
   }
 })();
 
 // ───────────────────────────────────────────────────────────────────────────
-// 2. SUBTITLE TYPING ANIMATION
+// 2. SUBTITLE TYPING
 // ───────────────────────────────────────────────────────────────────────────
-(function typeSubtitle() {
+(function() {
   const texts = [
     'Free AI coding assistant. No subscription. No censorship.',
     '10 providers. 28 models. One local agent.',
@@ -1174,30 +628,19 @@
     'Your code stays on your machine. Always.',
     'Built by CONSTANZA. For everyone.'
   ];
-  let textIndex = 0;
-  let charIndex = 0;
-  let isDeleting = false;
+  let ti = 0, ci = 0, del = false;
   const el = document.getElementById('subtitle-text');
-
   function type() {
-    const current = texts[textIndex];
-    if (!isDeleting) {
-      el.textContent = current.substring(0, charIndex + 1);
-      charIndex++;
-      if (charIndex === current.length) {
-        setTimeout(() => { isDeleting = true; type(); }, 2500);
-        return;
-      }
+    const cur = texts[ti];
+    if (!del) {
+      el.textContent = cur.substring(0, ci + 1);
+      ci++;
+      if (ci === cur.length) { setTimeout(() => { del = true; type(); }, 2500); return; }
       setTimeout(type, 40 + Math.random() * 30);
     } else {
-      el.textContent = current.substring(0, charIndex - 1);
-      charIndex--;
-      if (charIndex === 0) {
-        isDeleting = false;
-        textIndex = (textIndex + 1) % texts.length;
-        setTimeout(type, 500);
-        return;
-      }
+      el.textContent = cur.substring(0, ci - 1);
+      ci--;
+      if (ci === 0) { del = false; ti = (ti + 1) % texts.length; setTimeout(type, 500); return; }
       setTimeout(type, 20 + Math.random() * 15);
     }
   }
@@ -1205,11 +648,10 @@
 })();
 
 // ───────────────────────────────────────────────────────────────────────────
-// 3. TERMINAL TYPING ANIMATION
+// 3. TERMINAL ANIMATION (same as original)
 // ───────────────────────────────────────────────────────────────────────────
-(function terminalAnimation() {
+(function() {
   const demos = [
-    // Demo 1: Build REST API
     [
       { type: 'cmd', text: 'aigenev7 "build a rest api with express"' },
       { type: 'info', text: '[AIGENEV7] DeepSeek V4 Pro — inferring...' },
@@ -1223,7 +665,6 @@
       { type: 'info', text: '[AIGENEV7] ✓ Done (12.4s, ~1,847 tokens)' },
       { type: 'prompt' },
     ],
-    // Demo 2: Refactor code
     [
       { type: 'cmd', text: 'aigenev7 "refactor this auth middleware to use JWT"' },
       { type: 'info', text: '[AIGENEV7] Claude Sonnet 4 — analyzing code...' },
@@ -1237,7 +678,6 @@
       { type: 'info', text: '[AIGENEV7] ✓ Done (18.2s, ~3,201 tokens)' },
       { type: 'prompt' },
     ],
-    // Demo 3: Debug
     [
       { type: 'cmd', text: 'aigenev7 "find the memory leak in this react app"' },
       { type: 'info', text: '[AIGENEV7] GPT-5 — tracing execution...' },
@@ -1252,266 +692,430 @@
       { type: 'prompt' },
     ],
   ];
-
-  let demoIndex = 0;
-  let lineIndex = 0;
-  let charIndex = 0;
-  let currentLineEl = null;
-  let progressFill = null;
-  let running = false;
-
-  const terminalBody = document.getElementById('terminal-body');
-  const restartBtn = document.getElementById('terminal-restart');
-
-  function runDemo() {
-    running = true;
-    lineIndex = 0;
-    charIndex = 0;
-    currentLineEl = null;
-    terminalBody.innerHTML = '';
-    restartBtn.style.display = 'none';
-    typeNextLine();
+  let di = 0, li = 0, ci2 = 0, curEl = null, progFill = null, running = false;
+  const tb = document.getElementById('terminal-body');
+  const rst = document.getElementById('terminal-restart');
+  function run() {
+    running = true; li = 0; ci2 = 0; curEl = null; tb.innerHTML = ''; rst.style.display = 'none';
+    nextLine();
   }
-
-  function typeNextLine() {
-    if (lineIndex >= demos[demoIndex].length) {
-      running = false;
-      restartBtn.style.display = 'block';
-      return;
-    }
-
-    const line = demos[demoIndex][lineIndex];
-
+  function nextLine() {
+    if (li >= demos[di].length) { running = false; rst.style.display = 'block'; return; }
+    const line = demos[di][li];
     if (line.type === 'progress') {
-      // Show or update progress bar
-      if (!progressFill) {
-        const progressLine = document.createElement('div');
-        progressLine.className = 'terminal-line';
-        progressLine.innerHTML = '<span class="dim">[          ]</span>';
-        terminalBody.appendChild(progressLine);
-
-        const progressContainer = document.createElement('div');
-        progressContainer.className = 'terminal-progress';
-        const bar = document.createElement('div');
-        bar.className = 'terminal-progress-bar';
-        const fill = document.createElement('div');
-        fill.className = 'terminal-progress-fill';
-        fill.style.width = '0%';
-        bar.appendChild(fill);
-        progressContainer.appendChild(bar);
-        terminalBody.appendChild(progressContainer);
-        progressFill = fill;
+      if (!progFill) {
+        const pl = document.createElement('div'); pl.className = 'terminal-line';
+        pl.innerHTML = '<span class="dim">[          ]</span>'; tb.appendChild(pl);
+        const pc = document.createElement('div'); pc.className = 'terminal-progress';
+        const bar = document.createElement('div'); bar.className = 'terminal-progress-bar';
+        const fill = document.createElement('div'); fill.className = 'terminal-progress-fill';
+        fill.style.width = '0%'; bar.appendChild(fill); pc.appendChild(bar); tb.appendChild(pc);
+        progFill = fill;
       }
-
-      progressFill.style.width = line.progress + '%';
-      terminalBody.scrollTop = terminalBody.scrollHeight;
-      lineIndex++;
-      const delay = line.progress === 100 ? 800 : 200 + Math.random() * 300;
-      setTimeout(typeNextLine, delay);
+      progFill.style.width = line.progress + '%';
+      tb.scrollTop = tb.scrollHeight; li++;
+      setTimeout(nextLine, line.progress === 100 ? 800 : 200 + Math.random() * 300);
       return;
     }
-
     if (line.type === 'prompt') {
-      const el = document.createElement('div');
-      el.className = 'terminal-line';
-      el.innerHTML = '<span class="prompt">$</span> <span class="cursor-char"></span>';
-      terminalBody.appendChild(el);
-      terminalBody.scrollTop = terminalBody.scrollHeight;
-      lineIndex++;
-      // After showing prompt, advance to next demo
-      setTimeout(() => {
-        demoIndex = (demoIndex + 1) % demos.length;
-        progressFill = null;
-        setTimeout(runDemo, 1500);
-      }, 2000);
+      const e = document.createElement('div'); e.className = 'terminal-line';
+      e.innerHTML = '<span class="prompt">$</span> <span class="cursor-char"></span>';
+      tb.appendChild(e); tb.scrollTop = tb.scrollHeight; li++;
+      setTimeout(() => { di = (di + 1) % demos.length; progFill = null; setTimeout(run, 1500); }, 2000);
       return;
     }
-
-    if (!currentLineEl) {
-      currentLineEl = document.createElement('div');
-      currentLineEl.className = 'terminal-line';
-
-      if (line.type === 'cmd') {
-        currentLineEl.innerHTML = '<span class="prompt">$</span> <span class="output"></span>';
-      } else if (line.type === 'info') {
-        currentLineEl.innerHTML = '<span class="dim"></span>';
-      } else if (line.type === 'error') {
-        currentLineEl.innerHTML = '<span class="error"></span>';
-      } else {
-        currentLineEl.innerHTML = '<span class="output"></span>';
-      }
-      terminalBody.appendChild(currentLineEl);
-      terminalBody.scrollTop = terminalBody.scrollHeight;
+    if (!curEl) {
+      curEl = document.createElement('div'); curEl.className = 'terminal-line';
+      if (line.type === 'cmd') curEl.innerHTML = '<span class="prompt">$</span> <span class="output"></span>';
+      else if (line.type === 'info') curEl.innerHTML = '<span class="dim"></span>';
+      else if (line.type === 'error') curEl.innerHTML = '<span class="error"></span>';
+      else curEl.innerHTML = '<span class="output"></span>';
+      tb.appendChild(curEl); tb.scrollTop = tb.scrollHeight;
     }
-
-    const span = currentLineEl.querySelector('span:last-child');
-    if (span && charIndex < line.text.length) {
-      span.textContent += line.text[charIndex];
-      charIndex++;
-      const delay = line.type === 'cmd' ? 25 : 10;
-      setTimeout(typeNextLine, delay);
-    } else if (charIndex >= line.text.length) {
-      lineIndex++;
-      charIndex = 0;
-      currentLineEl = null;
-      setTimeout(typeNextLine, 600);
-    }
+    const span = curEl.querySelector('span:last-child');
+    if (span && ci2 < line.text.length) { span.textContent += line.text[ci2]; ci2++; setTimeout(nextLine, line.type === 'cmd' ? 25 : 10); }
+    else if (ci2 >= line.text.length) { li++; ci2 = 0; curEl = null; setTimeout(nextLine, 600); }
   }
+  rst.addEventListener('click', () => { di = (di + 1) % demos.length; progFill = null; run(); });
+  setTimeout(run, 1500);
+})();
 
-  restartBtn.addEventListener('click', () => {
-    demoIndex = (demoIndex + 1) % demos.length;
-    progressFill = null;
-    runDemo();
+// ───────────────────────────────────────────────────────────────────────────
+// 4. SCROLL REVEAL & STAT COUNTERS
+// ───────────────────────────────────────────────────────────────────────────
+(function() {
+  document.querySelectorAll('.feature-card').forEach(c => {
+    if (!('IntersectionObserver' in window)) { c.classList.add('visible'); return; }
+    new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+    }, { threshold: 0.1 }).observe(c);
   });
-
-  setTimeout(runDemo, 1500);
-})();
-
-// ───────────────────────────────────────────────────────────────────────────
-// 4. SCROLL REVEAL (Intersection Observer)
-// ───────────────────────────────────────────────────────────────────────────
-(function scrollReveal() {
-  const cards = document.querySelectorAll('.feature-card');
-  if (!('IntersectionObserver' in window)) {
-    cards.forEach(c => c.classList.add('visible'));
-    return;
-  }
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
-
-  cards.forEach(c => observer.observe(c));
-})();
-
-// ───────────────────────────────────────────────────────────────────────────
-// 5. STAT COUNTER ANIMATION
-// ───────────────────────────────────────────────────────────────────────────
-(function statCounters() {
-  const counters = document.querySelectorAll('.stat-number');
-  const infinities = ['∞'];
   let animated = false;
-
-  function animateCounters() {
-    if (animated) return;
-    animated = true;
-
-    counters.forEach(counter => {
-      const target = parseInt(counter.getAttribute('data-target'));
-      if (infinities.includes(counter.textContent.trim())) return;
-
-      const duration = 2000;
-      const step = Math.ceil(target / 60);
-      let current = 0;
-
-      const update = setInterval(() => {
-        current += step;
-        if (current >= target) {
-          counter.textContent = target;
-          clearInterval(update);
-        } else {
-          counter.textContent = current;
-        }
-      }, duration / 60);
-    });
-  }
-
-  if ('IntersectionObserver' in window) {
-    const statsSection = document.querySelector('.stats-section');
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          animateCounters();
-          observer.unobserve(entry.target);
-        }
+  document.querySelectorAll('.stat-number').forEach(counter => {
+    if (!('IntersectionObserver' in window) || animated) {
+      if (!animated) { animated = true; animateStats(); }
+      return;
+    }
+    new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting && !animated) { animated = true; animateStats(); observer.unobserve(e.target); }
       });
-    }, { threshold: 0.3 });
-    observer.observe(statsSection);
-  } else {
-    animateCounters();
+    }, { threshold: 0.3 }).observe(counter.closest('.stats-section') || counter);
+  });
+  function animateStats() {
+    document.querySelectorAll('.stat-number').forEach(counter => {
+      if (counter.textContent.trim() === '∞') return;
+      const target = parseInt(counter.getAttribute('data-target'));
+      if (!target) return;
+      const step = Math.ceil(target / 60); let cur = 0;
+      const update = setInterval(() => { cur += step; if (cur >= target) { counter.textContent = target; clearInterval(update); } else counter.textContent = cur; }, 2000 / 60);
+    });
   }
 })();
 
 // ───────────────────────────────────────────────────────────────────────────
-// 6. MODEL CARD CLICK TO EXPAND
+// 5. MODEL CARDS CLICK
 // ───────────────────────────────────────────────────────────────────────────
-(function modelCards() {
-  const cards = document.querySelectorAll('.model-card');
-  cards.forEach(card => {
-    card.setAttribute('role', 'button');
-    card.setAttribute('tabindex', '0');
-    card.addEventListener('click', () => {
-      const wasExpanded = card.classList.contains('expanded');
-      cards.forEach(c => c.classList.remove('expanded'));
-      if (!wasExpanded) {
-        card.classList.add('expanded');
-      }
-    });
-    card.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        card.click();
-      }
-    });
+document.querySelectorAll('.model-card').forEach(card => {
+  card.addEventListener('click', () => {
+    const was = card.classList.contains('expanded');
+    document.querySelectorAll('.model-card').forEach(c => c.classList.remove('expanded'));
+    if (!was) card.classList.add('expanded');
   });
-})();
+});
 
 // ───────────────────────────────────────────────────────────────────────────
-// 7. COPY COMMAND
+// 6. COPY COMMAND
 // ───────────────────────────────────────────────────────────────────────────
-(function copyCommand() {
-  const block = document.getElementById('copy-command');
+(function() {
+  const block = document.querySelector('.command-block');
+  if (!block) return;
   const toast = document.getElementById('toast');
-  let timeout = null;
-
   block.addEventListener('click', async () => {
     const text = 'bun freebuff/local-api-server.js && ./aigenev7.exe';
-    try {
-      await navigator.clipboard.writeText(text);
-    } catch {
-      // Fallback
-      const ta = document.createElement('textarea');
-      ta.value = text;
-      document.body.appendChild(ta);
-      try {
-        ta.select();
-        document.execCommand('copy');
-      } finally {
-        document.body.removeChild(ta);
+    try { await navigator.clipboard.writeText(text); }
+    catch {
+      const ta = document.createElement('textarea'); ta.value = text;
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    }
+    block.classList.add('copied'); toast.classList.add('show');
+    setTimeout(() => { toast.classList.remove('show'); block.classList.remove('copied'); }, 2000);
+  });
+})();
+
+// ───────────────────────────────────────────────────────────────────────────
+// 7. AGENT CHAT — STATE
+// ───────────────────────────────────────────────────────────────────────────
+let agents = [];
+let models = [];
+let providers = {};
+let currentAgentId = null;
+let currentModelId = null;
+let messages = [];
+let isStreaming = false;
+let abortCtrl = null;
+
+const $ = id => document.getElementById(id);
+const chips = $('agentChips');
+const modelSel = $('modelSelect');
+const chatMsgs = $('chatMessages');
+const chatInput = $('chatInput');
+const sendBtn = $('sendBtn');
+const stopBtn = $('stopBtn');
+const typingInd = $('typingIndicator');
+const curTag = $('currentAgentTag');
+const clearBtn = $('clearChatBtn');
+const errToast = $('errorToast');
+
+// ───────────────────────────────────────────────────────────────────────────
+// 8. INIT CHAT
+// ───────────────────────────────────────────────────────────────────────────
+async function initChat() {
+  try {
+    const [aRes, mRes] = await Promise.all([fetch('/api/agents'), fetch('/api/models')]);
+    const aData = await aRes.json();
+    const mData = await mRes.json();
+    agents = aData.agents || [];
+    models = mData.models || [];
+    providers = mData.byProvider || {};
+
+    renderAgentChips();
+    renderModelSelect();
+
+    // Restore saved preferences
+    const savedAgent = localStorage.getItem('aigenev7_agent');
+    const savedModel = localStorage.getItem('aigenev7_model');
+    if (savedAgent && agents.find(a => a.id === savedAgent)) selectAgent(savedAgent);
+    else if (agents.length) selectAgent(agents[0].id);
+    if (savedModel && models.find(m => m.id === savedModel)) selectModel(savedModel);
+    else if (models.length) selectModel(models[0].id);
+
+    // Update stat with real model count
+    const ms = document.getElementById('modelsStat');
+    if (ms) ms.textContent = models.length;
+    
+    chatInput.disabled = false;
+    chatInput.placeholder = 'Type a message... (Enter to send, Shift+Enter for new line)';
+  } catch (err) {
+    showError('Failed to load: ' + err.message);
+    chatInput.placeholder = 'Server unavailable. Is the API running?';
+  }
+}
+
+function renderAgentChips() {
+  chips.innerHTML = '';
+  for (const agent of agents) {
+    const wrap = document.createElement('div');
+    wrap.className = 'chip-with-tip';
+    const chip = document.createElement('button');
+    chip.className = 'agent-chip';
+    chip.dataset.id = agent.id;
+    chip.innerHTML = `<span class="chip-emoji">${agent.emoji}</span> ${agent.name}`;
+    chip.addEventListener('click', () => selectAgent(agent.id));
+    wrap.appendChild(chip);
+    const tip = document.createElement('div');
+    tip.className = 'chip-tooltip';
+    tip.innerHTML = `<div class="tip-name">${agent.emoji} ${agent.name}</div><div class="tip-desc">${escHtml(agent.description)}</div><div class="tip-prompt">${escHtml(agent.systemPrompt)}</div>`;
+    wrap.appendChild(tip);
+    chips.appendChild(wrap);
+  }
+}
+
+function renderModelSelect() {
+  modelSel.innerHTML = '';
+  if (providers && Object.keys(providers).length) {
+    for (const [provider, pModels] of Object.entries(providers)) {
+      const g = document.createElement('optgroup');
+      g.label = provider.charAt(0).toUpperCase() + provider.slice(1);
+      for (const m of pModels) {
+        const o = document.createElement('option'); o.value = m.id;
+        o.textContent = `${m.displayName || m.id}${m.multimodal ? ' 📷' : ''}`;
+        g.appendChild(o);
       }
+      modelSel.appendChild(g);
+    }
+  } else {
+    for (const m of models) {
+      const o = document.createElement('option'); o.value = m.id;
+      o.textContent = `${m.displayName || m.id}${m.multimodal ? ' 📷' : ''}`;
+      modelSel.appendChild(o);
+    }
+  }
+  modelSel.addEventListener('change', () => selectModel(modelSel.value));
+}
+
+function selectAgent(id) {
+  currentAgentId = id;
+  const agent = agents.find(a => a.id === id);
+  if (!agent) return;
+  document.querySelectorAll('.agent-chip').forEach(c => c.classList.toggle('active', c.dataset.id === id));
+  curTag.textContent = `${agent.emoji} ${agent.name}`;
+  localStorage.setItem('aigenev7_agent', id);
+}
+
+function selectModel(id) {
+  currentModelId = id;
+  modelSel.value = id;
+  localStorage.setItem('aigenev7_model', id);
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// 9. SEND / RECEIVE
+// ───────────────────────────────────────────────────────────────────────────
+function addMsg(role, content) {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  const av = document.createElement('div');
+  av.className = 'msg-avatar';
+  if (role === 'user') av.textContent = '👤';
+  else {
+    const ag = agents.find(a => a.id === currentAgentId);
+    av.textContent = ag ? ag.emoji : '🤖';
+  }
+  const bub = document.createElement('div');
+  bub.className = 'msg-bubble';
+  // Render markdown: code blocks, inline code, line breaks
+  bub.innerHTML = renderMarkdown(content);
+  div.appendChild(av); div.appendChild(bub);
+  chatMsgs.appendChild(div);
+  chatMsgs.scrollTop = chatMsgs.scrollHeight;
+  return bub;
+}
+
+async function sendMsg() {
+  const text = chatInput.value.trim();
+  if (!text || isStreaming || !currentModelId) return;
+
+  // Add user message
+  addMsg('user', text);
+  messages.push({ role: 'user', content: text });
+  chatInput.value = '';
+  chatInput.style.height = 'auto';
+
+  // Show typing & stop button
+  isStreaming = true;
+  typingInd.classList.add('active');
+  stopBtn.classList.add('show');
+  sendBtn.classList.add('hide');
+  chatInput.disabled = true;
+
+  // Placeholder assistant bubble
+  const bubble = addMsg('assistant', '');
+  bubble.textContent = '';
+
+  try {
+    abortCtrl = new AbortController();
+    const res = await fetch('/api/infer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prompt: text,
+        model: currentModelId,
+        agent: currentAgentId,
+        messages: messages.slice(), // send conversation history
+        stream: true,
+      }),
+      signal: abortCtrl.signal,
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || `HTTP ${res.status}`);
     }
 
-    block.classList.add('copied');
-    toast.classList.add('show');
-    clearTimeout(timeout);
-    timeout = setTimeout(() => {
-      toast.classList.remove('show');
-      block.classList.remove('copied');
-    }, 2000);
+    typingInd.classList.remove('active');
+    const reader = res.body.getReader();
+    const dec = new TextDecoder();
+    let full = '', buf = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      const lines = buf.split('\n');
+      buf = lines.pop() || '';
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        try {
+          const d = JSON.parse(line);
+          if (d.chunk) { full += d.chunk; bubble.textContent = full; chatMsgs.scrollTop = chatMsgs.scrollHeight; }
+          else if (d.done && d.text && !full) { full = d.text; bubble.textContent = full; }
+          else if (d.error) throw new Error(d.error);
+        } catch (e) { if (!e.message.startsWith('JSON')) throw e; }
+      }
+    }
+    // flush buffer
+    if (buf.trim()) {
+      try {
+        const d = JSON.parse(buf);
+        if (d.chunk) full += d.chunk;
+        else if (d.done && d.text && !full) full = d.text;
+        bubble.textContent = full || '[Empty response]';
+      } catch { if (!full) bubble.textContent = '[Empty response]'; }
+    }
+    if (!full) bubble.textContent = '[Empty response]';
+    if (full) messages.push({ role: 'assistant', content: full });
+
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      bubble.textContent = '⚠ Stopped';
+    } else {
+      bubble.textContent = `⚠ ${err.message}`;
+      showError(err.message);
+    }
+  } finally {
+    isStreaming = false;
+    typingInd.classList.remove('active');
+    stopBtn.classList.remove('show');
+    sendBtn.classList.remove('hide');
+    chatInput.disabled = false;
+    chatInput.focus();
+    chatMsgs.scrollTop = chatMsgs.scrollHeight;
+  }
+}
+
+function stopStreaming() {
+  if (abortCtrl) abortCtrl.abort();
+}
+
+function clearChat() {
+  chatMsgs.innerHTML = '';
+  messages = [];
+  if (isStreaming) stopStreaming();
+}
+
+function showError(msg) {
+  errToast.textContent = msg;
+  errToast.classList.add('show');
+  setTimeout(() => errToast.classList.remove('show'), 4000);
+}
+
+function escHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function renderMarkdown(text) {
+  if (!text) return '';
+  // Escape HTML first for XSS safety
+  let html = escHtml(text);
+  
+  // Code blocks: ```lang\ncode\n``` (must be before inline code)
+  html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) => {
+    const langClass = lang ? ` class="lang-${escHtml(lang)}"` : '';
+    return `<pre><code${langClass}>${code}</code></pre>`;
   });
-})();
+  
+  // Inline code: `code`
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+  
+  // Protect code blocks from paragraph splitting (they may contain \n\n)
+  const blocks = [];
+  let safe = html.replace(/<pre>[\s\S]*?<\/pre>/g, (m) => {
+    blocks.push(m);
+    return `\x00BLOCK${blocks.length - 1}\x00`;
+  });
+  
+  // Double newlines = paragraphs (safe because code blocks are protected)
+  safe = safe.split(/\n{2,}/).map(p => {
+    const trimmed = p.trim();
+    if (!trimmed) return '';
+    const withBreaks = trimmed.replace(/\n/g, '<br>');
+    return `<p>${withBreaks}</p>`;
+  }).join('');
+  
+  // Restore protected code blocks
+  html = safe.replace(/\x00BLOCK(\d+)\x00/g, (_, i) => blocks[+i] || '');
+  
+  // Bold and italic (safe inside non-code text)
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  
+  return html;
+}
 
 // ───────────────────────────────────────────────────────────────────────────
-// 8. SMOOTH SCROLL FOR NAV LINKS
+// 10. EVENTS
 // ───────────────────────────────────────────────────────────────────────────
-(function smoothScroll() {
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', (e) => {
-      const href = anchor.getAttribute('href');
-      if (href === '#') return;
-      e.preventDefault();
-      const target = document.querySelector(href);
-      if (target) {
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    });
-  });
-})();
+chatInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
+});
+chatInput.addEventListener('input', () => {
+  chatInput.style.height = 'auto';
+  chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
+});
+sendBtn.addEventListener('click', sendMsg);
+stopBtn.addEventListener('click', stopStreaming);
+clearBtn.addEventListener('click', clearChat);
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); sendMsg(); }
+});
+
+// ───────────────────────────────────────────────────────────────────────────
+// 11. GO
+// ───────────────────────────────────────────────────────────────────────────
+initChat();
 </script>
 
 </body>
