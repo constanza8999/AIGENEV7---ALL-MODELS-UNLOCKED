@@ -115,7 +115,7 @@ async function callAnthropic(model, messages, opts) {
 
   const body = {
     model: model.providerModel,
-    max_tokens: opts.maxTokens === Infinity ? 1000000000000000000 : opts.maxTokens,
+    max_tokens: opts.maxTokens === Infinity ? 8192 : opts.maxTokens,
     messages,
     temperature: opts.temperature ?? 0.7,
     stream: opts.stream ?? false,
@@ -207,7 +207,7 @@ async function callOpenAICompatible(model, messages, opts) {
       role: m.role,
       content: m.content,
     })),
-    max_tokens: opts.maxTokens === Infinity ? 1000000000000000000 : opts.maxTokens,
+    max_tokens: opts.maxTokens === Infinity ? 65536 : opts.maxTokens,
     temperature: opts.temperature ?? 0.7,
     stream: opts.stream ?? false,
   }
@@ -299,7 +299,7 @@ async function callGemini(model, messages, opts) {
   const body = {
     contents,
     generationConfig: {
-      maxOutputTokens: opts.maxTokens === Infinity ? 1000000000000000000 : opts.maxTokens,
+      maxOutputTokens: opts.maxTokens === Infinity ? 65536 : opts.maxTokens,
       temperature: opts.temperature ?? 0.7,
       // No safety settings = uncensored
     },
