@@ -280,6 +280,13 @@ async function chatMode() {
         console.log('  /agent-reset            Reset agents to defaults')
         console.log('  ── Chat ──')
         console.log('  /clear                  Clear conversation history')
+        console.log('  ── Quantum ⚛️ ──')
+        console.log('  /quantum               List available quantum demos')
+        console.log('  /quantum <demo>        Run a demo (bell, ghz, deutsch, superposition, bell-swap)')
+        console.log('  /quantum run <gates>   Run a custom circuit. e.g.:')
+        console.log('                           /quantum run H(0) CNOT(0,1) --shots=2048')
+        console.log('                           /quantum run H(0) X(1) SWAP(0,1)')
+        console.log('                           /quantum run H(0) CNOT(0,1) CNOT(0,2)')
         console.log('  /help, /h               Show this help')
         console.log()
         askQuestion()
@@ -603,6 +610,151 @@ async function chatMode() {
         refreshAgents()
         currentAgent = getDefaultAgent()
         console.log(`  ✓ Agents reset to defaults. Switched to ${currentAgent.emoji} ${currentAgent.name}`)
+        askQuestion()
+        return
+      }
+
+      // ── Quantum commands ──
+      if (trimmed === '/quantum' || trimmed === '/quantum list') {
+        try {
+          const { listDemos } = await import('./quantum.js')
+          const demos = listDemos()
+          console.log('\n  ⚛️ Quantum Circuit Demos')
+          console.log(`  ─${'─'.repeat(40)}`)
+          for (const d of demos) {
+            console.log(`  ${d.id.padEnd(16)} ${d.name}`)
+            console.log(`  ${' '.repeat(16)} ${d.description}`)
+            console.log()
+          }
+          console.log('  Usage: /quantum <demo>  e.g., /quantum bell')
+          console.log('         /quantum run <gates>  e.g., /quantum run H(0) CNOT(0,1)')
+        } catch (err) {
+          console.log(`  ✗ Quantum simulator unavailable: ${err.message}`)
+        }
+        askQuestion()
+        return
+      }
+
+      // ── Run custom quantum circuit ──
+      if (trimmed.startsWith('/quantum run ')) {
+        const gateDefs = trimmed.slice(13).trim()
+        if (!gateDefs) {
+          console.log('  ✗ Usage: /quantum run <gates>')
+          console.log('  Example: /quantum run H(0) CNOT(0,1) --shots=2048')
+          askQuestion()
+          return
+        }
+        try {
+          const { QuantumCircuit } = await import('./quantum.js')
+
+          // Parse shots from gateDefs
+          let shots = 1024
+          const shotMatch = gateDefs.match(/--shots=(\d+)/)
+          if (shotMatch) {
+            shots = parseInt(shotMatch[1], 10)
+          }
+          const cleanDefs = gateDefs.replace(/--shots=\d+/g, '').trim()
+
+          // Parse gates: H(0) CNOT(0,1) X(2) ...
+          const gatePattern = /([A-Za-z]+)\(([^)]*)\)/g
+          const tokens = []
+          let match
+          while ((match = gatePattern.exec(cleanDefs)) !== null) {
+            tokens.push({ name: match[1].toLowerCase(), args: match[2].split(',').map(s => parseInt(s.trim(), 10)) })
+          }
+
+          if (tokens.length === 0) {
+            console.log('  ✗ No valid gates found. Usage: H(0) CNOT(0,1) SWAP(0,2)')
+            askQuestion()
+            return
+          }
+
+          // Determine qubit count from gate args
+          let numQubits = 0
+          for (const t of tokens) {
+            for (const a of t.args) {
+              if (!isNaN(a) && a >= numQubits) numQubits = a + 1
+            }
+          }
+          if (numQubits < 1) numQubits = 1
+
+          const qc = new QuantumCircuit(numQubits)
+          const gateMap = {
+            'h': 'h', 'hadamard': 'h',
+            'x': 'x', 'pauli-x': 'x', 'not': 'x',
+            'y': 'y', 'pauli-y': 'y',
+            'z': 'z', 'pauli-z': 'z',
+            's': 's', 'phase': 's',
+            't': 't',
+            'cnot': 'cnot', 'cx': 'cnot',
+            'swap': 'swap',
+            'toffoli': 'toffoli', 'ccx': 'toffoli',
+          }
+
+          for (const t of tokens) {
+            const gate = gateMap[t.name]
+            if (!gate) {
+              console.log(`  ⚠ Unknown gate: ${t.name}. Skipping.`)
+              console.log(`  Available: H, X, Y, Z, S, T, CNOT/CX, SWAP, TOFFOLI/CCX`)
+              continue
+            }
+            if (gate === 'h' || gate === 'x' || gate === 'y' || gate === 'z' || gate === 's' || gate === 't') {
+              if (t.args.length < 1 || isNaN(t.args[0])) {
+                console.log(`  ⚠ ${t.name} needs a qubit argument. Skipping.`)
+                continue
+              }
+              qc[gate](t.args[0])
+            } else if (gate === 'cnot') {
+              if (t.args.length < 2 || isNaN(t.args[0]) || isNaN(t.args[1])) {
+                console.log(`  ⚠ CNOT needs control,target args. Skipping.`)
+                continue
+              }
+              qc.cnot(t.args[0], t.args[1])
+            } else if (gate === 'swap') {
+              if (t.args.length < 2 || isNaN(t.args[0]) || isNaN(t.args[1])) {
+                console.log(`  ⚠ SWAP needs two qubit args. Skipping.`)
+                continue
+              }
+              qc.swap(t.args[0], t.args[1])
+            } else if (gate === 'toffoli') {
+              if (t.args.length < 3 || isNaN(t.args[0]) || isNaN(t.args[1]) || isNaN(t.args[2])) {
+                console.log(`  ⚠ TOFFOLI needs c0,c1,target args. Skipping.`)
+                continue
+              }
+              qc.toffoli(t.args[0], t.args[1], t.args[2])
+            }
+          }
+
+          qc.measureAll()
+          const result = qc.run(shots)
+          console.log(`\n  ⚛️ Custom Circuit: ${numQubits} qubits, ${shots} shots`)
+          console.log(`  ${cleanDefs}\n`)
+          console.log(qc.draw())
+          console.log(result.histogram())
+          console.log(`  Most likely outcome: |${result.mostLikely()}⟩`)
+        } catch (err) {
+          console.log(`  ✗ Error: ${err.message}`)
+        }
+        askQuestion()
+        return
+      }
+
+      if (trimmed.startsWith('/quantum ')) {
+        const demoName = trimmed.slice(9).trim()
+        if (!demoName || demoName === 'list') {
+          askQuestion()
+          return
+        }
+        try {
+          const { runDemo } = await import('./quantum.js')
+          const { circuit, result } = runDemo(demoName, 1024)
+          console.log(`\n  ⚛️ ${demoName}: ${result.mostLikely().length}-qubit circuit`)
+          console.log(circuit.draw())
+          console.log(result.histogram())
+          console.log(`  Most likely outcome: |${result.mostLikely()}⟩`)
+        } catch (err) {
+          console.log(`  ✗ ${err.message}`)
+        }
         askQuestion()
         return
       }
