@@ -50,5 +50,10 @@ docs/bot-detection.md
 .infisical.json
 .gstack/
 
+# Test artifacts (auto-generated chat logs, test scripts)
+freebuff/chat_*.txt
+freebuff/test-*.mjs
+freebuff/test-*.js
+
 # Buffbench DEBUG_ERROR dumps
 evals/buffbench/*-error-*.json
