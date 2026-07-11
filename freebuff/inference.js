@@ -207,13 +207,13 @@ async function callOpenAICompatible(model, messages, opts) {
   const maxIterations = 50
   let fullResponse = ''
 
-  for (let iteration = 0; iteration < maxIterations; iteration++) {
-    const effectiveMaxTokens = opts.maxTokens === Infinity ? 65536 : opts.maxTokens
+  let budgetMaxTokens = opts.maxTokens === Infinity ? 65536 : opts.maxTokens
 
+  for (let iteration = 0; iteration < maxIterations; iteration++) {
     const body = {
       model: model.providerModel,
       messages: msgs,
-      max_tokens: effectiveMaxTokens,
+      max_tokens: budgetMaxTokens,
       temperature: opts.temperature ?? 0.7,
       stream: false, // non-streaming for chunked generation
     }
@@ -234,12 +234,13 @@ async function callOpenAICompatible(model, messages, opts) {
     if (!response.ok) {
       const text = await response.text()
       // Handle 402 credit errors - retry with affordable token count
-      if (response.status === 402 && iteration === 0) {
+      if (response.status === 402) {
         const match = text.match(/can only afford (\d+)/)
         if (match) {
           const affordable = parseInt(match[1], 10)
           if (affordable > 10) {
-            body.max_tokens = Math.max(1, affordable - 10)
+            budgetMaxTokens = Math.max(1, affordable - 10)
+            body.max_tokens = budgetMaxTokens
             const retryResponse = await fetch(`${baseUrl}/chat/completions`, {
               method: 'POST',
               headers: {
@@ -258,7 +259,6 @@ async function callOpenAICompatible(model, messages, opts) {
               fullResponse += chunk
               write(chunk)
               if (opts.onChunk) opts.onChunk(chunk)
-              // Check if we need to continue
               if (retryData.choices[0].finish_reason === 'length' && chunk.length > 0) {
                 msgs.push({ role: 'assistant', content: chunk })
                 msgs.push({ role: 'user', content: 'continue' })
@@ -268,15 +268,9 @@ async function callOpenAICompatible(model, messages, opts) {
             }
           }
         }
-      } else if (iteration > 0) {
-        // During chunked continuation, if we get an error, return what we have
-        break
-      } else {
         throw new Error(`${provider} API error (${response.status}): ${text}`)
       }
-    }
-
-    if (!response.ok) throw new Error(`${provider} API error (${response.status}): ${await response.text()}`)
+      throw new Error(`${provider} API error (${response.status}): ${text}`)
 
     const data = await response.json()
     const chunk = data.choices[0].message.content
