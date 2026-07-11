@@ -15,6 +15,9 @@
 <div class="bg-grid"></div>
 <div class="bg-glow"></div>
 
+<!-- ── Toasts ── -->
+<div class="toast" id="toast">✓ Copied to clipboard</div>
+
 <div class="page">
 
 <!-- ── Header ── -->
@@ -284,12 +287,24 @@
     cmdEl.textContent = 'bun run inference-cli.js chat --premium-key ' + key
   }
 
+  function showToast() {
+    var toast = document.getElementById('toast')
+    if (!toast) return
+    toast.classList.remove('show')
+    void toast.offsetWidth
+    toast.classList.add('show')
+    setTimeout(function() {
+      toast.classList.remove('show')
+    }, 2000)
+  }
+
   function copyToClipboard(el, btn) {
     var text = el.textContent
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(function() {
         btn.textContent = '✓ Copied!'
         btn.classList.add('copied')
+        showToast()
         setTimeout(function() {
           btn.textContent = '📋 Copy'
           btn.classList.remove('copied')
@@ -313,6 +328,7 @@
       document.execCommand('copy')
       btn.textContent = '✓ Copied!'
       btn.classList.add('copied')
+      showToast()
       setTimeout(function() {
         btn.textContent = '📋 Copy'
         btn.classList.remove('copied')

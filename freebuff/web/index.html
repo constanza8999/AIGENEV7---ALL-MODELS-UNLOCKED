@@ -771,12 +771,25 @@
     cmdEl.textContent = 'bun run inference-cli.js chat --premium-key ' + key
   }
 
+  function showToast() {
+    var toast = document.getElementById('toast')
+    if (!toast) return
+    toast.classList.remove('show')
+    // Force reflow to restart animation
+    void toast.offsetWidth
+    toast.classList.add('show')
+    setTimeout(function() {
+      toast.classList.remove('show')
+    }, 2000)
+  }
+
   function copyToClipboard(el, btn) {
     var text = el.textContent
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(function() {
         btn.textContent = '✓ Copied!'
         btn.classList.add('copied')
+        showToast()
         setTimeout(function() {
           btn.textContent = '📋 Copy'
           btn.classList.remove('copied')
@@ -790,7 +803,13 @@
     ta.value = text
     ta.style.position = 'fixed'; ta.style.opacity = '0'
     document.body.appendChild(ta); ta.select()
-    try { document.execCommand('copy'); btn.textContent = '✓ Copied!'; btn.classList.add('copied'); setTimeout(function(){ btn.textContent = '📋 Copy'; btn.classList.remove('copied') }, 2000) } catch(e) {}
+    try {
+      document.execCommand('copy')
+      btn.textContent = '✓ Copied!'
+      btn.classList.add('copied')
+      showToast()
+      setTimeout(function(){ btn.textContent = '📋 Copy'; btn.classList.remove('copied') }, 2000)
+    } catch(e) {}
     document.body.removeChild(ta)
   }
 
