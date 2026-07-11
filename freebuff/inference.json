@@ -27,34 +27,34 @@
   },
 
   "models": {
-    // ── Anthropic Claude ──
+    // ── Anthropic Claude (via OpenRouter) ──
     "fable-5": {
-      "provider": "anthropic",
-      "providerModel": "claude-fable-5-20260305",
+      "provider": "openrouter",
+      "providerModel": "anthropic/claude-fable-5",
       "multimodal": true,
       "max_tokens": 1000000000000000000
     },
     "claude-sonnet-4": {
-      "provider": "anthropic",
-      "providerModel": "claude-4-sonnet-20250522",
+      "provider": "openrouter",
+      "providerModel": "anthropic/claude-sonnet-4",
       "multimodal": true,
       "max_tokens": 1000000000000000000
     },
     "claude-opus-4": {
-      "provider": "anthropic",
-      "providerModel": "claude-opus-4.1-20250204",
+      "provider": "openrouter",
+      "providerModel": "anthropic/claude-opus-4",
       "multimodal": true,
       "max_tokens": 1000000000000000000
     },
     "claude-sonnet-4.5": {
-      "provider": "anthropic",
-      "providerModel": "claude-sonnet-4.5-20250317",
+      "provider": "openrouter",
+      "providerModel": "anthropic/claude-sonnet-4.5",
       "multimodal": true,
       "max_tokens": 1000000000000000000
     },
     "claude-haiku-3.5": {
-      "provider": "anthropic",
-      "providerModel": "claude-3.5-haiku-20241022",
+      "provider": "openrouter",
+      "providerModel": "anthropic/claude-3.5-haiku",
       "multimodal": true,
       "max_tokens": 1000000000000000000
     },
