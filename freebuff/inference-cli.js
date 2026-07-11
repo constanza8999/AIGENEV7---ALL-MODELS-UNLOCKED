@@ -30,6 +30,10 @@ import {
   updateAgent,
   deleteAgent,
   resetAgents,
+  exportAgent,
+  exportAgentToFile,
+  importAgent,
+  importAgentFromFile,
 } from './custom-agents.js'
 
 const [, , command, ...args] = process.argv
@@ -269,6 +273,10 @@ async function chatMode() {
         console.log('  /agent-new <name> | <p>  Create new agent with pipe separator')
         console.log('  /agent-edit <name> | <p> Edit agent system prompt')
         console.log('  /agent-delete <name>    Delete a custom agent')
+        console.log('  /agent-export <name|#>  Export an agent as JSON')
+        console.log('  /agent-export <name|#> to <file>  Export to file')
+        console.log('  /agent-import <json>    Import agent from JSON string')
+        console.log('  /agent-import from <file>        Import from JSON file')
         console.log('  /agent-reset            Reset agents to defaults')
         console.log('  ── Chat ──')
         console.log('  /clear                  Clear conversation history')
@@ -477,6 +485,111 @@ async function chatMode() {
           } else {
             console.log(`  ✗ Agent "${ref}" not found`)
           }
+        } catch (err) {
+          console.log(`  ✗ ${err.message}`)
+        }
+        askQuestion()
+        return
+      }
+
+      // ── Bare /agent-export shows usage ──
+      if (trimmed === '/agent-export') {
+        console.log('  Usage: /agent-export <name|#>           Export agent as JSON')
+        console.log('         /agent-export <name|#> to <file>  Export to JSON file')
+        console.log('  Examples:')
+        console.log('    /agent-export Code Reviewer')
+        console.log('    /agent-export 2 to my-agent.json')
+        askQuestion()
+        return
+      }
+
+      // ── Export agent to console ──
+      if (trimmed.startsWith('/agent-export ')) {
+        const rest = trimmed.slice(14).trim()
+        
+        // Check if exporting to file: /agent-export <name> to <filename>
+        const toIdx = rest.indexOf(' to ')
+        if (toIdx !== -1) {
+          const idOrName = rest.slice(0, toIdx).trim()
+          const filePath = rest.slice(toIdx + 4).trim()
+          if (!idOrName || !filePath) {
+            console.log('  ✗ Usage: /agent-export <name|#> to <filename>')
+            askQuestion()
+            return
+          }
+          try {
+            const writtenPath = exportAgentToFile(idOrName, filePath)
+            console.log(`  ✓ Exported to: ${writtenPath}`)
+          } catch (err) {
+            console.log(`  ✗ ${err.message}`)
+          }
+          askQuestion()
+          return
+        }
+
+        // Export to console
+        try {
+          const { agent, json } = exportAgent(rest)
+          console.log(`\n  ${agent.emoji} ${agent.name}`)
+          console.log(`  ─${'─'.repeat(50)}`)
+          console.log(json)
+          console.log(`  ─${'─'.repeat(50)}`)
+          console.log('  Copy the JSON above to share this agent.')
+          console.log('  Import it with: /agent-import <paste-json-here>')
+        } catch (err) {
+          console.log(`  ✗ ${err.message}`)
+        }
+        askQuestion()
+        return
+      }
+
+      // ── Bare /agent-import shows usage ──
+      if (trimmed === '/agent-import') {
+        console.log('  Usage: /agent-import <json>              Import agent from inline JSON')
+        console.log('         /agent-import from <file>          Import agent from JSON file')
+        console.log('  Examples:')
+        console.log('    /agent-import {"name":"My Agent","systemPrompt":"You are..."}')
+        console.log('    /agent-import from my-agent.json')
+        askQuestion()
+        return
+      }
+
+      // ── Import agent from file or JSON string ──
+      if (trimmed.startsWith('/agent-import ')) {
+        const rest = trimmed.slice(13).trim()
+        
+        // Check for file import: /agent-import from <filename>
+        if (rest.startsWith('from ')) {
+          const filePath = rest.slice(5).trim()
+          if (!filePath) {
+            console.log('  ✗ Usage: /agent-import from <filename>')
+            askQuestion()
+            return
+          }
+          try {
+            const agent = importAgentFromFile(filePath)
+            refreshAgents()
+            currentAgent = listAgents().find((a) => a.id === agent.id) || currentAgent
+            console.log(`  ✓ Imported: ${agent.emoji} ${agent.name}`)
+          } catch (err) {
+            console.log(`  ✗ ${err.message}`)
+          }
+          askQuestion()
+          return
+        }
+
+        // Inline JSON import: /agent-import {"name":"...",...}
+        if (!rest) {
+          console.log('  ✗ Usage: /agent-import <json>  or  /agent-import from <file>')
+          console.log('  Example: /agent-import {"name":"My Agent","systemPrompt":"You are..."}')
+          askQuestion()
+          return
+        }
+        try {
+          const agent = importAgent(rest)
+          refreshAgents()
+          currentAgent = listAgents().find((a) => a.id === agent.id) || currentAgent
+          console.log(`  ✓ Imported: ${agent.emoji} ${agent.name}`)
         } catch (err) {
           console.log(`  ✗ ${err.message}`)
         }

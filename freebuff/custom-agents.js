@@ -248,6 +248,127 @@ export function deleteAgent(id) {
 }
 
 /**
+ * Export an agent as a portable JSON string.
+ * @param {string} idOrName - Agent ID, name, or number string
+ * @returns {{agent: object, json: string}} The agent object and its JSON representation
+ */
+export function exportAgent(idOrName) {
+  const agents = loadAgents()
+  let agent = null
+
+  // Try by number first (matching CLI convention)
+  const num = parseInt(idOrName, 10)
+  if (!isNaN(num) && num >= 1 && num <= agents.length) {
+    agent = agents[num - 1]
+  }
+
+  // Try by ID or name
+  if (!agent) {
+    agent = agents.find((a) => a.id === idOrName || a.name.toLowerCase() === idOrName.toLowerCase())
+  }
+
+  if (!agent) {
+    throw new Error(`Agent "${idOrName}" not found`)
+  }
+
+  // Portable format: include id for round-trip fidelity
+  const portable = {
+    id: agent.id,
+    name: agent.name,
+    emoji: agent.emoji,
+    description: agent.description,
+    systemPrompt: agent.systemPrompt,
+  }
+
+  return {
+    agent: portable,
+    json: JSON.stringify(portable, null, 2),
+  }
+}
+
+/**
+ * Export an agent to a JSON file.
+ * @param {string} idOrName - Agent ID, name, or number string
+ * @param {string} filePath - File path to write to (defaults to agent-<name>.json)
+ * @returns {string} The path the file was written to
+ */
+export function exportAgentToFile(idOrName, filePath) {
+  const { agent, json } = exportAgent(idOrName)
+  
+  if (!filePath) {
+    const sanitizedName = agent.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+    filePath = resolve(process.cwd(), `agent-${sanitizedName}.json`)
+  }
+
+  writeFileSync(filePath, json, 'utf8')
+  return filePath
+}
+
+/**
+ * Import an agent from a JSON string or object.
+ * Creates the agent if it doesn't exist, updates if it does.
+ * @param {string|object} input - JSON string or object with agent fields
+ * @returns {object} The imported/updated agent
+ */
+export function importAgent(input) {
+  let data
+
+  if (typeof input === 'string') {
+    try {
+      data = JSON.parse(input)
+    } catch {
+      throw new Error('Invalid JSON. Use format: {"name":"...","systemPrompt":"..."}')
+    }
+  } else if (typeof input === 'object' && input !== null) {
+    data = input
+  } else {
+    throw new Error('Invalid input: expected JSON string or object')
+  }
+
+  if (!data.name || !data.systemPrompt) {
+    throw new Error('Agent must have at least "name" and "systemPrompt" fields')
+  }
+
+  // Use provided ID or generate from name
+  const id = data.id || data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+  const emoji = data.emoji || '🤖'
+  const description = data.description || `Custom agent: ${data.name}`
+
+  const agents = loadAgents()
+  const existing = agents.find((a) => a.id === id)
+
+  if (existing) {
+    // Update existing agent
+    const updates = {
+      name: data.name,
+      emoji,
+      description,
+      systemPrompt: data.systemPrompt,
+    }
+    return updateAgent(id, updates)
+  } else {
+    // Create new agent
+    return createAgent(id, data.name, description, data.systemPrompt, emoji)
+  }
+}
+
+/**
+ * Import an agent from a JSON file.
+ * @param {string} filePath - Path to a JSON file
+ * @returns {object} The imported/updated agent
+ */
+export function importAgentFromFile(filePath) {
+  const resolvedPath = resolve(process.cwd(), filePath)
+  
+  if (!existsSync(resolvedPath)) {
+    throw new Error(`File not found: ${filePath}`)
+  }
+
+  const raw = readFileSync(resolvedPath, 'utf8')
+  return importAgent(raw)
+}
+
+/**
  * Reset all agents to defaults.
  */
 export function resetAgents() {
