@@ -201,65 +201,99 @@ async function callOpenAICompatible(model, messages, opts) {
   const baseUrl = model.baseUrl || PROVIDER_URLS[provider]
   if (!baseUrl) throw new Error(`Unknown base URL for provider: ${provider}`)
 
-  const body = {
-    model: model.providerModel,
-    messages: messages.map((m) => ({
-      role: m.role,
-      content: m.content,
-    })),
-    max_tokens: opts.maxTokens === Infinity ? 65536 : opts.maxTokens,
-    temperature: opts.temperature ?? 0.7,
-    stream: opts.stream ?? false,
-  }
+  // Clone messages for potential chunked generation
+  const msgs = messages.map((m) => ({ role: m.role, content: m.content }))
+  const write = opts.writeToStdout ? (chunk) => { process.stdout.write(chunk) } : () => {}
+  const maxIterations = 50
+  let fullResponse = ''
 
-  const response = await fetch(`${baseUrl}/chat/completions`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-      ...(provider === 'openrouter' ? {
-        'HTTP-Referer': 'https://aigenev7.ai',
-        'X-Title': 'AIGENEV7',
-      } : {}),
-    },
-    body: JSON.stringify(body),
-  })
+  for (let iteration = 0; iteration < maxIterations; iteration++) {
+    const effectiveMaxTokens = opts.maxTokens === Infinity ? 65536 : opts.maxTokens
 
-  if (!response.ok) {
-    const text = await response.text()
-    // Handle 402 credit errors - auto-retry with affordable token count
-    if (response.status === 402) {
-      const match = text.match(/can only afford (\d+)/)
-      if (match) {
-        const affordable = parseInt(match[1], 10)
-        if (affordable > 1) {
-          body.max_tokens = Math.max(1, affordable - 10) // leave 10 token safety margin
-          const retryResponse = await fetch(`${baseUrl}/chat/completions`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${apiKey}`,
-              ...(provider === 'openrouter' ? {
-                'HTTP-Referer': 'https://aigenev7.ai',
-                'X-Title': 'AIGENEV7',
-              } : {}),
-            },
-            body: JSON.stringify(body),
-          })
-          if (retryResponse.ok) {
-            if (opts.stream) return handleOpenAIStream(retryResponse, opts.writeToStdout, opts.onChunk)
-            const retryData = await retryResponse.json()
-            return retryData.choices[0].message.content
+    const body = {
+      model: model.providerModel,
+      messages: msgs,
+      max_tokens: effectiveMaxTokens,
+      temperature: opts.temperature ?? 0.7,
+      stream: false, // non-streaming for chunked generation
+    }
+
+    const response = await fetch(`${baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+        ...(provider === 'openrouter' ? {
+          'HTTP-Referer': 'https://aigenev7.ai',
+          'X-Title': 'AIGENEV7',
+        } : {}),
+      },
+      body: JSON.stringify(body),
+    })
+
+    if (!response.ok) {
+      const text = await response.text()
+      // Handle 402 credit errors - retry with affordable token count
+      if (response.status === 402 && iteration === 0) {
+        const match = text.match(/can only afford (\d+)/)
+        if (match) {
+          const affordable = parseInt(match[1], 10)
+          if (affordable > 10) {
+            body.max_tokens = Math.max(1, affordable - 10)
+            const retryResponse = await fetch(`${baseUrl}/chat/completions`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${apiKey}`,
+                ...(provider === 'openrouter' ? {
+                  'HTTP-Referer': 'https://aigenev7.ai',
+                  'X-Title': 'AIGENEV7',
+                } : {}),
+              },
+              body: JSON.stringify(body),
+            })
+            if (retryResponse.ok) {
+              const retryData = await retryResponse.json()
+              const chunk = retryData.choices[0].message.content
+              fullResponse += chunk
+              write(chunk)
+              if (opts.onChunk) opts.onChunk(chunk)
+              // Check if we need to continue
+              if (retryData.choices[0].finish_reason === 'length' && chunk.length > 0) {
+                msgs.push({ role: 'assistant', content: chunk })
+                msgs.push({ role: 'user', content: 'continue' })
+                continue
+              }
+              return fullResponse
+            }
           }
         }
+      } else if (iteration > 0) {
+        // During chunked continuation, if we get an error, return what we have
+        break
+      } else {
+        throw new Error(`${provider} API error (${response.status}): ${text}`)
       }
     }
-    throw new Error(`${provider} API error (${response.status}): ${text}`)
+
+    if (!response.ok) throw new Error(`${provider} API error (${response.status}): ${await response.text()}`)
+
+    const data = await response.json()
+    const chunk = data.choices[0].message.content
+    fullResponse += chunk
+    write(chunk)
+    if (opts.onChunk) opts.onChunk(chunk)
+
+    // Check if we should continue generating
+    if (data.choices[0].finish_reason === 'length' && chunk.length > 0 && iteration < maxIterations - 1) {
+      msgs.push({ role: 'assistant', content: chunk })
+      msgs.push({ role: 'user', content: 'continue' })
+    } else {
+      break
+    }
   }
 
-  if (opts.stream) return handleOpenAIStream(response, opts.writeToStdout, opts.onChunk)
-  const data = await response.json()
-  return data.choices[0].message.content
+  return fullResponse
 }
 
 /**
