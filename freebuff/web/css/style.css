@@ -201,6 +201,28 @@ section { scroll-margin-top: 80px; }
 .badge.red { background: rgba(255, 68, 102, 0.1); color: var(--red); border-color: rgba(255, 68, 102, 0.2); }
 .badge.orange { background: rgba(255, 136, 68, 0.1); color: var(--orange); border-color: rgba(255, 136, 68, 0.2); }
 
+/* ── Hero Premium Badge ── */
+.badge.premium-hero-badge {
+  background: linear-gradient(135deg, rgba(136, 85, 255, 0.15), rgba(0, 255, 136, 0.08));
+  color: var(--purple);
+  border-color: rgba(136, 85, 255, 0.25);
+  text-decoration: none;
+  animation: heroPremPulse 2.5s ease-in-out infinite;
+  box-shadow: 0 0 12px var(--purple-glow);
+  position: relative;
+  cursor: pointer;
+}
+.badge.premium-hero-badge:hover {
+  background: linear-gradient(135deg, rgba(136, 85, 255, 0.25), rgba(0, 255, 136, 0.15));
+  border-color: var(--purple);
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px var(--purple-glow), 0 4px 15px rgba(0,0,0,0.3);
+}
+@keyframes heroPremPulse {
+  0%, 100% { box-shadow: 0 0 12px var(--purple-glow); transform: translateY(0); }
+  50% { box-shadow: 0 0 20px var(--purple-glow), 0 0 30px rgba(136, 85, 255, 0.15); transform: translateY(-1px); }
+}
+
 .cta-group { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; animation: fadeInUp 0.8s ease-out 0.4s both; }
 .cta {
   display: inline-flex; align-items: center; gap: 0.5rem;
