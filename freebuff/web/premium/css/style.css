@@ -105,6 +105,14 @@ header nav a {
   font-size: 0.82rem; transition: color 0.2s; font-weight: 500;
 }
 header nav a:hover { color: var(--accent); }
+header nav a.premium-nav-link:hover {
+  text-shadow: 0 0 8px var(--accent-glow), 0 0 20px var(--purple-glow);
+  animation: premNavPulse 2s ease-in-out infinite;
+}
+@keyframes premNavPulse {
+  0%, 100% { text-shadow: 0 0 8px var(--accent-glow); }
+  50% { text-shadow: 0 0 14px var(--accent-glow), 0 0 28px var(--purple-glow); }
+}
 
 /* ── Hero ── */
 .hero {
