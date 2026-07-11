@@ -233,7 +233,7 @@ async function callOpenAICompatible(model, messages, opts) {
       if (match) {
         const affordable = parseInt(match[1], 10)
         if (affordable > 1) {
-          body.max_tokens = affordable - 1 // leave 1 token safety margin
+          body.max_tokens = Math.max(1, affordable - 10) // leave 10 token safety margin
           const retryResponse = await fetch(`${baseUrl}/chat/completions`, {
             method: 'POST',
             headers: {
