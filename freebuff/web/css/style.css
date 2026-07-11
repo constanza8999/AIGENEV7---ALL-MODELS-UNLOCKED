@@ -149,7 +149,7 @@ header {
 }
 .logo-sub { color: var(--text-dim); font-size: 0.8rem; margin-left: auto; }
 .header-nav { display: flex; gap: 1.5rem; margin-left: auto; align-items: center; }
-.header-nav a { color: var(--text-dim); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+.header-nav a { color: var(--text-dim); text-decoration: none; font-size: 0.85rem; transition: color 0.2s, text-shadow 0.3s; }
 .header-nav a:hover { color: var(--accent); }
 .header-nav a[href="premium/"]:hover {
   text-shadow: 0 0 8px var(--accent-glow), 0 0 20px var(--purple-glow);
