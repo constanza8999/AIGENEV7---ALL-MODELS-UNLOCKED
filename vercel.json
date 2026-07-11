@@ -1,0 +1,11 @@
+{
+  "name": "aigenev7-landing",
+  "version": 2,
+  "public": true,
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "buildCommand": null,
+  "outputDirectory": "freebuff/web",
+  "framework": null,
+  "rewrites": []
+}
