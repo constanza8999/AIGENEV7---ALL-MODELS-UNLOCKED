@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIGENEV7 — Free AI Coding Agent</title>
+  <meta name="description" content="Free AI coding assistant. No subscription. No censorship. Unlimited models.">
+  <meta name="theme-color" content="#0a0a0f">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="48x48" href="icon.png">
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Data (static, customizable) -->
+  <script src="js/data.js"></script>
+  <!-- Quantum simulator (browser-side, zero API) -->
+  <script src="js/quantum.js"></script>
+  <!-- Agent gallery -->
+  <script src="js/gallery.js" defer></script>
+  <!-- Store (aigen7ev.store) -->
+  <script src="js/store.js" defer></script>
+  <!-- Animations & UI effects -->
+  <script src="js/animations.js" defer></script>
+  <!-- Agent chat -->
+  <script src="js/chat.js" defer></script>
+</head>
+<body>
+
+<!-- ── Background Effects ── -->
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+<div class="particles" id="particles"></div>
+
+<!-- ── Toasts ── -->
+<div class="toast" id="toast">✓ Copied to clipboard</div>
+<div class="error-toast" id="errorToast"></div>
+
+<div class="page">
+
+<!-- ── Header ── -->
+<header>
+  <img src="icon.png" alt="AIGENEV7" class="header-icon" width="28" height="28">
+  <span class="logo">AIGENEV7</span>
+  <nav class="header-nav">
+    <a href="#features">Features</a>
+    <a href="#models">Models</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#store">Store</a>
+    <a href="#gallery">Gallery</a>
+    <a href="#quantum">Quantum</a>
+    <a href="premium/">💎 Premium</a>
+    <a href="#chat">Chat</a>
+    <a href="#feedback">Feedback</a>
+    <a href="https://github.com/constanza8999">GitHub</a>
+    <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+      <span class="theme-icon-light">☀️</span>
+      <span class="theme-icon-dark" style="display:none">🌙</span>
+    </button>
+  </nav>
+  <span class="logo-sub">by CONSTANZA</span>
+</header>
+
+<!-- ── Hero ── -->
+<section class="hero">
+  <h1>AIGENEV7</h1>
+  <p class="hero-subtitle">
+    <span id="subtitle-text"></span><span class="cursor-blink"></span>
+  </p>
+  <div class="badges">
+    <span class="badge green">✦ Unlimited</span>
+    <span class="badge purple">✦ Uncensored</span>
+    <span class="badge red">✦ All Models</span>
+    <span class="badge orange">✦ Free Forever</span>
+    <a href="premium/" class="badge premium-hero-badge">💎 Premium Available</a>
+  </div>
+
+  <div class="terminal-wrapper">
+    <div class="terminal" id="terminal">
+      <div class="terminal-header">
+        <span class="terminal-dot red"></span>
+        <span class="terminal-dot yellow"></span>
+        <span class="terminal-dot green"></span>
+        <span class="terminal-title">aigenev7 — free AI coding agent</span>
+      </div>
+      <div class="terminal-body" id="terminal-body"></div>
+      <div class="terminal-restart-btn" id="terminal-restart">↻ Replay</div>
+    </div>
+  </div>
+
+  <div class="cta-group">
+    <a href="https://github.com/constanza8999/aigenev7.com" class="cta"><span>↓</span> Get Started</a>
+    <a href="#chat" class="cta secondary">Try Agent Chat →</a>
+  </div>
+</section>
+
+<!-- ── Stats ── -->
+<section class="stats-section">
+  <div class="stat-card">
+    <div class="stat-number" data-target="10">0</div>
+    <div class="stat-label">LLM Providers</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number" id="modelsStat" data-target="41">0</div>
+    <div class="stat-label">Models Supported</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">∞</div>
+    <div class="stat-label">Usage Limits</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number" data-target="100">0</div>
+    <div class="stat-label">% Local & Private</div>
+  </div>
+</section>
+
+<!-- ── Features ── -->
+<section class="features" id="features">
+  <div class="feature-card">
+    <div class="feature-icon">🔥</div>
+    <h3>Unlimited Usage</h3>
+    <p>No token limits, no rate limits, no session caps. Code as long as you want.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">🚫</div>
+    <h3>Uncensored</h3>
+    <p>No content filters, no safety classifiers, no output restrictions.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">🌐</div>
+    <h3>All Models</h3>
+    <p>Claude, GPT, DeepSeek, Gemini, Grok, Kimi, MiMo, MiniMax — any model.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">⚡</div>
+    <h3>Zero Config</h3>
+    <p>No subscriptions, no credit cards, no account required.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">🛠️</div>
+    <h3>Full Agent</h3>
+    <p>Edits files, runs commands, searches code, browses the web.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">🔓</div>
+    <h3>Open Source</h3>
+    <p>MIT licensed. Fork it, modify it, self-host it.</p>
+  </div>
+</section>
+
+<!-- ── Models Grid ── -->
+<section class="models-section" id="models">
+  <h2>Supported Models</h2>
+  <p class="models-subtitle">Click any model for details</p>
+  <div class="models-grid">
+    <div class="model-card" data-provider="Anthropic">
+      <div class="model-name">Fable 5</div>
+      <div class="model-desc">Smartest & Multimodal</div>
+      <div class="model-provider">via Anthropic</div>
+    </div>
+    <div class="model-card" data-provider="DeepSeek">
+      <div class="model-name">DeepSeek V4 Pro</div>
+      <div class="model-desc">Smartest reasoning</div>
+      <div class="model-provider">via DeepSeek</div>
+    </div>
+    <div class="model-card" data-provider="OpenAI">
+      <div class="model-name">GPT-5</div>
+      <div class="model-desc">Latest flagship</div>
+      <div class="model-provider">via OpenAI</div>
+    </div>
+    <div class="model-card" data-provider="Google">
+      <div class="model-name">Gemini 2.5 Pro</div>
+      <div class="model-desc">Premium reasoning</div>
+      <div class="model-provider">via Google</div>
+    </div>
+    <div class="model-card" data-provider="xAI">
+      <div class="model-name">Grok 4</div>
+      <div class="model-desc">Uncensored by design</div>
+      <div class="model-provider">via xAI</div>
+    </div>
+    <div class="model-card" data-provider="Moonshot">
+      <div class="model-name">Kimi K2.6</div>
+      <div class="model-desc">Balanced performance</div>
+      <div class="model-provider">via Moonshot</div>
+    </div>
+    <div class="model-card" data-provider="MiMo">
+      <div class="model-name">MiMo 2.5 Pro</div>
+      <div class="model-desc">Deep thinking</div>
+      <div class="model-provider">via MiMo</div>
+    </div>
+    <div class="model-card" data-provider="MiniMax">
+      <div class="model-name">MiniMax M3</div>
+      <div class="model-desc">Smartest & Fastest</div>
+      <div class="model-provider">via MiniMax</div>
+    </div>
+    <div class="model-card" data-provider="OpenRouter">
+      <div class="model-name">OpenRouter</div>
+      <div class="model-desc">200+ models via one API</div>
+      <div class="model-provider">via OpenRouter</div>
+    </div>
+    <div class="model-card" data-provider="NVIDIA">
+      <div class="model-name">NVIDIA NIM</div>
+      <div class="model-desc">Llama, Mistral, Nemotron</div>
+      <div class="model-provider">via NVIDIA API</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Rewards ── -->
+<section class="rewards-section">
+  <h2>Contributor Rewards</h2>
+  <p class="rewards-subtitle">Free forever. Earn points, unlock tiers, get recognized.</p>
+  <div class="rewards-tiers">
+    <div class="reward-tier bronze">
+      <div class="tier-badge">🥉</div>
+      <div class="tier-name" style="color:var(--accent)">Bronze</div>
+      <div class="tier-points">25+ points</div>
+      <ul class="tier-perks">
+        <li>Name in CONTRIBUTORS.md</li>
+        <li>Release notes shoutout</li>
+      </ul>
+    </div>
+    <div class="reward-tier silver">
+      <div class="tier-badge">🥈</div>
+      <div class="tier-name" style="color:var(--purple)">Silver</div>
+      <div class="tier-points">100+ points</div>
+      <ul class="tier-perks">
+        <li>All Bronze</li>
+        <li>Early access to features</li>
+      </ul>
+    </div>
+    <div class="reward-tier gold">
+      <div class="tier-badge">🥇</div>
+      <div class="tier-name" style="color:var(--orange)">Gold</div>
+      <div class="tier-points">500+ points</div>
+      <ul class="tier-perks">
+        <li>All Silver</li>
+        <li>Private core chat</li>
+      </ul>
+    </div>
+    <div class="reward-tier diamond">
+      <div class="tier-badge">💎</div>
+      <div class="tier-name" style="color:var(--blue)">Diamond</div>
+      <div class="tier-points">2,000+ points</div>
+      <ul class="tier-perks">
+        <li>All Gold</li>
+        <li>Direct line to maintainer</li>
+      </ul>
+    </div>
+    <div class="reward-tier legend">
+      <div class="tier-badge">👑</div>
+      <div class="tier-name" style="color:var(--red)">Legend</div>
+      <div class="tier-points">10,000+ points</div>
+      <ul class="tier-perks">
+        <li>All Diamond</li>
+        <li>Project governance</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ── Pricing Divider ── -->
+<div class="chat-divider" id="pricing"><span>✦ Subscription Plans ✦</span></div>
+
+<!-- ── Pricing Section ── -->
+<section class="pricing-section">
+  <p class="pricing-subtitle">Choose your plan. Unlimited usage. No hidden fees. Cancel anytime.</p>
+
+  <!-- Billing Toggle -->
+  <div class="pricing-toggle" id="pricingToggle">
+    <span>Billed</span>
+    <div class="pricing-toggle-btn">
+      <button class="active" data-period="weekly">Weekly</button>
+      <button data-period="monthly">Monthly</button>
+      <button data-period="yearly">Yearly</button>
+      <button data-period="lifetime">Lifetime</button>
+    </div>
+  </div>
+
+  <div class="pricing-grid" id="pricingGrid"></div>
+</section>
+
+<!-- ── Store Divider ── -->
+<div class="chat-divider" id="store"><span>🛒 aigen7ev.store 🛒</span></div>
+
+<!-- ── Store Section ── -->
+<section class="store-section" id="storeSection">
+  <div class="store-header-bar">
+    <div class="store-domain">
+      <a href="https://aigen7ev.store" target="_blank">aigen7ev.store</a>
+      — AI store for developers
+    </div>
+    <div class="store-cart-icon" id="cartIcon" title="Open Cart">
+      🛒
+      <span class="store-cart-count" id="cartCount">0</span>
+    </div>
+  </div>
+
+  <!-- Category Tabs -->
+  <div class="store-categories" id="storeCategories"></div>
+
+  <!-- Product Grid -->
+  <div class="store-grid" id="storeGrid"></div>
+</section>
+
+<!-- ── Cart Overlay ── -->
+<div class="cart-overlay" id="cartOverlay"></div>
+
+<!-- ── Cart Sidebar ── -->
+<div class="cart-sidebar" id="cartSidebar">
+  <div class="cart-header">
+    <h3>🛒 Your Cart</h3>
+    <div style="display:flex;gap:0.5rem;align-items:center;">
+      <button class="cart-clear" id="cartClear" title="Remove all items">Clear</button>
+      <button class="cart-close" id="cartClose" title="Close">✕</button>
+    </div>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <div class="cart-empty">Your cart is empty.</div>
+  </div>
+  <div class="cart-footer">
+    <div class="cart-total-row">
+      <span class="cart-total-label">Total</span>
+      <span class="cart-total" id="cartTotal">$0.00</span>
+    </div>
+    <button class="cart-checkout-btn" id="checkoutBtn" disabled>
+      <span class="lock-icon">🔒</span> Proceed to Checkout
+    </button>
+    <div class="cart-powered">Secured by <strong>Stripe</strong> — Payments handled on checkout page</div>
+  </div>
+</div>
+
+<!-- ── Gallery Divider ── -->
+<div class="chat-divider" id="gallery"><span>✦ Agent Gallery ✦</span></div>
+
+<!-- ── Agent Gallery ── -->
+<section class="gallery-section">
+  <p class="gallery-subtitle">Browse and download community agent personas. Import them via the CLI with <code>/agent-import from &lt;file&gt;</code>.</p>
+  <div class="gallery-contribute">
+    <a href="https://github.com/constanza8999" target="_blank">Submit your own agent → edit js/data.js</a>
+  </div>
+  <div class="gallery-filters" id="galleryFilters"></div>
+  <div class="gallery-grid" id="agentGallery"></div>
+</section>
+
+<!-- ── Quantum Lab Divider ── -->
+<div class="chat-divider" id="quantum"><span>⚛️ Quantum Lab ⚛️</span></div>
+
+<!-- ── Quantum Lab Section ── -->
+<section class="quantum-section">
+  <p class="quantum-subtitle">Run quantum circuits in your browser. Zero API calls. Unlimited qubits.</p>
+  <div class="quantum-container">
+    <div class="quantum-body">
+      <div class="quantum-controls">
+        <button class="quantum-btn active" data-demo="bell">Bell State</button>
+        <button class="quantum-btn" data-demo="ghz">GHZ State</button>
+        <button class="quantum-btn" data-demo="superposition">Superposition</button>
+        <button class="quantum-btn" data-demo="bell-swap">Bell via SWAP</button>
+        <button class="quantum-btn" data-demo="toffoli">Toffoli Gate</button>
+      </div>
+      <div class="quantum-controls">
+        <input class="quantum-input" id="quantumCustom" type="text"
+          placeholder="Custom: H(0) CNOT(0,1) X(2) ..."
+          value="H(0) CNOT(0,1)">
+        <button class="quantum-btn" id="quantumRunBtn">▶ Run</button>
+        <div class="quantum-shots">
+          <label>Shots:</label>
+          <input type="number" id="quantumShots" value="1024" min="1" max="100000">
+        </div>
+      </div>
+      <div class="quantum-display" id="quantumDisplay">Click a demo or enter custom gates above.</div>
+      <div class="quantum-result" id="quantumResult"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Chat Divider ── -->
+<div class="chat-divider" id="chat"><span>✦ Agent Chat ✦</span></div>
+
+<!-- ── Agent Chat ── -->
+<section class="chat-section">
+  <p class="chat-subtitle">Select an agent persona and model, then chat.</p>
+  <div class="chat-container" id="chatContainer">
+    <!-- Top Bar -->
+    <div class="chat-topbar">
+      <div class="chat-topbar-row">
+        <label>Agent:</label>
+        <div class="agent-chips" id="agentChips"></div>
+        <div class="chat-current">
+          <span class="tag" id="currentAgentTag">🤖 Coding Assistant</span>
+        </div>
+        <button class="clear-chat-btn" id="clearChatBtn">✕ Clear</button>
+      </div>
+      <div class="chat-topbar-row">
+        <label>Model:</label>
+        <select class="model-select" id="modelSelect"></select>
+        <div class="model-quick-picks" id="modelQuickPicks"></div>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    <div class="chat-messages" id="chatMessages"></div>
+
+    <!-- Typing -->
+    <div class="typing-indicator" id="typingIndicator">
+      <span>Thinking</span>
+      <div class="typing-dots"><span></span><span></span><span></span></div>
+    </div>
+
+    <!-- Input -->
+    <div class="chat-input-area">
+      <textarea id="chatInput" rows="1"
+        placeholder="Type a message... (Enter to send, Shift+Enter for new line)"
+        disabled></textarea>
+      <div class="chat-actions">
+        <button class="stop-btn" id="stopBtn">■</button>
+        <button class="send-btn" id="sendBtn">➤</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Premium CLI Plans Divider ── -->
+<div class="chat-divider" id="premium"><span>✦ Premium CLI Plans ✦</span></div>
+
+<!-- ── Premium CLI Plans Section ── -->
+<section class="premium-section">
+  <p class="premium-subtitle">Unlock advanced CLI features. All payments go directly to the developer. No recurring subscriptions required.</p>
+  <div class="premium-grid" id="premiumGrid"></div>
+
+  <div class="keygen-box" style="margin-top:2rem">
+    <div class="keygen-header">🔑 Generate Your Premium Key</div>
+    <p class="keygen-desc">Select your tier, generate a sample key, and copy the CLI command. After payment you'll receive your real key.</p>
+    <div class="keygen-controls">
+      <label for="keygenTierMain">Tier:</label>
+      <select id="keygenTierMain" class="keygen-select">
+        <option value="pro">⭐ Pro</option>
+        <option value="elite">💎 Elite</option>
+        <option value="enterprise">🏢 Enterprise</option>
+      </select>
+      <button class="keygen-generate-btn" id="keygenGenerateMain">⟳ Generate</button>
+    </div>
+    <div class="keygen-display">
+      <div class="keygen-label">Your Premium Key</div>
+      <div class="keygen-key-row">
+        <code class="keygen-key" id="keygenKeyMain">ag7_pro_x8m2k9p4v3q1w6n5</code>
+        <button class="keygen-copy-btn" id="keygenCopyKeyMain" title="Copy key">📋 Copy</button>
+      </div>
+    </div>
+    <div class="keygen-display">
+      <div class="keygen-label">CLI Command</div>
+      <div class="keygen-key-row">
+        <code class="keygen-key keygen-cmd" id="keygenCmdMain">bun run inference-cli.js chat --premium-key ag7_pro_x8m2k9p4v3q1w6n5</code>
+        <button class="keygen-copy-btn" id="keygenCopyCmdMain" title="Copy command">📋 Copy</button>
+      </div>
+    </div>
+    <div class="keygen-note">
+      💡 After paying via the methods below, you'll receive your real <code>ag7_xxx</code> key by email.
+      Use it with <code>--premium-key</code> or <code>AIGENEV7_PREMIUM_KEY</code>.
+    </div>
+  </div>
+</section>
+
+<!-- ── Payment Methods Divider ── -->
+<div class="chat-divider" id="payment"><span>✦ Payment Methods ✦</span></div>
+
+<!-- ── Payment Methods Section ── -->
+<section class="payment-section">
+  <p class="payment-subtitle">Support development by paying what you can. All payments go directly to the creator.</p>
+  <div class="payment-grid" id="paymentGrid"></div>
+</section>
+
+<!-- ── Feedback Divider ── -->
+<div class="chat-divider" id="feedback"><span>✦ Send Feedback ✦</span></div>
+
+<!-- ── Feedback / Contact Section ── -->
+<section class="feedback-section">
+  <p class="feedback-subtitle">Help shape AIGENEV7. Bug reports, feature ideas, or just say hi.</p>
+
+  <form class="feedback-form" id="feedbackForm" novalidate>
+    <div class="feedback-row">
+      <div class="feedback-field">
+        <label for="feedbackName">Your Name</label>
+        <input type="text" id="feedbackName" placeholder="e.g. Alex" required>
+      </div>
+      <div class="feedback-field">
+        <label for="feedbackEmail">Email <span class="feedback-optional">(optional)</span></label>
+        <input type="email" id="feedbackEmail" placeholder="for a reply">
+      </div>
+    </div>
+
+    <div class="feedback-field">
+      <label for="feedbackType">Type</label>
+      <div class="feedback-type-group" id="feedbackTypeGroup">
+        <button type="button" class="feedback-type-btn active" data-value="bug">🐛 Bug Report</button>
+        <button type="button" class="feedback-type-btn" data-value="feature">💡 Feature Request</button>
+        <button type="button" class="feedback-type-btn" data-value="feedback">💬 General Feedback</button>
+        <button type="button" class="feedback-type-btn" data-value="other">📝 Other</button>
+      </div>
+    </div>
+
+    <div class="feedback-field">
+      <label>Rating</label>
+      <div class="feedback-stars" id="feedbackStars">
+        <button type="button" class="star" data-value="1" title="Terrible">★</button>
+        <button type="button" class="star" data-value="2" title="Poor">★</button>
+        <button type="button" class="star" data-value="3" title="Okay">★</button>
+        <button type="button" class="star" data-value="4" title="Great">★</button>
+        <button type="button" class="star" data-value="5" title="Amazing!">★</button>
+      </div>
+    </div>
+
+    <div class="feedback-field">
+      <label for="feedbackMessage">Message <span class="feedback-required">*</span></label>
+      <textarea id="feedbackMessage" rows="4"
+        placeholder="Tell us what you think..."
+        required></textarea>
+    </div>
+
+    <div class="feedback-actions">
+      <button type="submit" class="feedback-submit" id="feedbackSubmit">
+        <span class="feedback-submit-text">Send Feedback</span>
+        <span class="feedback-submit-sent" style="display:none">✓ Sent!</span>
+      </button>
+      <p class="feedback-hint">Your feedback stays private. No account needed.</p>
+    </div>
+  </form>
+</section>
+
+<!-- ── Floating Premium CTA ── -->
+<a href="premium/" class="floating-premium" title="Unlock Premium CLI Features">
+  <span class="fp-gem">💎</span>
+  <span class="fp-text">Premium</span>
+  <span class="fp-arrow">→</span>
+</a>
+
+<!-- ── Footer ── -->
+<footer>
+  <p>Built by <strong>CONSTANZA</strong> — <a href="https://github.com/constanza8999">@constanza8999</a></p>
+  <p><a href="https://github.com/constanza8999/aigenev7.com">AIGENEV7</a> — Free AI for everyone. MIT License.</p>
+  <p class="footer-proof">
+    <a href="fairregister.pdf" target="_blank" class="proof-badge">
+      <span>📜</span> Proof of Authorship
+    </a>
+    <span class="proof-muted">FairRegister blockchain-certified</span>
+  </p>
+</footer>
+
+</div>
+
+<!-- ── Feedback JS ── -->
+<script>
+(function() {
+  'use strict'
+  var form = document.getElementById('feedbackForm')
+  if (!form) return
+
+  // Star rating
+  var stars = document.querySelectorAll('.star')
+  var currentRating = 0
+  for (var i = 0; i < stars.length; i++) {
+    ;(function(star, idx) {
+      star.addEventListener('click', function() {
+        currentRating = idx + 1
+        for (var j = 0; j < stars.length; j++) {
+          stars[j].classList.toggle('active', j < currentRating)
+        }
+      })
+      star.addEventListener('mouseenter', function() {
+        for (var j = 0; j < stars.length; j++) {
+          stars[j].classList.toggle('hover', j <= idx)
+        }
+      })
+      star.addEventListener('mouseleave', function() {
+        for (var j = 0; j < stars.length; j++) {
+          stars[j].classList.remove('hover')
+        }
+      })
+    })(stars[i], i)
+  }
+
+  // Type buttons
+  var typeBtns = document.querySelectorAll('.feedback-type-btn')
+  var selectedType = 'bug'
+  for (var i = 0; i < typeBtns.length; i++) {
+    ;(function(btn, val) {
+      btn.addEventListener('click', function() {
+        selectedType = val
+        for (var j = 0; j < typeBtns.length; j++) typeBtns[j].classList.remove('active')
+        btn.classList.add('active')
+      })
+    })(typeBtns[i], typeBtns[i].dataset.value)
+  }
+
+  // Form submit
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault()
+
+    var name = document.getElementById('feedbackName').value.trim()
+    var email = document.getElementById('feedbackEmail').value.trim()
+    var message = document.getElementById('feedbackMessage').value.trim()
+    var submitBtn = document.getElementById('feedbackSubmit')
+    var textEl = submitBtn.querySelector('.feedback-submit-text')
+    var sentEl = submitBtn.querySelector('.feedback-submit-sent')
+
+    if (!name) { alert('Please enter your name'); return }
+    if (!message) { alert('Please enter a message'); return }
+
+    var data = { name: name, email: email, type: selectedType, rating: currentRating, message: message, timestamp: new Date().toISOString() }
+
+    try {
+      var res = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+      if (!res.ok) throw new Error('Server error')
+    } catch (e) {
+      // Fallback: store locally
+      var stored = []
+      try { stored = JSON.parse(localStorage.getItem('aigenev7-feedback') || '[]') } catch {}
+      stored.push(data)
+      localStorage.setItem('aigenev7-feedback', JSON.stringify(stored))
+    }
+
+    // Show success
+    textEl.style.display = 'none'
+    sentEl.style.display = 'inline'
+    setTimeout(function() {
+      textEl.style.display = 'inline'
+      sentEl.style.display = 'none'
+      form.reset()
+      currentRating = 0
+      for (var j = 0; j < stars.length; j++) stars[j].classList.remove('active')
+    }, 2000)
+  })
+})()
+</script>
+
+<!-- ── Theme Toggle JS (early, prevents flash) ── -->
+<script>
+(function() {
+  'use strict'
+  var theme = localStorage.getItem('aigenev7-theme')
+  if (!theme) {
+    theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+  }
+  if (theme === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light')
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    var btn = document.getElementById('themeToggle')
+    var lightIcon = btn ? btn.querySelector('.theme-icon-light') : null
+    var darkIcon = btn ? btn.querySelector('.theme-icon-dark') : null
+    function setTheme(t) {
+      if (t === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (lightIcon) lightIcon.style.display = 'none'
+        if (darkIcon) darkIcon.style.display = 'inline'
+      } else {
+        document.documentElement.removeAttribute('data-theme')
+        if (lightIcon) lightIcon.style.display = 'inline'
+        if (darkIcon) darkIcon.style.display = 'none'
+      }
+      localStorage.setItem('aigenev7-theme', t)
+      // Update theme-color meta
+      var meta = document.querySelector('meta[name="theme-color"]')
+      if (meta) meta.content = t === 'light' ? '#f5f5f8' : '#0a0a0f'
+    }
+    if (btn) {
+      btn.addEventListener('click', function() {
+        var current = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark'
+        setTheme(current === 'light' ? 'dark' : 'light')
+      })
+    }
+    // Sync icon on load
+    var currentTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark'
+    if (currentTheme === 'light') {
+      if (lightIcon) lightIcon.style.display = 'none'
+      if (darkIcon) darkIcon.style.display = 'inline'
+    }
+  })
+})()
+</script>
+
+<!-- ── Premium CLI Plans JS ── -->
+<script>
+(function() {
+  'use strict'
+  var tiers = window.AIGENEV7_PREMIUM_TIERS || []
+  var grid = document.getElementById('premiumGrid')
+  if (!grid || tiers.length === 0) return
+
+  for (var i = 0; i < tiers.length; i++) {
+    var t = tiers[i]
+    var card = document.createElement('div')
+    card.className = 'premium-card'
+    if (t.id === 'pro') card.classList.add('premium-popular')
+    card.style.animationDelay = (i * 0.08) + 's'
+
+    // Badge
+    if (t.badge) {
+      var badge = document.createElement('div')
+      badge.className = 'premium-badge'
+      badge.textContent = t.badge
+      card.appendChild(badge)
+    }
+
+    // Emoji
+    var emoji = document.createElement('div')
+    emoji.className = 'premium-card-emoji'
+    emoji.textContent = t.emoji
+    card.appendChild(emoji)
+
+    // Name
+    var name = document.createElement('div')
+    name.className = 'premium-card-name'
+    name.style.color = t.color
+    name.textContent = t.name
+    card.appendChild(name)
+
+    // Price
+    var price = document.createElement('div')
+    price.className = 'premium-card-price'
+    price.textContent = t.price
+    card.appendChild(price)
+
+    // Description
+    var desc = document.createElement('div')
+    desc.className = 'premium-card-desc'
+    desc.textContent = t.description
+    card.appendChild(desc)
+
+    // Features
+    var ul = document.createElement('ul')
+    ul.className = 'premium-features'
+    for (var f = 0; f < t.features.length; f++) {
+      var li = document.createElement('li')
+      li.textContent = t.features[f]
+      ul.appendChild(li)
+    }
+    card.appendChild(ul)
+
+    // CTA
+    var cta = document.createElement('a')
+    cta.className = 'premium-cta'
+    cta.href = t.ctaLink
+    if (t.id === 'free') {
+      cta.className = 'premium-cta premium-cta-free'
+    }
+    cta.textContent = t.cta
+    card.appendChild(cta)
+
+    grid.appendChild(card)
+  }
+})()
+</script>
+
+<!-- ── Premium Key Generator JS (main site) ── -->
+<script>
+(function() {
+  'use strict'
+  var tierSelect = document.getElementById('keygenTierMain')
+  var generateBtn = document.getElementById('keygenGenerateMain')
+  var keyEl = document.getElementById('keygenKeyMain')
+  var cmdEl = document.getElementById('keygenCmdMain')
+  var copyKeyBtn = document.getElementById('keygenCopyKeyMain')
+  var copyCmdBtn = document.getElementById('keygenCopyCmdMain')
+  if (!tierSelect || !keyEl || !cmdEl) return
+
+  function generateKey() {
+    var tier = tierSelect.value
+    var chars = '0123456789abcdefghijklmnopqrstuvwxyz'
+    var rand = ''
+    for (var i = 0; i < 16; i++) {
+      rand += chars.charAt(Math.floor(Math.random() * chars.length))
+    }
+    var key = 'ag7_' + tier + '_' + rand
+    keyEl.textContent = key
+    cmdEl.textContent = 'bun run inference-cli.js chat --premium-key ' + key
+  }
+
+  function showToast() {
+    var toast = document.getElementById('toast')
+    if (!toast) return
+    toast.classList.remove('show')
+    // Force reflow to restart animation
+    void toast.offsetWidth
+    toast.classList.add('show')
+    setTimeout(function() {
+      toast.classList.remove('show')
+    }, 2000)
+  }
+
+  function copyToClipboard(el, btn) {
+    var text = el.textContent
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function() {
+        btn.textContent = '✓ Copied!'
+        btn.classList.add('copied')
+        showToast()
+        setTimeout(function() {
+          btn.textContent = '📋 Copy'
+          btn.classList.remove('copied')
+        }, 2000)
+      }).catch(function() { fallbackCopy(text, btn) })
+    } else { fallbackCopy(text, btn) }
+  }
+
+  function fallbackCopy(text, btn) {
+    var ta = document.createElement('textarea')
+    ta.value = text
+    ta.style.position = 'fixed'; ta.style.opacity = '0'
+    document.body.appendChild(ta); ta.select()
+    try {
+      document.execCommand('copy')
+      btn.textContent = '✓ Copied!'
+      btn.classList.add('copied')
+      showToast()
+      setTimeout(function(){ btn.textContent = '📋 Copy'; btn.classList.remove('copied') }, 2000)
+    } catch(e) {}
+    document.body.removeChild(ta)
+  }
+
+  generateBtn.addEventListener('click', generateKey)
+  tierSelect.addEventListener('change', generateKey)
+  copyKeyBtn.addEventListener('click', function() { copyToClipboard(keyEl, copyKeyBtn) })
+  copyCmdBtn.addEventListener('click', function() { copyToClipboard(cmdEl, copyCmdBtn) })
+  generateKey()
+})()
+</script>
+
+<!-- ── Payment Methods JS ── -->
+<script>
+(function() {
+  'use strict'
+  var methods = window.AIGENEV7_PAYMENT_METHODS || []
+  var grid = document.getElementById('paymentGrid')
+  if (!grid || methods.length === 0) return
+
+  for (var i = 0; i < methods.length; i++) {
+    var m = methods[i]
+    var card = document.createElement('div')
+    card.className = 'payment-card'
+    card.style.animationDelay = (i * 0.08) + 's'
+
+    var emoji = document.createElement('div')
+    emoji.className = 'payment-card-emoji'
+    emoji.textContent = m.emoji
+    card.appendChild(emoji)
+
+    var name = document.createElement('div')
+    name.className = 'payment-card-name'
+    name.textContent = m.name
+    card.appendChild(name)
+
+    var detail = document.createElement('div')
+    detail.className = 'payment-card-detail'
+    detail.textContent = m.detail
+    card.appendChild(detail)
+
+    var desc = document.createElement('div')
+    desc.className = 'payment-card-desc'
+    desc.textContent = m.description
+    card.appendChild(desc)
+
+    if (m.url) {
+      var link = document.createElement('a')
+      link.className = 'payment-card-link'
+      link.href = m.url
+      link.target = '_blank'
+      link.textContent = 'Pay Now →'
+      card.appendChild(link)
+    } else {
+      var hint = document.createElement('div')
+      hint.className = 'payment-card-hint'
+      hint.textContent = 'Contact for details'
+      card.appendChild(hint)
+    }
+
+    grid.appendChild(card)
+  }
+})()
+</script>
+
+<!-- ── Pricing JS ── -->
+<script>
+(function() {
+  'use strict'
+  var plans = window.AIGENEV7_PLANS || []
+  var grid = document.getElementById('pricingGrid')
+  var toggleBtns = document.querySelectorAll('.pricing-toggle-btn button')
+  if (!grid || plans.length === 0) return
+
+  var currentPeriod = 'weekly'
+
+  function renderPricing(period) {
+    grid.innerHTML = ''
+    for (var i = 0; i < plans.length; i++) {
+      var plan = plans[i]
+      var priceInfo = plan.prices[period]
+      // Fallback: find closest available period
+      if (!priceInfo) {
+        var periods = Object.keys(plan.prices)
+        priceInfo = plan.prices[periods[0]]
+      }
+      if (!priceInfo) continue
+
+      var card = document.createElement('div')
+      card.className = 'pricing-card'
+      if (plan.popular) card.classList.add('popular')
+      if (plan.id === 'lifetime') card.classList.add('lifetime')
+
+      // Badge
+      if (plan.badge) {
+        var badge = document.createElement('div')
+        badge.className = 'pricing-badge'
+        badge.textContent = plan.badge
+        card.appendChild(badge)
+      }
+
+      // Emoji
+      var emojiDiv = document.createElement('div')
+      emojiDiv.className = 'pricing-card-emoji'
+      emojiDiv.textContent = plan.emoji
+      card.appendChild(emojiDiv)
+
+      // Name
+      var nameDiv = document.createElement('div')
+      nameDiv.className = 'pricing-card-name'
+      nameDiv.textContent = plan.name
+      card.appendChild(nameDiv)
+
+      // Description
+      var descDiv = document.createElement('div')
+      descDiv.className = 'pricing-card-desc'
+      descDiv.textContent = plan.description
+      card.appendChild(descDiv)
+
+      // Price
+      var priceDiv = document.createElement('div')
+      priceDiv.className = 'pricing-price'
+      priceDiv.innerHTML = '$' + priceInfo.price + ' <span class="pricing-price-period">' + priceInfo.label + '</span>'
+      card.appendChild(priceDiv)
+
+      // Savings
+      if (priceInfo.savings) {
+        var savingsDiv = document.createElement('div')
+        savingsDiv.className = 'pricing-savings'
+        savingsDiv.textContent = priceInfo.savings
+        card.appendChild(savingsDiv)
+      }
+
+      // Features list
+      var ul = document.createElement('ul')
+      ul.className = 'pricing-features'
+      for (var f = 0; f < plan.features.length; f++) {
+        var li = document.createElement('li')
+        li.textContent = plan.features[f]
+        ul.appendChild(li)
+      }
+      card.appendChild(ul)
+
+      // CTA button
+      var cta = document.createElement('a')
+      cta.className = 'pricing-cta'
+      cta.href = '#' + (plan.id === 'lifetime' ? 'pricing' : 'chat')
+      cta.textContent = plan.cta
+      card.appendChild(cta)
+
+      grid.appendChild(card)
+    }
+  }
+
+  // Toggle buttons
+  for (var b = 0; b < toggleBtns.length; b++) {
+    ;(function(btn) {
+      btn.addEventListener('click', function() {
+        var period = btn.dataset.period
+        if (!period) return
+        currentPeriod = period
+        for (var j = 0; j < toggleBtns.length; j++) {
+          toggleBtns[j].classList.toggle('active', toggleBtns[j].dataset.period === period)
+        }
+        renderPricing(period)
+      })
+    })(toggleBtns[b])
+  }
+
+  // Initial render
+  renderPricing('weekly')
+})()
+</script>
+
+<!-- ── Quantum Lab JS ── -->
+<script>
+(function() {
+  'use strict'
+  var qs = window.QuantumSimulator
+  if (!qs) return
+
+  var display = document.getElementById('quantumDisplay')
+  var resultEl = document.getElementById('quantumResult')
+  var customInput = document.getElementById('quantumCustom')
+  var runBtn = document.getElementById('quantumRunBtn')
+  var shotsInput = document.getElementById('quantumShots')
+  var demoBtns = document.querySelectorAll('[data-demo]')
+
+  if (!display || !resultEl) return
+
+  function runCircuit(gateText, shots) {
+    try {
+      var circuit = qs.buildCircuit(gateText)
+      var result = circuit.run(shots || 1024)
+      display.textContent = circuit.draw()
+      resultEl.textContent = result.histogram()
+    } catch (e) {
+      resultEl.textContent = 'Error: ' + e.message
+    }
+  }
+
+  function selectDemo(demoId) {
+    for (var i = 0; i < demoBtns.length; i++) {
+      demoBtns[i].classList.toggle('active', demoBtns[i].dataset.demo === demoId)
+    }
+    try {
+      var demo = qs.runDemo(demoId, parseInt(shotsInput.value) || 1024)
+      display.textContent = demo.circuit.draw()
+      resultEl.textContent = demo.result.histogram()
+      // Show the gates used by this demo without overwriting the custom input
+      var demoGates = {
+        'bell': 'H(0) CNOT(0,1)',
+        'ghz': 'H(0) CNOT(0,1) CNOT(0,2)',
+        'superposition': 'H(0) H(1) H(2) H(3)',
+        'bell-swap': 'X(1) SWAP(0,1) H(0) CNOT(0,1)',
+        'toffoli': 'X(0) X(1) TOFFOLI(0,1,2)',
+      }
+      customInput.value = demoGates[demoId] || demoGates['bell']
+    } catch (e) {
+      resultEl.textContent = 'Error: ' + e.message
+    }
+  }
+
+  // Demo buttons
+  for (var i = 0; i < demoBtns.length; i++) {
+    ;(function(btn) {
+      btn.addEventListener('click', function() {
+        selectDemo(btn.dataset.demo)
+      })
+    })(demoBtns[i])
+  }
+
+  // Run custom
+  if (runBtn) {
+    runBtn.addEventListener('click', function() {
+      var text = customInput ? customInput.value.trim() : ''
+      if (!text) return
+      // Deselect demos
+      for (var i = 0; i < demoBtns.length; i++) demoBtns[i].classList.remove('active')
+      var shots = parseInt(shotsInput.value) || 1024
+      runCircuit(text, shots)
+    })
+  }
+
+  // Enter in custom input
+  if (customInput) {
+    customInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        if (runBtn) runBtn.click()
+      }
+    })
+  }
+
+  // Run initial demo
+  selectDemo('bell')
+})()
+</script>
+
+</body>
+</html>
