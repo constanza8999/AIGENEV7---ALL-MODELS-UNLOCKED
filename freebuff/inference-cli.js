@@ -21,8 +21,8 @@
  */
 
 import { createInterface } from 'readline'
-import { existsSync, readFileSync } from 'fs'
-import { resolve, dirname } from 'path'
+import { existsSync, readFileSync, writeFileSync, mkdirSync, appendFileSync, unlinkSync, renameSync, copyFileSync } from 'fs'
+import { resolve, dirname, sep } from 'path'
 import { fileURLToPath } from 'url'
 import { infer } from './inference.js'
 import {
@@ -38,8 +38,12 @@ import {
   importAgent,
   importAgentFromFile,
 } from './custom-agents.js'
+import { runAutoAgent } from './auto-agent.js'
 import { MODELS } from './models.js'
-import { checkPremium, hasFeature, getUpgradePrompt } from './premium.js'
+import { checkPremium, hasFeature, getUpgradePrompt, getTokenBalance, formatTokens } from './premium.js'
+import { saveSnippet, getSnippet, listSnippets, deleteSnippet } from './snippets.js'
+import { runDebugLoop } from './debug-agent.js'
+import { getDefensiveAgents, getOffensiveAgents, getFrameworkSummary } from './defensive-offensive.js'
 
 // ── Load .env early for provider API keys ──
 const cliDir = dirname(fileURLToPath(import.meta.url))
@@ -291,15 +295,44 @@ async function chatMode() {
   console.log('  ' + d('Default:') + ' ' + c(currentModel) + ' ' + d('(press Enter to use this)'))
   console.log()
 
+  // ── Token Balance Banner ──
+  const tokenBal = getTokenBalance()
+  if (tokenBal) {
+    const barLen = 16
+    const filled = Math.round((tokenBal.used / Math.max(1, tokenBal.max)) * barLen)
+    const bar = '█'.repeat(Math.min(filled, barLen)) + '░'.repeat(Math.max(0, barLen - filled))
+    const pctColor = tokenBal.pct > 80 ? r : tokenBal.pct > 50 ? y : g
+    console.log('  ' + c('▸') + ' ' + b('Token Balance:') + ' ' + formatTokens(tokenBal.remaining) + ' ' + d('/ ' + formatTokens(tokenBal.max)) + ' ' + pctColor('[' + bar + ']') + ' ' + d('(' + tokenBal.pct + '%)'))
+    console.log()
+  }
+
   // ── Non-premium: show keygen hint ──
   if (!hasFeature('premium_models')) {
     console.log('  ' + p('💎') + ' ' + d('Tip: type') + ' ' + y('/keygen') + ' ' + d('to generate a premium key and unlock elite models'))
     console.log()
   }
 
+  // ── Tab completion for slash commands ──
+  const COMMANDS_LIST = [
+    '/quit', '/exit', '/q', '/help', '/h',
+    '/model', '/models', '/ls', '/current', '/clear',
+    '/agent', '/agents', '/agent-show', '/agent-new', '/agent-edit',
+    '/agent-delete', '/agent-export', '/agent-import', '/agent-reset',
+    '/quantum', '/pay', '/keygen', '/menu',
+    '/auto', '/auto-stop', '/auto-status',
+    '/save', '/snippet', '/search', '/context', '/debug', '/balance',
+  ]
+
+  function completer(line) {
+    if (!line.startsWith('/')) return [[], line]
+    const hits = COMMANDS_LIST.filter(c => c.startsWith(line))
+    return [hits.length ? hits : COMMANDS_LIST, line]
+  }
+
   const rl = createInterface({
     input: process.stdin,
     output: process.stdout,
+    completer,
   })
 
   // ── Resolve model by number or ID ──
@@ -329,12 +362,28 @@ async function chatMode() {
   }
 
   const messages = []
+  const contextFiles = []
 
-  // ── Build messages with agent system prompt ──
+  // ── Build messages with agent system prompt + context files ──
   function buildMessages(userContent) {
     const msgs = []
+    let systemContent = ''
     if (currentAgent && currentAgent.systemPrompt) {
-      msgs.push({ role: 'system', content: currentAgent.systemPrompt })
+      systemContent += currentAgent.systemPrompt
+    }
+    // Add context file contents
+    if (contextFiles.length > 0) {
+      systemContent += '\n\n## Context Files\n\n'
+      for (const ctx of contextFiles) {
+        systemContent += `### ${ctx.path}\n`
+        systemContent += '```\n'
+        systemContent += ctx.content.substring(0, 8000) + '\n'
+        if (ctx.content.length > 8000) systemContent += '[... truncated ...]\n'
+        systemContent += '```\n\n'
+      }
+    }
+    if (systemContent) {
+      msgs.push({ role: 'system', content: systemContent.trim() })
     }
     for (const m of messages) {
       msgs.push(m)
@@ -382,8 +431,33 @@ async function chatMode() {
         console.log('  /agent-reset            Reset agents to defaults')
         console.log('  ── Chat ──')
         console.log('  /clear                  Clear conversation history')
+        console.log('  /save [filename]        Save conversation to markdown file')
+        console.log('  ── Snippets ──')
+        console.log('  /snippet                Snippet manager (save/load/list/delete)')
+        console.log('  /snippet save <name>    Save last response as snippet')
+        console.log('  /snippet get <name>     Load a snippet')
+        console.log('  /snippet list           List all snippets')
+        console.log('  /snippet delete <name>  Delete a snippet')
+        console.log('  /snippet search <q>     Search snippets by text')
+        console.log('  ── Code Search ──')
+        console.log('  /search <query>         Search code in project directory')
+        console.log('  ── Context ──')
+        console.log('  /context                Manage context files (included in prompts)')
+        console.log('  /context add <file>     Add a file as context')
+        console.log('  /context remove <file>  Remove a context file')
+        console.log('  /context list           List context files')
+        console.log('  /context clear          Clear all context')
         console.log('  ── Interactive ──')
         console.log('  /menu                   Show interactive agent & model picker')
+        console.log('  ── Auto Agent 🤖 ──')
+        console.log('  /auto <prompt>          Start autonomous coding agent to modify files')
+        console.log('  /auto-stop              Stop the auto agent')
+        console.log('  /auto-status            Show current auto agent status')
+        console.log('  ── Auto-Debug 🔧 ──')
+        console.log('  /debug <command>        Run auto-debug loop: run, detect error, fix, retry')
+        console.log('  /debug <cmd> --iters=10  Set max fix iterations (default 5)')
+        console.log('  ── Account 💳 ──')
+        console.log('  /balance                Check token balance and usage')
         console.log('  ── Premium 💎 ──')
         console.log('  /keygen                 Generate a premium key for CLI')
         console.log('  /keygen <tier>          Generate key for specific tier (pro, elite, enterprise)')
@@ -954,6 +1028,542 @@ async function chatMode() {
         return
       }
 
+      // ── Auto Agent Command ──
+      if (trimmed === '/auto') {
+        console.log('  Usage: /auto <description of what to do>')
+        console.log('  Example: /auto Add error handling to all API routes in server.js')
+        console.log('  The auto agent will read, edit, and create files in your project directory.')
+        askQuestion()
+        return
+      }
+
+      if (trimmed.startsWith('/auto ')) {
+        const autoPrompt = trimmed.slice(6).trim()
+        if (!autoPrompt) {
+          console.log('  ✗ Please provide a description of what you want the auto agent to do.')
+          askQuestion()
+          return
+        }
+
+        // Run the auto agent
+        ;(async () => {
+          try {
+            console.log()
+            console.log('  ' + c('┄').repeat(50))
+            console.log('  ' + b(c('✦ Auto Agent ✦')))
+            console.log('  ' + d('Autonomous coding agent — reading, writing, and modifying files'))
+            console.log('  ' + c('┄').repeat(50))
+            console.log()
+            console.log('  ' + d('Prompt:') + ' ' + autoPrompt)
+            console.log('  ' + d('CWD:') + ' ' + process.cwd())
+            console.log()
+
+            const result = await runAutoAgent({
+              prompt: autoPrompt,
+              model: currentModel,
+              cwd: process.cwd(),
+              onStatus: (status) => {
+                console.log('  ' + g('▸') + ' ' + status)
+              },
+              onChunk: (chunk) => {
+                process.stdout.write(chunk)
+              },
+              maxIterations: 15,
+            })
+
+            console.log()
+            console.log('  ' + c('┄').repeat(50))
+            console.log('  ' + b(g('✦ Auto Agent Complete ✦')))
+            console.log('  ' + d('Changes made:') + ' ' + (result.changes.length > 0 ? g(String(result.changes.length)) : d('none')))
+            console.log('  ' + d('Iterations:') + ' ' + (result.totalIterations || result.iteration))
+            if (result.summary) {
+              console.log('  ' + d('Summary:') + ' ' + result.summary.substring(0, 200))
+            }
+            console.log()
+
+            // Log changes
+            if (result.changes.length > 0) {
+              for (const change of result.changes) {
+                const icon = change.type === 'write' ? '✏️' : change.type === 'edit' ? '📝' : '📄'
+                console.log(`    ${icon} ${change.type}: ${change.path}`)
+              }
+              console.log()
+            }
+          } catch (err) {
+            console.log()
+            console.log('  ✗ Auto Agent error: ' + err.message)
+            console.log()
+          }
+          askQuestion()
+        })()
+        return
+      }
+
+      // ── Auto agent status ──
+      if (trimmed === '/auto-status') {
+        console.log('  Auto agent status tracking coming soon.')
+        console.log('  Currently the auto agent runs synchronously in your chat session.')
+        console.log('  Run /auto <prompt> to start a new task.')
+        askQuestion()
+        return
+      }
+
+      // ── Auto agent stop ──
+      if (trimmed === '/auto-stop') {
+        console.log('  Auto agent stop requested.')
+        console.log('  Note: The current iteration will finish before stopping.')
+        console.log('  In future versions, this will interrupt mid-execution.')
+        askQuestion()
+        return
+      }
+
+      // ── /save — Save conversation to markdown ──
+      if (trimmed === '/save') {
+        const filename = 'aigenev7-conversation-' + new Date().toISOString().replace(/[:.]/g, '-') + '.md'
+        let md = '# AIGENEV7 Conversation\n\n'
+        md += `- **Date:** ${new Date().toLocaleString()}\n`
+        md += `- **Model:** ${currentModel}\n`
+        md += `- **Agent:** ${currentAgent.emoji} ${currentAgent.name}\n`
+        md += `- **Messages:** ${messages.length}\n\n`
+        md += '---\n\n'
+        for (const msg of messages) {
+          const roleEmoji = msg.role === 'user' ? '👤' : '🤖'
+          md += `### ${roleEmoji} ${msg.role === 'user' ? 'User' : 'Assistant'}\n\n`
+          md += msg.content + '\n\n---\n\n'
+        }
+        try {
+          const { writeFileSync, existsSync } = await import('fs')
+          const { resolve } = await import('path')
+          const filePath = resolve(process.cwd(), filename)
+          if (existsSync(filePath)) {
+            console.log(`  ⚠ File "${filename}" already exists — overwriting`)
+          }
+          writeFileSync(filePath, md, 'utf8')
+          console.log(`  ✓ Conversation saved to ${filename}`)
+        } catch (err) {
+          console.log(`  ✗ Failed to save: ${err.message}`)
+        }
+        askQuestion()
+        return
+      }
+
+      // ── Bare /snippet shows usage ──
+      if (trimmed === '/snippet') {
+        console.log('\n  🧩 Snippet Manager')
+        console.log('  ────────────────────────────────────────────')
+        console.log('  /snippet save <name>    Save last assistant response as snippet')
+        console.log('  /snippet get <name>     Display a snippet')
+        console.log('  /snippet list [tag]    List all snippets (optionally by tag)')
+        console.log('  /snippet delete <name>  Delete a snippet')
+        console.log('  /snippet search <q>     Search snippets by text')
+        console.log()
+        const snippets = listSnippets()
+        if (snippets.length === 0) {
+          console.log('  No snippets saved yet. Use /snippet save <name> to save one.')
+        } else {
+          console.log(`  ${snippets.length} snippet(s) saved`)
+        }
+        console.log()
+        askQuestion()
+        return
+      }
+
+      if (trimmed.startsWith('/snippet save ')) {
+        const name = trimmed.slice(14).trim()
+        if (!name) {
+          console.log('  ✗ Usage: /snippet save <name>')
+          askQuestion()
+          return
+        }
+        // Find last assistant message
+        let lastAssistantMsg = null
+        for (let si = messages.length - 1; si >= 0; si--) {
+          if (messages[si].role === 'assistant') {
+            lastAssistantMsg = messages[si]
+            break
+          }
+        }
+        if (!lastAssistantMsg) {
+          console.log('  ✗ No assistant response to save. Send a prompt first.')
+          askQuestion()
+          return
+        }
+        if (lastAssistantMsg.content.length === 0) {
+          console.log('  ✗ Last assistant response is empty. Nothing to save.')
+          askQuestion()
+          return
+        }
+        const snippet = saveSnippet(name, lastAssistantMsg.content, '', 'Saved from chat', [])
+        console.log(`  ✓ Snippet "${snippet.name}" saved (${lastAssistantMsg.content.length} chars)`)
+        askQuestion()
+        return
+      }
+
+      if (trimmed.startsWith('/snippet get ')) {
+        const name = trimmed.slice(13).trim()
+        if (!name) {
+          console.log('  ✗ Usage: /snippet get <name>')
+          askQuestion()
+          return
+        }
+        const snippet = getSnippet(name)
+        if (!snippet) {
+          console.log(`  ✗ Snippet "${name}" not found. Use /snippet list to see saved snippets.`)
+          askQuestion()
+          return
+        }
+        console.log(`\n  🧩 ${snippet.name}`)
+        if (snippet.description) console.log(`  ${d(snippet.description)}`)
+        if (snippet.language) console.log(`  Language: ${snippet.language}`)
+        console.log(`  ─${'─'.repeat(50)}`)
+        console.log(snippet.code)
+        console.log(`  ─${'─'.repeat(50)}\n`)
+        askQuestion()
+        return
+      }
+
+      if (trimmed === '/snippet list') {
+        const snippets = listSnippets()
+        if (snippets.length === 0) {
+          console.log('  No snippets saved yet.')
+        } else {
+          console.log('\n  🧩 Saved Snippets')
+          for (let si = 0; si < snippets.length; si++) {
+            const s = snippets[si]
+            const date = s.createdAt ? new Date(s.createdAt).toLocaleDateString() : ''
+            const preview = s.code.replace(/\n/g, ' ').substring(0, 60)
+            console.log(`  [${si + 1}] ${b(s.name).padEnd(20)} ${d(preview)}${date ? ' ' + d(date) : ''}`)
+          }
+          console.log()
+        }
+        askQuestion()
+        return
+      }
+
+      if (trimmed.startsWith('/snippet list ')) {
+        const filter = trimmed.slice(14).trim()
+        const snippets = listSnippets({ tag: filter })
+        if (snippets.length === 0) {
+          console.log(`  No snippets with tag "${filter}".`)
+        } else {
+          console.log(`\n  🧩 Snippets tagged "${filter}"`)
+          for (const s of snippets) {
+            console.log(`  • ${s.name}: ${s.description || s.code.substring(0, 40)}`)
+          }
+          console.log()
+        }
+        askQuestion()
+        return
+      }
+
+      if (trimmed.startsWith('/snippet delete ')) {
+        const name = trimmed.slice(16).trim()
+        if (!name) {
+          console.log('  ✗ Usage: /snippet delete <name>')
+          askQuestion()
+          return
+        }
+        const deleted = deleteSnippet(name)
+        if (deleted) {
+          console.log(`  ✓ Snippet "${name}" deleted`)
+        } else {
+          console.log(`  ✗ Snippet "${name}" not found`)
+        }
+        askQuestion()
+        return
+      }
+
+      if (trimmed.startsWith('/snippet search ')) {
+        const query = trimmed.slice(16).trim()
+        if (!query) {
+          console.log('  ✗ Usage: /snippet search <query>')
+          askQuestion()
+          return
+        }
+        const results = listSnippets({ search: query })
+        if (results.length === 0) {
+          console.log(`  No snippets matching "${query}".`)
+        } else {
+          console.log(`\n  🔍 Search results for "${query}":`)
+          for (const s of results) {
+            const preview = s.code.replace(/\n/g, ' ').substring(0, 80)
+            console.log(`  • ${b(s.name)}: ${d(preview)}`)
+          }
+          console.log()
+        }
+        askQuestion()
+        return
+      }
+
+      // ── /search — Search code in project ──
+      if (trimmed === '/search') {
+        console.log('  Usage: /search <query>')
+        console.log('  Searches code in the current working directory.')
+        console.log('  Example: /search function authenticate')
+        askQuestion()
+        return
+      }
+
+      if (trimmed.startsWith('/search ')) {
+        let query = trimmed.slice(8).trim()
+        if (!query) {
+          console.log('  ✗ Usage: /search <query>')
+          askQuestion()
+          return
+        }
+        // Sanitize: strip shell metacharacters to prevent injection
+        query = query.replace(/["'\$;`|&<>()\{\}]/g, '').trim()
+        if (!query) {
+          console.log('  ✗ Invalid search query after sanitization.')
+          askQuestion()
+          return
+        }
+        const { execSync } = await import('child_process')
+        const cwd = process.cwd()
+        console.log(`  🔍 Searching for "${query}" in ${cwd}`)
+        console.log()
+        try {
+          const result = execSync(
+            process.platform === 'win32'
+              ? `findstr /s /n /c:"${query}" *.js *.ts *.jsx *.tsx *.py *.go *.rs *.java *.rb *.php *.c *.h *.cpp *.css *.html *.json *.yml *.yaml *.md 2>nul`
+              : `grep -rn --include='*.{js,ts,jsx,tsx,py,go,rs,java,rb,php,c,h,cpp,css,html,json,yml,yaml,md}' -i "${query}" "${cwd}" 2>/dev/null | head -50`,
+            { cwd, timeout: 15000, maxBuffer: 1024 * 1024, encoding: 'utf8', shell: true }
+          )
+          const output = (result || '').trim()
+          if (output) {
+            console.log(`  Found ${output.split('\n').length} matches (showing first 50):`)
+            console.log()
+            for (const line of output.split('\n').slice(0, 50)) {
+              const matchIdx = line.toLowerCase().indexOf(query.toLowerCase())
+              if (matchIdx >= 0) {
+                const before = line.substring(0, matchIdx)
+                const match = line.substring(matchIdx, matchIdx + query.length)
+                const after = line.substring(matchIdx + query.length)
+                console.log(`  ${before}${y(match)}${after}`)
+              } else {
+                console.log(`  ${line.substring(0, 120)}`)
+              }
+            }
+          } else {
+            console.log('  No matches found.')
+          }
+        } catch (err) {
+          console.log('  No matches found (or search tool unavailable).')
+        }
+        console.log()
+        askQuestion()
+        return
+      }
+
+      // ── /context — Context file management ──
+      if (trimmed === '/context') {
+        console.log('\n  📂 Context Files')
+        console.log('  ────────────────────────────────────────────')
+        console.log('  /context add <file>     Add a file to context')
+        console.log('  /context remove <file>  Remove a file from context')
+        console.log('  /context list           List files in context')
+        console.log('  /context clear          Clear all context')
+        console.log()
+        if (contextFiles.length === 0) {
+          console.log('  No context files. Add files to include them in every prompt.')
+        } else {
+          console.log(`  ${contextFiles.length} file(s) in context:`)
+          for (const ctx of contextFiles) {
+            const preview = ctx.content.replace(/\n/g, ' ').substring(0, 50)
+            console.log(`  • ${b(ctx.path)} ${d('(' + ctx.content.length + ' chars)')}`)
+            console.log(`    ${d(preview)}`)
+          }
+        }
+        console.log()
+        askQuestion()
+        return
+      }
+
+      if (trimmed.startsWith('/context add ')) {
+        const filePath = trimmed.slice(13).trim()
+        if (!filePath) {
+          console.log('  ✗ Usage: /context add <filepath>')
+          askQuestion()
+          return
+        }
+        const { resolve: resolvePath } = await import('path')
+        const { readFileSync, existsSync } = await import('fs')
+        const absPath = resolvePath(process.cwd(), filePath)
+        if (!existsSync(absPath)) {
+          console.log(`  ✗ File not found: ${filePath}`)
+          askQuestion()
+          return
+        }
+        try {
+          const content = readFileSync(absPath, 'utf8')
+          const existingIdx = contextFiles.findIndex(c => c.path === filePath)
+          if (existingIdx >= 0) {
+            contextFiles[existingIdx] = { path: filePath, content }
+            console.log(`  ✓ Updated context: ${filePath} (${content.length} chars)`)
+          } else {
+            contextFiles.push({ path: filePath, content })
+            console.log(`  ✓ Added to context: ${filePath} (${content.length} chars)`)
+          }
+        } catch (err) {
+          console.log(`  ✗ Error reading ${filePath}: ${err.message}`)
+        }
+        askQuestion()
+        return
+      }
+
+      if (trimmed.startsWith('/context remove ')) {
+        const filePath = trimmed.slice(16).trim()
+        if (!filePath) {
+          console.log('  ✗ Usage: /context remove <filepath>')
+          askQuestion()
+          return
+        }
+        const idx = contextFiles.findIndex(c => c.path.toLowerCase().includes(filePath.toLowerCase()))
+        if (idx >= 0) {
+          contextFiles.splice(idx, 1)
+          console.log(`  ✓ Removed ${filePath} from context`)
+        } else {
+          console.log(`  ✗ "${filePath}" not found in context. Use /context list to see files.`)
+        }
+        askQuestion()
+        return
+      }
+
+      if (trimmed === '/context list') {
+        if (contextFiles.length === 0) {
+          console.log('  No context files.')
+        } else {
+          console.log(`  📂 Context (${contextFiles.length} files):`)
+          for (const ctx of contextFiles) {
+            console.log(`  • ${ctx.path} (${ctx.content.length} chars)`)
+          }
+        }
+        askQuestion()
+        return
+      }
+
+      if (trimmed === '/context clear') {
+        contextFiles.length = 0
+        console.log('  ✓ All context files cleared')
+        askQuestion()
+        return
+      }
+
+      // ── /debug — Auto-debug loop ──
+      if (trimmed === '/debug') {
+        console.log('\n  🔧 Auto-Debug Loop')
+        console.log('  ────────────────────────────────────────────')
+        console.log('  Runs a command, captures errors, asks the AI for a fix,')
+        console.log('  applies it, and retries automatically.')
+        console.log()
+        console.log('  Usage: /debug <command>')
+        console.log('  Example: /debug bun run build')
+        console.log('  Flags:   --iters=10    Max fix iterations (default 5)')
+        console.log()
+        askQuestion()
+        return
+      }
+
+      if (trimmed.startsWith('/debug ')) {
+        let debugCommand = trimmed.slice(7).trim()
+        let debugIters = 5
+        const iterMatch = debugCommand.match(/--iters=(\d+)/)
+        if (iterMatch) {
+          debugIters = parseInt(iterMatch[1], 10)
+          debugCommand = debugCommand.replace(/--iters=\d+/g, '').trim()
+        }
+        if (!debugCommand) {
+          console.log('  ✗ Usage: /debug <command>')
+          askQuestion()
+          return
+        }
+
+        ;(async () => {
+          try {
+            console.log()
+            console.log('  ' + c('┄').repeat(50))
+            console.log('  ' + b(y('✦ Auto-Debug Loop ✦')))
+            console.log('  ' + d('Run command → detect errors → AI fix → retry'))
+            console.log('  ' + c('┄').repeat(50))
+            console.log()
+            console.log('  ' + d('Command:') + ' ' + debugCommand)
+            console.log('  ' + d('Max iterations:') + ' ' + debugIters)
+            console.log('  ' + d('CWD:') + ' ' + process.cwd())
+            console.log()
+
+            const result = await runDebugLoop({
+              command: debugCommand,
+              model: currentModel,
+              cwd: process.cwd(),
+              maxIterations: debugIters,
+              onStatus: (status) => {
+                console.log('  ' + g('▸') + ' ' + status)
+              },
+              onChunk: (chunk) => {
+                process.stdout.write(chunk)
+              },
+            })
+
+            console.log()
+            console.log('  ' + c('┄').repeat(50))
+            if (result.success) {
+              console.log('  ' + b(g('✅ Debug Loop: Success!')))
+            } else {
+              console.log('  ' + b(r('❌ Debug Loop: Could not fix')))
+            }
+            if (result.changes && result.changes.length > 0) {
+              console.log('  ' + d('Files modified:') + ' ' + result.changes.length)
+              for (const ch of result.changes) {
+                console.log(`    ${ch.type}: ${ch.path}`)
+              }
+            }
+            console.log('  ' + d('Iterations:') + ' ' + result.iterations)
+            if (result.summary) {
+              console.log('  ' + d('Summary:') + ' ' + result.summary.substring(0, 300))
+            }
+            console.log()
+          } catch (err) {
+            console.log()
+            console.log('  ✗ Debug loop error: ' + err.message)
+            console.log()
+          }
+          askQuestion()
+        })()
+        return
+      }
+
+      // ── /balance — Check token balance ──
+      if (trimmed === '/balance') {
+        const bal = getTokenBalance()
+        const limit = bal.max === Infinity ? 'Unlimited' : formatTokens(bal.max)
+        const remaining = bal.max === Infinity ? '∞' : formatTokens(bal.remaining)
+        const barLen = 24
+        const filled = Math.round((bal.used / Math.max(1, bal.max)) * barLen)
+        const bar = '█'.repeat(Math.min(filled, barLen)) + '░'.repeat(Math.max(0, barLen - filled))
+        const pctColor = bal.pct > 80 ? r : bal.pct > 50 ? y : g
+        console.log()
+        console.log('  ' + c('┄').repeat(46))
+        console.log('  ' + b(c('💳 Token Balance')))
+        console.log('  ' + c('┄').repeat(46))
+        console.log('  Tier:      ' + (bal.tier === 'free' ? d('Free') : p(bal.tier.toUpperCase())))
+        console.log('  Limit:     ' + limit)
+        console.log('  Used:      ' + formatTokens(bal.used))
+        console.log('  Remaining: ' + (bal.exhausted ? r('EXHAUSTED') : g(remaining)))
+        console.log('  Usage:     ' + pctColor('[' + bar + ']') + ' ' + d(bal.pct + '%') + (bal.pct > 80 ? ' ' + r('⚠') : ''))
+        console.log()
+        if (bal.exhausted) {
+          console.log('  ' + r('⚠ Token balance exhausted!') + ' ' + d('Wait for reset or upgrade your tier.'))
+          console.log('  ' + d('Use') + ' ' + y('/keygen') + ' ' + d('to generate a new premium key.'))
+        } else if (bal.pct > 80) {
+          console.log('  ' + y('⚠ Running low on tokens. ' + remaining + ' remaining.'))
+        } else {
+          console.log('  ' + d('You have plenty of tokens remaining. Keep coding!'))
+        }
+        console.log()
+        askQuestion()
+        return
+      }
+
       // ── Pay command ──
       if (trimmed === '/pay') {
         var url = 'https://aigen7ev.ai/premium/'
@@ -1055,6 +1665,122 @@ async function chatMode() {
           })
           if (response) {
             messages.push({ role: 'assistant', content: response })
+
+            // ── Agent File Operations: detect all tool types ──
+            const allOps = response.match(/\[(WRITE|EDIT|APPEND|INSERT|DELETE|RENAME|COPY|REPLACEALL):\s*([^\]]+)\]/gi)
+
+            if (allOps) {
+              console.log(`\n  ${c('┄').repeat(46)}`)
+              console.log('  ' + b(y('📝 Agent wants to modify ' + allOps.length + ' file(s)')))
+              for (const op of allOps) {
+                const tagMatch = op.match(/\[(\w+):/i)
+                const tag = tagMatch ? tagMatch[1].toLowerCase() : '?'
+                let path = op.replace(/\[(WRITE|EDIT|APPEND|INSERT|DELETE|RENAME|COPY|REPLACEALL):/i, '').replace(']', '').trim()
+                const icons = { write: '✏️', edit: '📝', append: '➕', insert: '📄', delete: '🗑️', rename: '📦', copy: '📋', replaceall: '🔄' }
+                const icon = icons[tag] || '•'
+                const labels = { write: 'Write', edit: 'Edit', append: 'Append', insert: 'Insert', delete: 'Delete', rename: 'Rename', copy: 'Copy', replaceall: 'Replace All' }
+                console.log(`    ${icon} ${d(labels[tag] || tag + ':')} ${path}`)
+              }
+              console.log(`  ${c('┄').repeat(46)}`)
+              console.log(`  ${d('Apply these changes?')} ${g('(y/N)')} `)
+
+              // Ask for confirmation
+              await new Promise((resolve) => {
+                rl.question('  ' + g('>') + ' ', async (answer) => {
+                  const shouldApply = answer.trim().toLowerCase() === 'y' || answer.trim().toLowerCase() === 'yes'
+
+                  if (!shouldApply) {
+                    console.log(`  ${d('Changes skipped (use /auto to auto-apply without confirmation)')}`)
+                    resolve()
+                    return
+                  }
+
+                  console.log(`  ${d('Applying changes...')}\n`)
+
+                  // Parse and apply all tool operations
+                  const toolActions = [
+                    { tag: 'WRITE', regex: /\[WRITE:\s*([^\]]+)\]\s*\n([\s\S]*?)(?=\n\[|\n*$)/gi, handler: (m) => {
+                      const fp = m[1].trim(), content = m[2].trim(), abs = resolve(process.cwd(), fp)
+                      const si = fp.lastIndexOf(sep)
+                      if (si > 0) { const d = abs.substring(0, abs.lastIndexOf(sep)); if (!existsSync(d)) mkdirSync(d, { recursive: true }) }
+                      writeFileSync(abs, content, 'utf8')
+                      return `Wrote ${fp} (${content.split('\n').length} lines)`
+                    }},
+                    { tag: 'APPEND', regex: /\[APPEND:\s*([^\]]+)\]\s*\n([\s\S]*?)(?=\n\[|\n*$)/gi, handler: (m) => {
+                      const fp = m[1].trim(), content = m[2].trim()
+                      appendFileSync(resolve(process.cwd(), fp), content + '\n', 'utf8')
+                      return `Appended ${content.split('\n').length} lines to ${fp}`
+                    }},
+                    { tag: 'INSERT', regex: /\[INSERT:\s*([^\]]+?)\s*\|\s*AT:\s*(\d+)\]\s*\n([\s\S]*?)(?=\n\[|\n*$)/gi, handler: (m) => {
+                      const fp = m[1].trim(), line = parseInt(m[2], 10), content = m[3].trim()
+                      const abs = resolve(process.cwd(), fp)
+                      const lines = readFileSync(abs, 'utf8').split('\n')
+                      lines.splice(Math.max(0, Math.min(line - 1, lines.length)), 0, content)
+                      writeFileSync(abs, lines.join('\n'), 'utf8')
+                      return `Inserted at line ${line} in ${fp}`
+                    }},
+                    { tag: 'EDIT', regex: /\[EDIT:\s*([^\]]+)\]\s*\nOLD:\s*([\s\S]*?)\n+NEW:\s*([\s\S]*?)(?=\n\[|\n*$)/gi, handler: (m) => {
+                      const fp = m[1].trim(), oldStr = m[2].trim(), newStr = m[3].trim()
+                      const abs = resolve(process.cwd(), fp)
+                      if (!existsSync(abs)) return `File not found: ${fp}`
+                      let content = readFileSync(abs, 'utf8')
+                      if (!content.includes(oldStr)) return `Could not find text in ${fp}`
+                      writeFileSync(abs, content.replace(oldStr, newStr), 'utf8')
+                      return `Edited ${fp}`
+                    }},
+                    { tag: 'DELETE', regex: /\[DELETE:\s*([^\]]+)\]/gi, handler: (m) => {
+                      const fp = m[1].trim()
+                      unlinkSync(resolve(process.cwd(), fp))
+                      return `Deleted ${fp}`
+                    }},
+                    { tag: 'RENAME', regex: /\[RENAME:\s*([^\]]+?)\s*\|\s*TO:\s*([^\]]+)\]/gi, handler: (m) => {
+                      const oldPath = m[1].trim(), newPath = m[2].trim()
+                      renameSync(resolve(process.cwd(), oldPath), resolve(process.cwd(), newPath))
+                      return `Renamed ${oldPath} → ${newPath}`
+                    }},
+                    { tag: 'COPY', regex: /\[COPY:\s*([^\]]+?)\s*\|\s*TO:\s*([^\]]+)\]/gi, handler: (m) => {
+                      const src = m[1].trim(), dest = m[2].trim()
+                      const absDest = resolve(process.cwd(), dest)
+                      const destDir = dirname(absDest)
+                      if (!existsSync(destDir)) mkdirSync(destDir, { recursive: true })
+                      copyFileSync(resolve(process.cwd(), src), absDest)
+                      return `Copied ${src} → ${dest}`
+                    }},
+                    { tag: 'REPLACEALL', regex: /\[REPLACEALL:\s*([^\]]+?)\s*\|\s*OLD:\s*([^\]]+?)\s*\|\s*NEW:\s*([^\]]+)\]/gi, handler: (m) => {
+                      const fp = m[1].trim(), oldP = m[2].trim(), newP = m[3].trim()
+                      const abs = resolve(process.cwd(), fp)
+                      let content = readFileSync(abs, 'utf8')
+                      // Escape regex special chars for literal matching
+                      const escaped = oldP.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+                      const count = (content.match(new RegExp(escaped, 'g')) || []).length
+                      content = content.replace(new RegExp(escaped, 'g'), newP)
+                      writeFileSync(abs, content, 'utf8')
+                      return `Replaced ${count} occurrences in ${fp}`
+                    }},
+                  ]
+
+                  for (const action of toolActions) {
+                    let match
+                    action.regex.lastIndex = 0
+                    while ((match = action.regex.exec(response)) !== null) {
+                      try {
+                        const msg = action.handler(match)
+                        if (msg.startsWith('File not found') || msg.startsWith('Could not find')) {
+                          console.log(`  ${r('✗')} ${d(msg)}`)
+                        } else {
+                          console.log(`  ${g('✓')} ${d(msg)}`)
+                        }
+                      } catch (err) {
+                        console.log(`  ${r('✗')} ${d(action.tag.toLowerCase())}: ${err.message}`)
+                      }
+                    }
+                  }
+
+                  console.log(`  ${g('✓')} ${d('All changes applied')}`)
+                  resolve()
+                })
+              })
+            }
           } else {
             console.log('  [No response]')
           }
@@ -1418,6 +2144,71 @@ async function serve() {
         }), {
           headers: { 'Content-Type': 'application/json' },
         })
+      }
+
+      // ── Auto Agent API ──
+      if (url.pathname === '/api/auto-agent' && req.method === 'POST') {
+        try {
+          const body = await req.json()
+          const { prompt: autoPrompt, model: modelId, maxIterations } = body
+
+          if (!autoPrompt) {
+            return new Response(JSON.stringify({ error: 'No prompt provided' }), {
+              status: 400,
+              headers: { 'Content-Type': 'application/json' },
+            })
+          }
+
+          const { readable, writable } = new TransformStream()
+          const writer = writable.getWriter()
+          const encoder = new TextEncoder()
+
+          const startTime = Date.now()
+
+          runAutoAgent({
+            prompt: autoPrompt,
+            model: modelId || 'deepseek-v4-flash',
+            cwd: process.cwd(),
+            maxIterations: maxIterations || 10,
+            onStatus: (status) => {
+              console.log('  [AIGENEV7] [Auto] ' + status)
+              writer.write(encoder.encode(JSON.stringify({ status, statusType: 'status', pct: 50 }) + '\n'))
+            },
+            onChunk: (chunk) => {
+              // Pass AI response chunks
+              writer.write(encoder.encode(JSON.stringify({ log: chunk, logType: 'info' }) + '\n'))
+            },
+          }).then((result) => {
+            const elapsed = ((Date.now() - startTime) / 1000).toFixed(1)
+            writer.write(encoder.encode(JSON.stringify({
+              done: true,
+              success: result.success,
+              summary: result.summary,
+              changes: result.changes || [],
+              iteration: result.iteration,
+              totalIterations: result.totalIterations,
+              elapsed,
+              pct: 100,
+              status: '✅ Complete!',
+            }) + '\n'))
+            writer.close()
+          }).catch((err) => {
+            writer.write(encoder.encode(JSON.stringify({ error: err.message, done: true }) + '\n'))
+            writer.close()
+          })
+
+          return new Response(readable, {
+            headers: {
+              'Content-Type': 'application/x-ndjson',
+              'Cache-Control': 'no-cache',
+            },
+          })
+        } catch (err) {
+          return new Response(JSON.stringify({ error: err.message }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
+          })
+        }
       }
 
       return new Response('Not found', { status: 404 })

@@ -50,9 +50,9 @@ describe('custom-agents.js', () => {
 
   // ── listAgents() ──────────────────────────────────
   describe('listAgents()', () => {
-    it('returns all 13 default agents', async () => {
+    it('returns all 30 default agents (12 core + 9 defensive + 9 offensive)', async () => {
       const { listAgents } = await freshModule()
-      expect(listAgents().length).toBe(13)
+      expect(listAgents().length).toBe(30)
     })
 
     it('returns agents with all required fields', async () => {
@@ -75,7 +75,7 @@ describe('custom-agents.js', () => {
       // The module caches the agents array and returns the same reference
       // for performance. Modifications are done via the cache itself.
       expect(first).toBe(second)
-      expect(second.length).toBe(13)
+      expect(second.length).toBe(30)
     })
 
     it('reflects newly created agents', async () => {
@@ -106,7 +106,7 @@ describe('custom-agents.js', () => {
       const agent = getAgent('quantum-dev')
       expect(agent).toBeDefined()
       expect(agent.systemPrompt.length).toBeGreaterThan(500)
-      expect(agent.systemPrompt).toContain('QUANTUM FUNDAMENTALS')
+      expect(agent.systemPrompt.toLowerCase()).toContain('quantum fundamentals')
     })
   })
 
@@ -410,14 +410,14 @@ describe('custom-agents.js', () => {
 
   // ── resetAgents() ─────────────────────────────────
   describe('resetAgents()', () => {
-    it('resets to exactly 13 default agents after creating custom ones', async () => {
+    it('resets to exactly 30 default agents after creating custom ones', async () => {
       const { createAgent, listAgents, resetAgents } = await freshModule()
       createAgent('custom-before-reset', 'Custom', 'Desc', 'Prompt')
-      expect(listAgents().length).toBeGreaterThan(13)
+      expect(listAgents().length).toBeGreaterThan(30)
 
       resetAgents()
       const agents = listAgents()
-      expect(agents.length).toBe(13)
+      expect(agents.length).toBe(30)
       expect(agents.find(a => a.id === 'custom-before-reset')).toBeUndefined()
     })
 
@@ -502,7 +502,7 @@ describe('custom-agents.js', () => {
 
   // ── Edge Cases ────────────────────────────────────
   describe('edge cases', () => {
-    it('all 13 default agent IDs are unique', async () => {
+    it('all default agent IDs are unique', async () => {
       const { listAgents } = await freshModule()
       const ids = listAgents().map(a => a.id)
       expect(new Set(ids).size).toBe(ids.length)
@@ -516,7 +516,7 @@ describe('custom-agents.js', () => {
       const mod = await import('./custom-agents.js')
       mod.resetAgents()
       const agents = mod.listAgents()
-      expect(agents.length).toBe(13) // falls back to defaults
+      expect(agents.length).toBe(30) // falls back to defaults
     })
   })
 })

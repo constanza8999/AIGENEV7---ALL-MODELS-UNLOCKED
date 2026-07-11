@@ -28,6 +28,7 @@
 import { readFileSync, existsSync } from 'fs'
 import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
+import { getTokenBalance, hasEnoughTokens, deductTokens, formatTokens } from './premium.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -481,6 +482,16 @@ export async function infer(opts = {}) {
     console.warn('[AIGENEV7] Warning: uncensored=false may cause content filtering. Set uncensored=true in inference.json or AIGENEV7_UNCENSORED=true')
   }
 
+  // ── Token balance check ──
+  const inputTokens = messages.reduce((sum, m) => sum + Math.ceil((m.content || '').length / 4), 0)
+  const estimatedTotal = inputTokens + (maxTokens === Infinity ? 16384 : maxTokens)
+  if (!hasEnoughTokens(estimatedTotal)) {
+    const bal = getTokenBalance()
+    const warn = `[AIGENEV7] ✗ Token balance exhausted: ${formatTokens(bal.remaining)} remaining of ${formatTokens(bal.max)} (${bal.tier} tier)`
+    if (writeToStdout) console.error('\n' + warn)
+    throw new Error(warn)
+  }
+
   // Log start
   const startTime = Date.now()
   if (!stream && writeToStdout) {
@@ -499,9 +510,21 @@ export async function infer(opts = {}) {
   }
 
   const elapsed = ((Date.now() - startTime) / 1000).toFixed(1)
-  const tokens = result ? Math.ceil(result.length / 4) : 0
+  const outputTokens = result ? Math.ceil(result.length / 4) : 0
+  const totalTokens = inputTokens + outputTokens
+
+  // ── Deduct tokens from balance ──
+  const deduction = deductTokens(totalTokens)
+
   if (writeToStdout) {
-    console.error(`\n[AIGENEV7] ✓ Done (${elapsed}s, ~${tokens} tokens)`)
+    const bal = getTokenBalance()
+    const remaining = bal.remaining
+    const pct = bal.pct
+    const barLen = 20
+    const filled = Math.round((bal.used / Math.max(1, bal.max)) * barLen)
+    const bar = '█'.repeat(Math.min(filled, barLen)) + '░'.repeat(Math.max(0, barLen - filled))
+    console.error(`\n[AIGENEV7] ✓ Done (${elapsed}s, ~${totalTokens} tokens)`)
+    console.error(`[AIGENEV7] 📊 Balance: ${formatTokens(remaining)} / ${formatTokens(bal.max)} remaining [${bar}] ${pct}% used`)
   }
 
   return result

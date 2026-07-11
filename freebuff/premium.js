@@ -17,7 +17,7 @@
  *   import { isPremium, getPremiumTier } from './premium.js'
  */
 
-import { readFileSync, existsSync } from 'fs'
+import { readFileSync, writeFileSync, existsSync } from 'fs'
 import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
 
@@ -32,6 +32,170 @@ export const PREMIUM_FEATURES = {
   premium_models: { tier: 'elite', label: 'Premium model access (GPT-4.1, Opus 4, O3 Pro)' },
   api_access: { tier: 'elite', label: 'Full API access' },
   batch_inference: { tier: 'enterprise', label: 'Batch inference (multi-file processing)' },
+}
+
+// ── Token balances per tier ────────────────────────────────────────────
+// Each tier has a maximum token allowance and a reset period.
+// Enterprise: 500B tokens, Elite: 50B, Pro: 5B, Free: 100M
+// Balances are persisted to token-balance.json
+
+export const TOKEN_LIMITS = {
+  free: {
+    max: 100_000_000,          // 100M tokens for free tier
+    label: '100M',
+    resetDays: 30,
+  },
+  pro: {
+    max: 5_000_000_000,        // 5B tokens for pro
+    label: '5B',
+    resetDays: 30,
+  },
+  elite: {
+    max: 50_000_000_000,       // 50B tokens for elite
+    label: '50B',
+    resetDays: 30,
+  },
+  enterprise: {
+    max: 500_000_000_000,      // 500B tokens for enterprise
+    label: '500B',
+    resetDays: 30,
+  },
+}
+
+// ── Token balance path ──
+const BALANCE_FILE = resolve(__dirname, 'token-balance.json')
+
+// ── In-memory balance cache ──
+let balanceCache = null
+
+function loadBalance() {
+  if (balanceCache) return { ...balanceCache }
+  try {
+    if (existsSync(BALANCE_FILE)) {
+      const raw = readFileSync(BALANCE_FILE, 'utf8')
+      const data = JSON.parse(raw)
+      balanceCache = {
+        used: data.used || 0,
+        lastReset: data.lastReset || new Date().toISOString(),
+        tier: data.tier || 'free',
+      }
+      return { ...balanceCache }
+    }
+  } catch (err) {
+    console.warn(`[AIGENEV7] Warning: Could not load token-balance.json: ${err.message}`)
+  }
+  balanceCache = { used: 0, lastReset: new Date().toISOString(), tier: 'free' }
+  return { ...balanceCache }
+}
+
+function saveBalance(data) {
+  balanceCache = { ...data }
+  try {
+    writeFileSync(BALANCE_FILE, JSON.stringify(data, null, 2), 'utf8')
+  } catch (err) {
+    console.warn(`[AIGENEV7] Warning: Could not save token-balance.json: ${err.message}`)
+  }
+}
+
+function ensureBalanceFileExists(tier) {
+  const balance = loadBalance()
+  if (balance.tier !== tier) {
+    // Tier changed — reset balance for new tier
+    balance.used = 0
+    balance.tier = tier
+    balance.lastReset = new Date().toISOString()
+    saveBalance(balance)
+  }
+  // Check if balance should be reset (periodic reset)
+  const limit = TOKEN_LIMITS[tier] || TOKEN_LIMITS.free
+  if (limit.resetDays) {
+    const lastReset = new Date(balance.lastReset)
+    const daysSinceReset = (Date.now() - lastReset.getTime()) / (1000 * 60 * 60 * 24)
+    if (daysSinceReset >= limit.resetDays) {
+      balance.used = 0
+      balance.lastReset = new Date().toISOString()
+      saveBalance(balance)
+    }
+  }
+  return balance
+}
+
+/**
+ * Get remaining token balance for the current tier.
+ * @returns {{ remaining: number, used: number, max: number, pct: number, tier: string, label: string }}
+ */
+export function getTokenBalance() {
+  const status = checkPremium()
+  const tier = status.tier || 'free'
+  const limit = TOKEN_LIMITS[tier] || TOKEN_LIMITS.free
+  const balance = ensureBalanceFileExists(tier)
+  const remaining = Math.max(0, limit.max - balance.used)
+  return {
+    remaining,
+    used: balance.used,
+    max: limit.max,
+    pct: limit.max > 0 ? +((balance.used / limit.max) * 100).toFixed(2) : 0,
+    tier,
+    label: limit.label,
+    exhausted: remaining <= 0,
+  }
+}
+
+/**
+ * Check if there are enough tokens for a given request.
+ * @param {number} estimatedTokens - Estimated tokens the request will use
+ * @returns {boolean}
+ */
+export function hasEnoughTokens(estimatedTokens = 0) {
+  const balance = getTokenBalance()
+  if (balance.max === Infinity) return true // No limit
+  return balance.remaining >= estimatedTokens
+}
+
+/**
+ * Deduct tokens from the balance.
+ * @param {number} tokens - Number of tokens to deduct
+ * @returns {{ remaining: number, deducted: boolean, exhausted: boolean }}
+ */
+export function deductTokens(tokens) {
+  if (tokens <= 0) {
+    const balance = getTokenBalance()
+    return { remaining: balance.remaining, deducted: false, exhausted: balance.exhausted }
+  }
+  const status = checkPremium()
+  const tier = status.tier || 'free'
+  const limit = TOKEN_LIMITS[tier] || TOKEN_LIMITS.free
+  if (limit.max === Infinity) {
+    return { remaining: Infinity, deducted: false, exhausted: false }
+  }
+  const balance = ensureBalanceFileExists(tier)
+  balance.used += tokens
+  if (balance.used > limit.max) {
+    balance.used = limit.max // Clamp to max
+  }
+  saveBalance(balance)
+  const remaining = Math.max(0, limit.max - balance.used)
+  return {
+    remaining,
+    deducted: true,
+    exhausted: remaining <= 0,
+    used: balance.used,
+    max: limit.max,
+  }
+}
+
+/**
+ * Format a token count for display.
+ * @param {number} tokens
+ * @returns {string}
+ */
+export function formatTokens(tokens) {
+  if (tokens === Infinity) return '∞'
+  if (tokens >= 1_000_000_000_000) return (tokens / 1_000_000_000_000).toFixed(1) + 'T'
+  if (tokens >= 1_000_000_000) return (tokens / 1_000_000_000).toFixed(1) + 'B'
+  if (tokens >= 1_000_000) return (tokens / 1_000_000).toFixed(1) + 'M'
+  if (tokens >= 1_000) return (tokens / 1_000).toFixed(1) + 'K'
+  return String(tokens)
 }
 
 // ── Premium tier definitions ───────────────────────────────────────────
