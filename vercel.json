@@ -7,5 +7,13 @@
   "buildCommand": null,
   "outputDirectory": "freebuff/web",
   "framework": null,
+  "headers": [
+    {
+      "source": "/(.*)\\.(png|ico)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    }
+  ],
   "rewrites": []
 }
