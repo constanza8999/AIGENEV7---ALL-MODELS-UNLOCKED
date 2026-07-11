@@ -315,6 +315,9 @@ async function chatMode() {
         console.log('  /agent-reset            Reset agents to defaults')
         console.log('  ── Chat ──')
         console.log('  /clear                  Clear conversation history')
+        console.log('  ── Premium 💎 ──')
+        console.log('  /keygen                 Generate a premium key for CLI')
+        console.log('  /keygen <tier>          Generate key for specific tier (pro, elite, enterprise)')
         console.log('  ── Quantum ⚛️ ──')
         console.log('  /quantum               List available quantum demos')
         console.log('  /quantum <demo>        Run a demo (bell, ghz, deutsch, superposition, bell-swap)')
@@ -828,6 +831,64 @@ async function chatMode() {
         } catch (err) {
           console.log(`  ✗ ${err.message}`)
         }
+        askQuestion()
+        return
+      }
+
+      // ── Keygen command ──
+      if (trimmed === '/keygen') {
+        console.log('\n  💎 Premium Key Generator')
+        console.log('  ────────────────────────────────────────────')
+        console.log('  Available tiers:')
+        console.log('    /keygen pro         ⭐ Pro - export/import agents, custom quantum')
+        console.log('    /keygen elite       💎 Elite - all Pro + premium models + API')
+        console.log('    /keygen enterprise  🏢 Enterprise - all Elite + batch inference')
+        console.log('')
+        console.log('  After payment at https://aigen7ev.ai/premium/, you will receive')
+        console.log('  your real key by email. Use it with --premium-key or')
+        console.log('  AIGENEV7_PREMIUM_KEY environment variable.')
+        console.log()
+        askQuestion()
+        return
+      }
+
+      if (trimmed.startsWith('/keygen ')) {
+        const tier = trimmed.slice(8).trim().toLowerCase()
+        const validTiers = ['pro', 'elite', 'enterprise']
+        if (validTiers.indexOf(tier) === -1) {
+          console.log('  ✗ Invalid tier: ' + tier)
+          console.log('  Usage: /keygen pro    | /keygen elite    | /keygen enterprise')
+          console.log('         /keygen        (list available tiers)')
+          askQuestion()
+          return
+        }
+
+        // Generate 16 random alphanumeric chars
+        var chars = '0123456789abcdefghijklmnopqrstuvwxyz'
+        var rand = ''
+        for (var i = 0; i < 16; i++) {
+          rand += chars.charAt(Math.floor(Math.random() * chars.length))
+        }
+        const key = 'ag7_' + tier + '_' + rand
+
+        const tierLabels = {
+          'pro': '⭐ Pro',
+          'elite': '💎 Elite',
+          'enterprise': '🏢 Enterprise',
+        }
+
+        console.log('')
+        console.log('  💎 Premium Key Generated')
+        console.log('  ────────────────────────────────────────────')
+        console.log('  Tier:      ' + (tierLabels[tier] || tier))
+        console.log('  Key:       ' + key)
+        console.log('  Command:   bun run inference-cli.js chat --premium-key ' + key)
+        console.log('  Env var:   AIGENEV7_PREMIUM_KEY=' + key)
+        console.log('')
+        console.log('  ⚠ This is a generated key format for demonstration.')
+        console.log('  After payment, you will receive your real key.')
+        console.log('  Visit https://aigen7ev.ai/premium/ for details.')
+        console.log()
         askQuestion()
         return
       }
