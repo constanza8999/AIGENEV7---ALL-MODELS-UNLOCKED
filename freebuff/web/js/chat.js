@@ -190,11 +190,44 @@
     return bub
   }
 
+  // ── Prompt tone (Web Audio API chime) ─────────────
+  var toneCtx = null
+  function playPromptTone() {
+    try {
+      if (!toneCtx) toneCtx = new (window.AudioContext || window.webkitAudioContext)()
+      if (toneCtx.state === 'suspended') toneCtx.resume()
+      // Play a short ascending two-note chime: C5 (523Hz) → E5 (659Hz)
+      var now = toneCtx.currentTime
+      var g1 = toneCtx.createGain()
+      g1.connect(toneCtx.destination)
+      g1.gain.setValueAtTime(0.15, now)
+      g1.gain.exponentialRampToValueAtTime(0.001, now + 0.2)
+      var o1 = toneCtx.createOscillator()
+      o1.type = 'sine'
+      o1.frequency.setValueAtTime(523.25, now)
+      o1.connect(g1)
+      o1.start(now)
+      o1.stop(now + 0.15)
+
+      var g2 = toneCtx.createGain()
+      g2.connect(toneCtx.destination)
+      g2.gain.setValueAtTime(0.12, now + 0.12)
+      g2.gain.exponentialRampToValueAtTime(0.001, now + 0.35)
+      var o2 = toneCtx.createOscillator()
+      o2.type = 'sine'
+      o2.frequency.setValueAtTime(659.25, now + 0.12)
+      o2.connect(g2)
+      o2.start(now + 0.12)
+      o2.stop(now + 0.3)
+    } catch {}
+  }
+
   // ── Send / Receive ────────────────────────────────
   function sendMsg() {
     if (!chatInput) return
     var text = chatInput.value.trim()
     if (!text || isStreaming || !currentModelId) return
+    playPromptTone()
 
     // Add user message
     addMsg('user', text)

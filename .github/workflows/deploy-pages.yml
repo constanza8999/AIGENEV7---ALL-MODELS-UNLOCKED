@@ -1,0 +1,56 @@
+# 🚀 Deploy freebuff/web/ to GitHub Pages
+#
+# On every push to main, this workflow:
+#   1. Checks out the repository
+#   2. Uploads the freebuff/web/ directory as a Pages artifact
+#   3. Deploys to GitHub Pages
+#
+# Required setup (one-time):
+#   1. Go to Settings → Pages → Source → "GitHub Actions"
+#   2. (Optional) Set a custom domain in Settings → Pages
+
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    # Only run when files in web/ change
+    paths:
+      - 'freebuff/web/**'
+  # Allow manual trigger from Actions tab
+  workflow_dispatch:
+
+# Grant the GITHUB_TOKEN permission to deploy to Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Only one deployment at a time
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Upload the freebuff/web/ directory
+          path: freebuff/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

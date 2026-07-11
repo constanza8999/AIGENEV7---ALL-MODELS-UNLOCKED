@@ -35,6 +35,8 @@ import {
   importAgent,
   importAgentFromFile,
 } from './custom-agents.js'
+import { MODELS } from './models.js'
+import { checkPremium, hasFeature, getUpgradePrompt } from './premium.js'
 
 const [, , command, ...args] = process.argv
 
@@ -63,10 +65,24 @@ const maxTokens = flags.max_tokens === 'Infinity' ? Infinity : flags.max_tokens 
 const temperature = flags.temperature ? Number(flags.temperature) : undefined
 const port = flags.port ? Number(flags.port) : 3456
 
+// ── Premium key from CLI flag ──
+if (flags.premium_key) {
+  process.env.AIGENEV7_PREMIUM_KEY = flags.premium_key
+}
+
+let premiumStatus = checkPremium()
+
+// ── Prompt tone (terminal bell) ──
+function playPromptTone() {
+  try { process.stdout.write('\x07') } catch {}
+}
+
 // ── Help ──
 function showHelp() {
+  const badge = premiumStatus.isPremium ? ' 💎' : ''
   console.log(`
-  AIGENEV7 — Free AI Coding Agent v7.0.0
+  AIGENEV7 — Free AI Coding Agent v7.0.0${badge}
+  ${premiumStatus.message}
 
   Usage:
     bun inference-cli.js <command> [options]
@@ -84,6 +100,7 @@ function showHelp() {
     --temperature <n>        Temperature 0-2 (default: 0.7)
     --uncensored             Uncensored mode (default: true)
     --port <n>               Web server port (default: 3456)
+    --premium-key <key>      Premium key (format: ag7_{tier}_{key})
     --help                   Show this help message
 
   Examples:
@@ -92,6 +109,7 @@ function showHelp() {
     bun inference-cli.js chat
     bun inference-cli.js models
     bun inference-cli.js serve --port 8080
+    bun inference-cli.js chat --premium-key ag7_pro_your_key
 `)
 }
 
@@ -115,7 +133,12 @@ async function listModels() {
     console.log()
   }
 
-  console.log('  ✓ = API key configured   ○ = No key set\n')
+  const premium = checkPremium()
+  console.log('  ✓ = API key configured   ○ = No key set')
+  if (!premium.isPremium) {
+    console.log('  💎 = Premium models (set AIGENEV7_PREMIUM_KEY to unlock)')
+  }
+  console.log()
 }
 
 async function getNumberedModels() {
@@ -147,10 +170,11 @@ function printModelPicker(entries, currentId) {
     console.log(`  ${keyIcon} ${provider.charAt(0).toUpperCase() + provider.slice(1)}`)
     for (const e of models) {
       const tag = e.model.multimodal ? ' 📷' : ''
+      const premiumTag = e.model.premium ? ' 💎' : ''
       const isCurrent = e.model.id === currentId ? ' →' : ''
       const padNum = String(e.num).padStart(2, ' ')
       const keyMark = e.hasKey ? '✓' : ' '
-      console.log(`    [${padNum}] ${keyMark} ${e.model.id.padEnd(26)} ${e.model.displayName}${tag}${isCurrent}`)
+      console.log(`    [${padNum}] ${keyMark} ${e.model.id.padEnd(26)} ${e.model.displayName}${tag}${premiumTag}${isCurrent}`)
     }
     console.log()
   }
@@ -183,7 +207,18 @@ async function chatMode() {
   let currentAgent = getDefaultAgent()
   let allAgents = listAgents()
 
-  let currentModel = model || process.env.AIGENEV7_DEFAULT_MODEL || (entries.length > 0 ? entries[0].model.id : 'nvidia-llama-3.1-70b')
+  // Resolve initial model, falling back to first free model for non-premium users
+  const initialModelId = model || process.env.AIGENEV7_DEFAULT_MODEL || (entries.length > 0 ? entries[0].model.id : 'nvidia-llama-3.1-70b')
+  const initialModel = MODELS.find((m) => m.id === initialModelId)
+  if (initialModel && initialModel.premium && !hasFeature('premium_models')) {
+    const fallback = entries.find((e) => !e.model.premium)?.model
+    console.log(`  Note: "${initialModelId}" requires premium — using "${fallback ? fallback.id : initialModelId}" instead`)
+    console.log('  Set AIGENEV7_PREMIUM_KEY or use --premium-key to unlock premium models.')
+    console.log()
+  }
+  let currentModel = (initialModel && initialModel.premium && !hasFeature('premium_models'))
+    ? (entries.find((e) => !e.model.premium)?.model.id || initialModelId)
+    : initialModelId
 
   // Show agent picker at startup
   console.log('\n  ── Select an Agent ──')
@@ -330,6 +365,13 @@ async function chatMode() {
         const newModelRef = trimmed.slice(7).trim()
         const m = resolveModel(newModelRef)
         if (m) {
+          // Premium gate
+          if (m.premium && !hasFeature('premium_models')) {
+            console.log('  ' + getUpgradePrompt('premium_models'))
+            console.log('  Free models available: /models (no 💎 tag)')
+            askQuestion()
+            return
+          }
           currentModel = m.id
           console.log(`  ✓ Switched to ${m.displayName} (${m.id})`)
         } else {
@@ -348,6 +390,13 @@ async function chatMode() {
       const num = parseInt(trimmed, 10)
       if (!isNaN(num) && num >= 1 && num <= entries.length) {
         const m = entries[num - 1].model
+        // Premium gate
+        if (m.premium && !hasFeature('premium_models')) {
+          console.log('  ' + getUpgradePrompt('premium_models'))
+          console.log('  Enter another number for a free model, or use /models to list all.')
+          askQuestion()
+          return
+        }
         currentModel = m.id
         console.log(`  ✓ Switched to ${m.displayName} (${m.id})`)
         askQuestion()
@@ -499,6 +548,14 @@ async function chatMode() {
         return
       }
 
+      // ── Premium gate for /agent-export ──
+      if (trimmed.startsWith('/agent-export ') && trimmed.includes(' to ') && !hasFeature('export_agent_file')) {
+        console.log('  ' + getUpgradePrompt('export_agent_file'))
+        console.log('  Use /agent-export <name> (without to <file>) for free console export.')
+        askQuestion()
+        return
+      }
+
       // ── Bare /agent-export shows usage ──
       if (trimmed === '/agent-export') {
         console.log('  Usage: /agent-export <name|#>           Export agent as JSON')
@@ -546,6 +603,14 @@ async function chatMode() {
         } catch (err) {
           console.log(`  ✗ ${err.message}`)
         }
+        askQuestion()
+        return
+      }
+
+      // ── Premium gate for /agent-import ──
+      if (trimmed.startsWith('/agent-import from ') && !hasFeature('import_agent_file')) {
+        console.log('  ' + getUpgradePrompt('import_agent_file'))
+        console.log('  Use /agent-import <json> (inline JSON) for free import.')
         askQuestion()
         return
       }
@@ -631,6 +696,14 @@ async function chatMode() {
         } catch (err) {
           console.log(`  ✗ Quantum simulator unavailable: ${err.message}`)
         }
+        askQuestion()
+        return
+      }
+
+      // ── Premium gate for custom quantum ──
+      if (trimmed.startsWith('/quantum run ') && !hasFeature('custom_quantum')) {
+        console.log('  ' + getUpgradePrompt('custom_quantum'))
+        console.log('  Free users can run demos: /quantum bell, /quantum ghz, etc.')
         askQuestion()
         return
       }
@@ -762,6 +835,7 @@ async function chatMode() {
       // ── Send prompt ──
       if (trimmed) {
         try {
+          playPromptTone()
           messages.push({ role: 'user', content: trimmed })
           const response = await infer({
             model: currentModel,
@@ -793,7 +867,7 @@ async function serve() {
 
   const { fileURLToPath } = await import('url')
   const { resolve, dirname } = await import('path')
-  const { readFileSync, existsSync } = await import('fs')
+  const { readFileSync, existsSync, appendFileSync } = await import('fs')
   const { listAgents, getAgent } = await import('./custom-agents.js')
   const { MODELS, getModelsByProvider } = await import('./models.js')
 
@@ -1100,6 +1174,32 @@ async function serve() {
       }
 
       // ── API Health Check ──
+      if (url.pathname === '/api/feedback' && req.method === 'POST') {
+        try {
+          const body = await req.json()
+          // Validate
+          if (!body.name || !body.message) {
+            return new Response(JSON.stringify({ error: 'Name and message are required' }), {
+              status: 400,
+              headers: { 'Content-Type': 'application/json' },
+            })
+          }
+          // Append to feedback log
+          const logLine = JSON.stringify(body) + '\n'
+          const logPath = resolve(__dirname, 'feedback.log')
+          appendFileSync(logPath, logLine, 'utf8')
+          console.log('  [AIGENEV7] Feedback received from ' + body.name)
+          return new Response(JSON.stringify({ status: 'ok' }), {
+            headers: { 'Content-Type': 'application/json' },
+          })
+        } catch (err) {
+          return new Response(JSON.stringify({ error: err.message }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
+          })
+        }
+      }
+
       if (url.pathname === '/api/health') {
         return new Response(JSON.stringify({
           status: 'ok',
@@ -1144,6 +1244,16 @@ async function main() {
     showHelp()
     return
   }
+
+  // Premium gate for ask command
+  const askedModel = model ? MODELS.find((m) => m.id === model) : null
+  if (askedModel && askedModel.premium && !hasFeature('premium_models')) {
+    console.log('  ' + getUpgradePrompt('premium_models'))
+    console.log('  Use a free model (e.g., --model deepseek-v4-flash) or set AIGENEV7_PREMIUM_KEY.')
+    process.exit(1)
+  }
+
+  playPromptTone()
 
   try {
     const result = await infer({

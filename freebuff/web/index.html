@@ -54,7 +54,12 @@
     <a href="#gallery">Gallery</a>
     <a href="#quantum">Quantum</a>
     <a href="#chat">Chat</a>
+    <a href="#feedback">Feedback</a>
     <a href="https://github.com/constanza8999">GitHub</a>
+    <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+      <span class="theme-icon-light">☀️</span>
+      <span class="theme-icon-dark" style="display:none">🌙</span>
+    </button>
   </nav>
   <span class="logo-sub">by CONSTANZA</span>
 </header>
@@ -412,13 +417,273 @@
   </div>
 </section>
 
+<!-- ── Payment Methods Divider ── -->
+<div class="chat-divider" id="payment"><span>✦ Payment Methods ✦</span></div>
+
+<!-- ── Payment Methods Section ── -->
+<section class="payment-section">
+  <p class="payment-subtitle">Support development by paying what you can. All payments go directly to the creator.</p>
+  <div class="payment-grid" id="paymentGrid"></div>
+</section>
+
+<!-- ── Feedback Divider ── -->
+<div class="chat-divider" id="feedback"><span>✦ Send Feedback ✦</span></div>
+
+<!-- ── Feedback / Contact Section ── -->
+<section class="feedback-section">
+  <p class="feedback-subtitle">Help shape AIGENEV7. Bug reports, feature ideas, or just say hi.</p>
+
+  <form class="feedback-form" id="feedbackForm" novalidate>
+    <div class="feedback-row">
+      <div class="feedback-field">
+        <label for="feedbackName">Your Name</label>
+        <input type="text" id="feedbackName" placeholder="e.g. Alex" required>
+      </div>
+      <div class="feedback-field">
+        <label for="feedbackEmail">Email <span class="feedback-optional">(optional)</span></label>
+        <input type="email" id="feedbackEmail" placeholder="for a reply">
+      </div>
+    </div>
+
+    <div class="feedback-field">
+      <label for="feedbackType">Type</label>
+      <div class="feedback-type-group" id="feedbackTypeGroup">
+        <button type="button" class="feedback-type-btn active" data-value="bug">🐛 Bug Report</button>
+        <button type="button" class="feedback-type-btn" data-value="feature">💡 Feature Request</button>
+        <button type="button" class="feedback-type-btn" data-value="feedback">💬 General Feedback</button>
+        <button type="button" class="feedback-type-btn" data-value="other">📝 Other</button>
+      </div>
+    </div>
+
+    <div class="feedback-field">
+      <label>Rating</label>
+      <div class="feedback-stars" id="feedbackStars">
+        <button type="button" class="star" data-value="1" title="Terrible">★</button>
+        <button type="button" class="star" data-value="2" title="Poor">★</button>
+        <button type="button" class="star" data-value="3" title="Okay">★</button>
+        <button type="button" class="star" data-value="4" title="Great">★</button>
+        <button type="button" class="star" data-value="5" title="Amazing!">★</button>
+      </div>
+    </div>
+
+    <div class="feedback-field">
+      <label for="feedbackMessage">Message <span class="feedback-required">*</span></label>
+      <textarea id="feedbackMessage" rows="4"
+        placeholder="Tell us what you think..."
+        required></textarea>
+    </div>
+
+    <div class="feedback-actions">
+      <button type="submit" class="feedback-submit" id="feedbackSubmit">
+        <span class="feedback-submit-text">Send Feedback</span>
+        <span class="feedback-submit-sent" style="display:none">✓ Sent!</span>
+      </button>
+      <p class="feedback-hint">Your feedback stays private. No account needed.</p>
+    </div>
+  </form>
+</section>
+
 <!-- ── Footer ── -->
 <footer>
   <p>Built by <strong>CONSTANZA</strong> — <a href="https://github.com/constanza8999">@constanza8999</a></p>
   <p><a href="https://github.com/constanza8999/aigenev7.com">AIGENEV7</a> — Free AI for everyone. MIT License.</p>
+  <p class="footer-proof">
+    <a href="fairregister.pdf" target="_blank" class="proof-badge">
+      <span>📜</span> Proof of Authorship
+    </a>
+    <span class="proof-muted">FairRegister blockchain-certified</span>
+  </p>
 </footer>
 
 </div>
+
+<!-- ── Feedback JS ── -->
+<script>
+(function() {
+  'use strict'
+  var form = document.getElementById('feedbackForm')
+  if (!form) return
+
+  // Star rating
+  var stars = document.querySelectorAll('.star')
+  var currentRating = 0
+  for (var i = 0; i < stars.length; i++) {
+    ;(function(star, idx) {
+      star.addEventListener('click', function() {
+        currentRating = idx + 1
+        for (var j = 0; j < stars.length; j++) {
+          stars[j].classList.toggle('active', j < currentRating)
+        }
+      })
+      star.addEventListener('mouseenter', function() {
+        for (var j = 0; j < stars.length; j++) {
+          stars[j].classList.toggle('hover', j <= idx)
+        }
+      })
+      star.addEventListener('mouseleave', function() {
+        for (var j = 0; j < stars.length; j++) {
+          stars[j].classList.remove('hover')
+        }
+      })
+    })(stars[i], i)
+  }
+
+  // Type buttons
+  var typeBtns = document.querySelectorAll('.feedback-type-btn')
+  var selectedType = 'bug'
+  for (var i = 0; i < typeBtns.length; i++) {
+    ;(function(btn, val) {
+      btn.addEventListener('click', function() {
+        selectedType = val
+        for (var j = 0; j < typeBtns.length; j++) typeBtns[j].classList.remove('active')
+        btn.classList.add('active')
+      })
+    })(typeBtns[i], typeBtns[i].dataset.value)
+  }
+
+  // Form submit
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault()
+
+    var name = document.getElementById('feedbackName').value.trim()
+    var email = document.getElementById('feedbackEmail').value.trim()
+    var message = document.getElementById('feedbackMessage').value.trim()
+    var submitBtn = document.getElementById('feedbackSubmit')
+    var textEl = submitBtn.querySelector('.feedback-submit-text')
+    var sentEl = submitBtn.querySelector('.feedback-submit-sent')
+
+    if (!name) { alert('Please enter your name'); return }
+    if (!message) { alert('Please enter a message'); return }
+
+    var data = { name: name, email: email, type: selectedType, rating: currentRating, message: message, timestamp: new Date().toISOString() }
+
+    try {
+      var res = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+      if (!res.ok) throw new Error('Server error')
+    } catch (e) {
+      // Fallback: store locally
+      var stored = []
+      try { stored = JSON.parse(localStorage.getItem('aigenev7-feedback') || '[]') } catch {}
+      stored.push(data)
+      localStorage.setItem('aigenev7-feedback', JSON.stringify(stored))
+    }
+
+    // Show success
+    textEl.style.display = 'none'
+    sentEl.style.display = 'inline'
+    setTimeout(function() {
+      textEl.style.display = 'inline'
+      sentEl.style.display = 'none'
+      form.reset()
+      currentRating = 0
+      for (var j = 0; j < stars.length; j++) stars[j].classList.remove('active')
+    }, 2000)
+  })
+})()
+</script>
+
+<!-- ── Theme Toggle JS (early, prevents flash) ── -->
+<script>
+(function() {
+  'use strict'
+  var theme = localStorage.getItem('aigenev7-theme')
+  if (!theme) {
+    theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+  }
+  if (theme === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light')
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    var btn = document.getElementById('themeToggle')
+    var lightIcon = btn ? btn.querySelector('.theme-icon-light') : null
+    var darkIcon = btn ? btn.querySelector('.theme-icon-dark') : null
+    function setTheme(t) {
+      if (t === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (lightIcon) lightIcon.style.display = 'none'
+        if (darkIcon) darkIcon.style.display = 'inline'
+      } else {
+        document.documentElement.removeAttribute('data-theme')
+        if (lightIcon) lightIcon.style.display = 'inline'
+        if (darkIcon) darkIcon.style.display = 'none'
+      }
+      localStorage.setItem('aigenev7-theme', t)
+      // Update theme-color meta
+      var meta = document.querySelector('meta[name="theme-color"]')
+      if (meta) meta.content = t === 'light' ? '#f5f5f8' : '#0a0a0f'
+    }
+    if (btn) {
+      btn.addEventListener('click', function() {
+        var current = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark'
+        setTheme(current === 'light' ? 'dark' : 'light')
+      })
+    }
+    // Sync icon on load
+    var currentTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark'
+    if (currentTheme === 'light') {
+      if (lightIcon) lightIcon.style.display = 'none'
+      if (darkIcon) darkIcon.style.display = 'inline'
+    }
+  })
+})()
+</script>
+
+<!-- ── Payment Methods JS ── -->
+<script>
+(function() {
+  'use strict'
+  var methods = window.AIGENEV7_PAYMENT_METHODS || []
+  var grid = document.getElementById('paymentGrid')
+  if (!grid || methods.length === 0) return
+
+  for (var i = 0; i < methods.length; i++) {
+    var m = methods[i]
+    var card = document.createElement('div')
+    card.className = 'payment-card'
+    card.style.animationDelay = (i * 0.08) + 's'
+
+    var emoji = document.createElement('div')
+    emoji.className = 'payment-card-emoji'
+    emoji.textContent = m.emoji
+    card.appendChild(emoji)
+
+    var name = document.createElement('div')
+    name.className = 'payment-card-name'
+    name.textContent = m.name
+    card.appendChild(name)
+
+    var detail = document.createElement('div')
+    detail.className = 'payment-card-detail'
+    detail.textContent = m.detail
+    card.appendChild(detail)
+
+    var desc = document.createElement('div')
+    desc.className = 'payment-card-desc'
+    desc.textContent = m.description
+    card.appendChild(desc)
+
+    if (m.url) {
+      var link = document.createElement('a')
+      link.className = 'payment-card-link'
+      link.href = m.url
+      link.target = '_blank'
+      link.textContent = 'Pay Now →'
+      card.appendChild(link)
+    } else {
+      var hint = document.createElement('div')
+      hint.className = 'payment-card-hint'
+      hint.textContent = 'Contact for details'
+      card.appendChild(hint)
+    }
+
+    grid.appendChild(card)
+  }
+})()
+</script>
 
 <!-- ── Pricing JS ── -->
 <script>

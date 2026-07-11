@@ -508,6 +508,44 @@ window.AIGENEV7_STORE_CATEGORIES = {
   services: { label: 'Consulting', emoji: '🤝', desc: 'Expert developer services' },
 }
 
+// ── Accepted Payment Methods ────────────────────────────────────────────
+// Shown on the site so customers know how to pay.
+
+window.AIGENEV7_PAYMENT_METHODS = [
+  {
+    id: 'paypal',
+    name: 'PayPal',
+    emoji: '💳',
+    detail: 'josejaimejulia7@gmail.com',
+    url: 'https://paypal.me/josejaimejulia7',
+    description: 'Send payments via PayPal to the developer email.',
+  },
+  {
+    id: 'crypto',
+    name: 'Cryptocurrency',
+    emoji: '₿',
+    detail: 'All major coins accepted (BTC, ETH, USDT, SOL)',
+    url: null,
+    description: 'Contact for wallet address. Privacy-focused payments.',
+  },
+  {
+    id: 'minipay',
+    name: 'MiniPay',
+    emoji: '📱',
+    detail: 'MiniPay by Celo — mobile-first stablecoin payments',
+    url: null,
+    description: 'Send cUSD/cEUR via MiniPay. Fast and low-fee.',
+  },
+  {
+    id: 'bank',
+    name: 'Bank Transfer',
+    emoji: '🏦',
+    detail: 'CAIXABANK • ES96 2100 2034 1010 0102 7113',
+    url: null,
+    description: 'SEPA transfer to ES9621002034100101027113. IBAN in Spain.',
+  },
+]
+
 // ── Shared Agent Gallery ────────────────────────────────────────────────
 // Community-contributed agent personas. Users can browse and download.
 // To add your own, submit a PR or use the /agent-export CLI command.

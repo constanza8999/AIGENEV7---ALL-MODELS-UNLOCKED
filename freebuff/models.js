@@ -24,7 +24,7 @@ export const MODELS = [
     providerModel: 'anthropic/claude-fable-5',
     multimodal: true,
     description: 'Smartest & Multimodal (via OpenRouter)',
-    premium: false,
+    premium: true,
   },
   {
     id: 'claude-sonnet-4',
@@ -42,7 +42,7 @@ export const MODELS = [
     providerModel: 'anthropic/claude-opus-4',
     multimodal: true,
     description: 'Maximum intelligence (via OpenRouter)',
-    premium: false,
+    premium: true,
   },
   {
     id: 'claude-sonnet-4.5',
@@ -115,7 +115,7 @@ export const MODELS = [
     providerModel: 'gpt-5-2025-05-01',
     multimodal: true,
     description: 'Latest OpenAI flagship',
-    premium: false,
+    premium: true,
   },
   {
     id: 'gpt-4.1',
@@ -124,7 +124,7 @@ export const MODELS = [
     providerModel: 'gpt-4.1-2025-04-14',
     multimodal: true,
     description: 'Strong general reasoning',
-    premium: false,
+    premium: true,
   },
   {
     id: 'gpt-4o',
@@ -151,7 +151,7 @@ export const MODELS = [
     providerModel: 'o3-2025-04-16',
     multimodal: false,
     description: 'Deep reasoning',
-    premium: false,
+    premium: true,
   },
   {
     id: 'o3-mini',
@@ -178,7 +178,7 @@ export const MODELS = [
     providerModel: 'o3-pro-2025-06-10',
     multimodal: false,
     description: 'Maximum OpenAI reasoning',
-    premium: false,
+    premium: true,
   },
 
   // ── Google Gemini ────────────────────────────────────────────────────
@@ -261,7 +261,7 @@ export const MODELS = [
     baseUrl: 'https://api.x.ai/v1',
     multimodal: true,
     description: 'xAI flagship',
-    premium: false,
+    premium: true,
   },
 
   // ── OpenRouter (meta-provider) ───────────────────────────────────────
