@@ -1,0 +1,199 @@
+---
+---
+
+@import "jekyll-theme-cayman";
+
+/* ── AIGENEV7 Custom Branding ── */
+
+:root {
+  --aigenev7-green: #00ff88;
+  --aigenev7-green-dim: #00cc66;
+  --aigenev7-purple: #8855ff;
+  --aigenev7-red: #ff4466;
+  --aigenev7-dark: #0a0a0f;
+  --aigenev7-card: #111118;
+  --aigenev7-border: #1e1e30;
+}
+
+/* ── Header ── */
+.page-header {
+  background-image: linear-gradient(120deg, #0a0a0f, #111118) !important;
+  border-bottom: 2px solid var(--aigenev7-green);
+}
+
+.page-header .project-name {
+  color: #00ff88;
+  text-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
+
+.page-header .project-tagline {
+  color: #8888aa;
+}
+
+/* ── Main Content ── */
+.main-content {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  color: #e0e0ee;
+}
+
+.main-content h1,
+.main-content h2,
+.main-content h3,
+.main-content h4,
+.main-content h5,
+.main-content h6 {
+  color: #00ff88;
+  font-weight: 700;
+}
+
+.main-content h1 {
+  border-bottom: 2px solid #1e1e30;
+  padding-bottom: 0.5rem;
+}
+
+.main-content h2 {
+  color: #8855ff;
+  border-bottom: 1px solid #1e1e30;
+  padding-bottom: 0.3rem;
+}
+
+.main-content a {
+  color: #00ff88;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.main-content a:hover {
+  color: #00cc66;
+  text-decoration: underline;
+}
+
+.main-content a:visited {
+  color: #8855ff;
+}
+
+/* ── Code Blocks ── */
+.main-content code {
+  color: #00ff88;
+  background-color: #111118;
+  border: 1px solid #1e1e30;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.main-content pre {
+  background-color: #111118 !important;
+  border: 1px solid #1e1e30;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.main-content pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+/* ── Tables ── */
+.main-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1rem 0;
+}
+
+.main-content table th {
+  background-color: #111118;
+  color: #00ff88;
+  border: 1px solid #1e1e30;
+  padding: 0.6rem 1rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+.main-content table td {
+  border: 1px solid #1e1e30;
+  padding: 0.5rem 1rem;
+  color: #ccccdd;
+}
+
+.main-content table tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.main-content table tr:hover {
+  background-color: rgba(0, 255, 136, 0.03);
+}
+
+/* ── Blockquotes ── */
+.main-content blockquote {
+  border-left: 4px solid #8855ff;
+  background: rgba(136, 85, 255, 0.05);
+  padding: 0.5rem 1rem;
+  color: #ccccdd;
+  border-radius: 0 4px 4px 0;
+}
+
+/* ── Horizontal Rules ── */
+.main-content hr {
+  border: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #00ff88, #8855ff, transparent);
+  margin: 2rem 0;
+}
+
+/* ── Lists ── */
+.main-content ul,
+.main-content ol {
+  color: #ccccdd;
+}
+
+.main-content li {
+  margin-bottom: 0.3rem;
+}
+
+.main-content li::marker {
+  color: #00ff88;
+}
+
+/* ── Dividers ── */
+.main-content .highlight {
+  border-radius: 8px;
+}
+
+/* ── Footer like the landing page ── */
+.site-footer {
+  border-top: 1px solid #1e1e30;
+  color: #8888aa;
+}
+
+.site-footer a {
+  color: #00ff88;
+}
+
+/* ── Back to top link ── */
+.main-content .btn {
+  background: transparent;
+  border: 1px solid #1e1e30;
+  color: #00ff88;
+  transition: all 0.3s;
+}
+
+.main-content .btn:hover {
+  background: rgba(0, 255, 136, 0.1);
+  border-color: #00ff88;
+}
+
+/* ── Inline code in paragraphs ── */
+p code,
+li code,
+td code {
+  background-color: #111118;
+  color: #8855ff;
+  padding: 0.15rem 0.3rem;
+  border-radius: 3px;
+  font-size: 0.85rem;
+  border: 1px solid #1e1e30;
+}

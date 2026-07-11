@@ -107,14 +107,15 @@ export const MODELS = [
     premium: false,
   },
 
-  // ── OpenAI ───────────────────────────────────────────────────────────
+  // ── OpenAI (routed via OpenRouter) ───────────────────────────────────
   {
     id: 'gpt-5',
     displayName: 'GPT-5',
     provider: 'openai',
     providerModel: 'gpt-5-2025-05-01',
+    baseUrl: 'https://openrouter.ai/api/v1',
     multimodal: true,
-    description: 'Latest OpenAI flagship',
+    description: 'Latest OpenAI flagship (via OpenRouter)',
     premium: false,
   },
   {
@@ -122,8 +123,9 @@ export const MODELS = [
     displayName: 'GPT-4.1',
     provider: 'openai',
     providerModel: 'gpt-4.1-2025-04-14',
+    baseUrl: 'https://openrouter.ai/api/v1',
     multimodal: true,
-    description: 'Strong general reasoning',
+    description: 'Strong general reasoning (via OpenRouter)',
     premium: false,
   },
   {
@@ -131,8 +133,9 @@ export const MODELS = [
     displayName: 'GPT-4o',
     provider: 'openai',
     providerModel: 'gpt-4o-2024-11-20',
+    baseUrl: 'https://openrouter.ai/api/v1',
     multimodal: true,
-    description: 'Omni modal',
+    description: 'Omni modal (via OpenRouter)',
     premium: false,
   },
   {
@@ -140,8 +143,9 @@ export const MODELS = [
     displayName: 'GPT-4o Mini',
     provider: 'openai',
     providerModel: 'gpt-4o-mini-2024-07-18',
+    baseUrl: 'https://openrouter.ai/api/v1',
     multimodal: true,
-    description: 'Fast & cheap',
+    description: 'Fast & cheap (via OpenRouter)',
     premium: false,
   },
   {
@@ -149,8 +153,9 @@ export const MODELS = [
     displayName: 'O3',
     provider: 'openai',
     providerModel: 'o3-2025-04-16',
+    baseUrl: 'https://openrouter.ai/api/v1',
     multimodal: false,
-    description: 'Deep reasoning',
+    description: 'Deep reasoning (via OpenRouter)',
     premium: false,
   },
   {
@@ -158,8 +163,9 @@ export const MODELS = [
     displayName: 'O3 Mini',
     provider: 'openai',
     providerModel: 'o3-mini-2025-01-31',
+    baseUrl: 'https://openrouter.ai/api/v1',
     multimodal: false,
-    description: 'Fast reasoning',
+    description: 'Fast reasoning (via OpenRouter)',
     premium: false,
   },
   {
@@ -167,8 +173,9 @@ export const MODELS = [
     displayName: 'O4 Mini',
     provider: 'openai',
     providerModel: 'o4-mini-2025-04-16',
+    baseUrl: 'https://openrouter.ai/api/v1',
     multimodal: true,
-    description: 'Multimodal reasoning',
+    description: 'Multimodal reasoning (via OpenRouter)',
     premium: false,
   },
   {
@@ -176,8 +183,9 @@ export const MODELS = [
     displayName: 'O3 Pro',
     provider: 'openai',
     providerModel: 'o3-pro-2025-06-10',
+    baseUrl: 'https://openrouter.ai/api/v1',
     multimodal: false,
-    description: 'Maximum OpenAI reasoning',
+    description: 'Maximum OpenAI reasoning (via OpenRouter)',
     premium: false,
   },
 
