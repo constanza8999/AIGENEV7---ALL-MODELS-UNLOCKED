@@ -150,7 +150,9 @@ const server = Bun.serve({
       // ================================================================
       if (method === 'POST' && path === '/api/v1/chat/completions') {
         const body = await req.json()
-        const { model: requestedModel, messages, stream: shouldStream, max_tokens, temperature, ...extra } = body
+        const { model: requestedModel, messages, stream: shouldStream, max_tokens: rawMaxTokens, temperature, ...extra } = body
+        // Clamp max_tokens to prevent API errors from huge values (e.g., CLI sending 1e18 which exceeds u32)
+        const max_tokens = (rawMaxTokens != null && rawMaxTokens > 10000000) ? undefined : rawMaxTokens
 
         if (!messages || !Array.isArray(messages)) {
           return Response.json({ error: 'messages is required' }, { status: 400, headers: corsHeaders })
