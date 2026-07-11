@@ -131,6 +131,131 @@ window.AIGENEV7_SUBTITLES = [
   'Built by CONSTANZA. For everyone.'
 ]
 
+// ── Subscription Plans ──────────────────────────────────────────────────
+// Pricing tiers with different billing periods.
+// Each period has: price, label, savings message.
+// The badge property highlights the recommended plan.
+
+window.AIGENEV7_PLANS = [
+  {
+    id: 'weekly',
+    name: 'Weekly Pass',
+    emoji: '🚀',
+    description: 'Perfect for trying out unlimited AI coding.',
+    badge: null,
+    prices: {
+      weekly: { price: 10, period: 'week', label: '/week', savings: null },
+    },
+    features: [
+      'All 14 supported models',
+      'Unlimited token usage',
+      'Standard response priority',
+      'Email support',
+      'Access to all agent personas',
+      'Quantum Lab access',
+    ],
+    cta: 'Subscribe Weekly',
+    popular: false,
+  },
+  {
+    id: 'monthly',
+    name: 'Monthly Pro',
+    emoji: '⭐',
+    description: 'For regular developers who code every day.',
+    badge: 'Most Popular',
+    prices: {
+      weekly: { price: 15, period: 'week', label: '/week', savings: 'Save 40% vs Weekly' },
+      monthly: { price: 25, period: 'month', label: '/month', savings: null },
+      yearly: { price: 20, period: 'month', label: '/month', savings: 'Save 20% vs Monthly' },
+    },
+    features: [
+      'All 14 supported models',
+      'Unlimited token usage',
+      'Priority response queue',
+      'Priority email support',
+      'All agent personas + gallery',
+      'Quantum Lab + CLI access',
+      'Early access to new models',
+    ],
+    cta: 'Subscribe Monthly',
+    popular: true,
+  },
+  {
+    id: 'quarterly',
+    name: 'Quarterly Premium',
+    emoji: '💎',
+    description: 'Serious developers wanting the best value.',
+    badge: 'Best Value',
+    prices: {
+      weekly: { price: 12, period: 'week', label: '/week', savings: 'Save 52% vs Weekly' },
+      monthly: { price: 20, period: 'month', label: '/month', savings: 'Save 20% vs Monthly' },
+      quarterly: { price: 60, period: 'quarter', label: '/quarter', savings: null },
+    },
+    features: [
+      'All 14+ supported models',
+      'Unlimited token usage',
+      'High priority response queue',
+      'Priority email + chat support',
+      'All agents + gallery + custom',
+      'Quantum Lab + CLI + API',
+      'Early access to features',
+      'Beta model access',
+    ],
+    cta: 'Subscribe Quarterly',
+    popular: false,
+  },
+  {
+    id: 'yearly',
+    name: 'Yearly Elite',
+    emoji: '👑',
+    description: 'Power users who want it all, with maximum savings.',
+    badge: 'Best Savings',
+    prices: {
+      weekly: { price: 10, period: 'week', label: '/week', savings: 'Save 60% vs Weekly' },
+      monthly: { price: 15, period: 'month', label: '/month', savings: 'Save 40% vs Monthly' },
+      yearly: { price: 180, period: 'year', label: '/year', savings: null },
+    },
+    features: [
+      'All models + priority access',
+      'Unlimited token usage',
+      'Top priority response queue',
+      'VIP support (email + chat + 1:1)',
+      'Everything: agents, gallery, quantum',
+      'Full API access + CLI',
+      'Early access to all features',
+      'Beta models + experimental',
+      'Name in release notes',
+      'Direct line to maintainer',
+    ],
+    cta: 'Subscribe Yearly',
+    popular: false,
+  },
+  {
+    id: 'lifetime',
+    name: 'Lifetime Legend',
+    emoji: '🏆',
+    description: 'One payment. Forever access. For the true believers.',
+    badge: 'Limited Edition',
+    prices: {
+      lifetime: { price: 499, period: 'once', label: ' once', savings: null },
+    },
+    features: [
+      'Everything in Yearly Elite — forever',
+      'No recurring payments ever',
+      'VIP support for life',
+      'Name in AIGENEV7 credits',
+      'Project governance vote',
+      'Private maintainer chat',
+      'Custom feature requests',
+      'Lifetime early access',
+      'Exclusive Legend badge on profile',
+      'Founding member status',
+    ],
+    cta: 'Get Lifetime Access',
+    popular: false,
+  },
+]
+
 // ── Shared Agent Gallery ────────────────────────────────────────────────
 // Community-contributed agent personas. Users can browse and download.
 // To add your own, submit a PR or use the /agent-export CLI command.

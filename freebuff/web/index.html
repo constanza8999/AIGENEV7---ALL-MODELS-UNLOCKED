@@ -47,6 +47,7 @@
   <nav class="header-nav">
     <a href="#features">Features</a>
     <a href="#models">Models</a>
+    <a href="#pricing">Pricing</a>
     <a href="#gallery">Gallery</a>
     <a href="#quantum">Quantum</a>
     <a href="#chat">Chat</a>
@@ -252,6 +253,27 @@
   </div>
 </section>
 
+<!-- ── Pricing Divider ── -->
+<div class="chat-divider" id="pricing"><span>✦ Subscription Plans ✦</span></div>
+
+<!-- ── Pricing Section ── -->
+<section class="pricing-section">
+  <p class="pricing-subtitle">Choose your plan. Unlimited usage. No hidden fees. Cancel anytime.</p>
+
+  <!-- Billing Toggle -->
+  <div class="pricing-toggle" id="pricingToggle">
+    <span>Billed</span>
+    <div class="pricing-toggle-btn">
+      <button class="active" data-period="weekly">Weekly</button>
+      <button data-period="monthly">Monthly</button>
+      <button data-period="yearly">Yearly</button>
+      <button data-period="lifetime">Lifetime</button>
+    </div>
+  </div>
+
+  <div class="pricing-grid" id="pricingGrid"></div>
+</section>
+
 <!-- ── Gallery Divider ── -->
 <div class="chat-divider" id="gallery"><span>✦ Agent Gallery ✦</span></div>
 
@@ -344,6 +366,115 @@
 </footer>
 
 </div>
+
+<!-- ── Pricing JS ── -->
+<script>
+(function() {
+  'use strict'
+  var plans = window.AIGENEV7_PLANS || []
+  var grid = document.getElementById('pricingGrid')
+  var toggleBtns = document.querySelectorAll('.pricing-toggle-btn button')
+  if (!grid || plans.length === 0) return
+
+  var currentPeriod = 'weekly'
+
+  function renderPricing(period) {
+    grid.innerHTML = ''
+    for (var i = 0; i < plans.length; i++) {
+      var plan = plans[i]
+      var priceInfo = plan.prices[period]
+      // Fallback: find closest available period
+      if (!priceInfo) {
+        var periods = Object.keys(plan.prices)
+        priceInfo = plan.prices[periods[0]]
+      }
+      if (!priceInfo) continue
+
+      var card = document.createElement('div')
+      card.className = 'pricing-card'
+      if (plan.popular) card.classList.add('popular')
+      if (plan.id === 'lifetime') card.classList.add('lifetime')
+
+      // Badge
+      if (plan.badge) {
+        var badge = document.createElement('div')
+        badge.className = 'pricing-badge'
+        badge.textContent = plan.badge
+        card.appendChild(badge)
+      }
+
+      // Emoji
+      var emojiDiv = document.createElement('div')
+      emojiDiv.className = 'pricing-card-emoji'
+      emojiDiv.textContent = plan.emoji
+      card.appendChild(emojiDiv)
+
+      // Name
+      var nameDiv = document.createElement('div')
+      nameDiv.className = 'pricing-card-name'
+      nameDiv.textContent = plan.name
+      card.appendChild(nameDiv)
+
+      // Description
+      var descDiv = document.createElement('div')
+      descDiv.className = 'pricing-card-desc'
+      descDiv.textContent = plan.description
+      card.appendChild(descDiv)
+
+      // Price
+      var priceDiv = document.createElement('div')
+      priceDiv.className = 'pricing-price'
+      priceDiv.innerHTML = '$' + priceInfo.price + ' <span class="pricing-price-period">' + priceInfo.label + '</span>'
+      card.appendChild(priceDiv)
+
+      // Savings
+      if (priceInfo.savings) {
+        var savingsDiv = document.createElement('div')
+        savingsDiv.className = 'pricing-savings'
+        savingsDiv.textContent = priceInfo.savings
+        card.appendChild(savingsDiv)
+      }
+
+      // Features list
+      var ul = document.createElement('ul')
+      ul.className = 'pricing-features'
+      for (var f = 0; f < plan.features.length; f++) {
+        var li = document.createElement('li')
+        li.textContent = plan.features[f]
+        ul.appendChild(li)
+      }
+      card.appendChild(ul)
+
+      // CTA button
+      var cta = document.createElement('a')
+      cta.className = 'pricing-cta'
+      cta.href = '#' + (plan.id === 'lifetime' ? 'pricing' : 'chat')
+      cta.textContent = plan.cta
+      card.appendChild(cta)
+
+      grid.appendChild(card)
+    }
+  }
+
+  // Toggle buttons
+  for (var b = 0; b < toggleBtns.length; b++) {
+    ;(function(btn) {
+      btn.addEventListener('click', function() {
+        var period = btn.dataset.period
+        if (!period) return
+        currentPeriod = period
+        for (var j = 0; j < toggleBtns.length; j++) {
+          toggleBtns[j].classList.toggle('active', toggleBtns[j].dataset.period === period)
+        }
+        renderPricing(period)
+      })
+    })(toggleBtns[b])
+  }
+
+  // Initial render
+  renderPricing('weekly')
+})()
+</script>
 
 <!-- ── Quantum Lab JS ── -->
 <script>
