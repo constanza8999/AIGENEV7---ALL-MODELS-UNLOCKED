@@ -22,6 +22,15 @@
 
 import { createInterface } from 'readline'
 import { infer } from './inference.js'
+import {
+  listAgents,
+  getAgent,
+  getDefaultAgent,
+  createAgent,
+  updateAgent,
+  deleteAgent,
+  resetAgents,
+} from './custom-agents.js'
 
 const [, , command, ...args] = process.argv
 
@@ -105,20 +114,84 @@ async function listModels() {
   console.log('  ✓ = API key configured   ○ = No key set\n')
 }
 
-// ── Chat Command ──
+async function getNumberedModels() {
+  const { getModelsByProvider, PROVIDER_ENV_KEYS } = await import('./models.js')
+  const byProvider = getModelsByProvider()
+  const entries = []
+  let num = 1
+  for (const [provider, models] of Object.entries(byProvider)) {
+    const hasKey = !!process.env[PROVIDER_ENV_KEYS[provider]]
+    for (const m of models) {
+      entries.push({ num: num++, model: m, provider, hasKey })
+    }
+  }
+  return entries
+}
+
+// ── Helper: display all models grouped by provider with numbers ──
+function printModelPicker(entries, currentId) {
+  const byProvider = {}
+  for (const e of entries) {
+    if (!byProvider[e.provider]) byProvider[e.provider] = []
+    byProvider[e.provider].push(e)
+  }
+
+  console.log()
+  for (const [provider, models] of Object.entries(byProvider)) {
+    const hasAnyKey = models.some((m) => m.hasKey)
+    const keyIcon = hasAnyKey ? '🔑' : '○'
+    console.log(`  ${keyIcon} ${provider.charAt(0).toUpperCase() + provider.slice(1)}`)
+    for (const e of models) {
+      const tag = e.model.multimodal ? ' 📷' : ''
+      const isCurrent = e.model.id === currentId ? ' →' : ''
+      const padNum = String(e.num).padStart(2, ' ')
+      const keyMark = e.hasKey ? '✓' : ' '
+      console.log(`    [${padNum}] ${keyMark} ${e.model.id.padEnd(26)} ${e.model.displayName}${tag}${isCurrent}`)
+    }
+    console.log()
+  }
+  console.log('  ✓ = API key ready    Enter number to select model')
+  console.log()
+}
+
+// ── Helper: display agents ──
+function printAgentPicker(agents, currentAgentId) {
+  console.log()
+  for (let i = 0; i < agents.length; i++) {
+    const a = agents[i]
+    const isCurrent = a.id === currentAgentId ? ' →' : ''
+    const padNum = String(i + 1).padStart(2, ' ')
+    console.log(`    [${padNum}] ${a.emoji} ${a.name.padEnd(20)} ${a.description}${isCurrent}`)
+  }
+  console.log()
+}
+
+// ── Chat Command with Agents ──
 async function chatMode() {
   console.log('\n  ╔══════════════════════════════════════════════╗')
   console.log('  ║     AIGENEV7 — Interactive Chat             ║')
   console.log('  ╚══════════════════════════════════════════════╝')
-  console.log('  Type /quit to exit, /model <id> to switch models')
+
+  const { MODELS } = await import('./models.js')
+  const entries = await getNumberedModels()
+
+  // ── Agent state ──
+  let currentAgent = getDefaultAgent()
+  let allAgents = listAgents()
+
+  let currentModel = model || process.env.AIGENEV7_DEFAULT_MODEL || (entries.length > 0 ? entries[0].model.id : 'nvidia-llama-3.1-70b')
+
+  // Show agent picker at startup
+  console.log('\n  ── Select an Agent ──')
+  printAgentPicker(allAgents, currentAgent.id)
+  console.log(`  Default: ${currentAgent.emoji} ${currentAgent.name} (press Enter to use this)`)
+  console.log('  Type /agents to re-list, /agent <name or #> to switch')
   console.log()
 
-  // Prompt for model selection
-  const { MODELS } = await import('./models.js')
-  console.log('  Available models:')
-  MODELS.slice(0, 10).forEach((m, i) => {
-    console.log(`    ${i + 1}. ${m.id} — ${m.displayName}`)
-  })
+  // ── Show model picker ──
+  console.log('  ── Select a Model ──')
+  printModelPicker(entries, currentModel)
+  console.log(`  Default: ${currentModel} (press Enter to use this)`)
   console.log()
 
   const rl = createInterface({
@@ -126,49 +199,319 @@ async function chatMode() {
     output: process.stdout,
   })
 
-  let currentModel = model || process.env.AIGENEV7_DEFAULT_MODEL || 'deepseek-v4-pro'
+  // ── Resolve model by number or ID ──
+  function resolveModel(input) {
+    const trimmed = input.trim()
+    const num = parseInt(trimmed, 10)
+    if (!isNaN(num) && num >= 1 && num <= entries.length) {
+      return entries[num - 1].model
+    }
+    return MODELS.find((m) => m.id === trimmed)
+  }
+
+  // Re-build entries (in case models change)
+  async function refreshEntries() {
+    const e = await getNumberedModels()
+    entries.length = 0
+    entries.push(...e)
+  }
+
+  function refreshAgents() {
+    const agents = listAgents()
+    // Create a fresh copy to avoid mutating the module's cache
+    allAgents = [...agents]
+    // Re-set currentAgent reference
+    const updated = allAgents.find((a) => a.id === currentAgent.id)
+    if (updated) currentAgent = updated
+  }
+
   const messages = []
+
+  // ── Build messages with agent system prompt ──
+  function buildMessages(userContent) {
+    const msgs = []
+    if (currentAgent && currentAgent.systemPrompt) {
+      msgs.push({ role: 'system', content: currentAgent.systemPrompt })
+    }
+    for (const m of messages) {
+      msgs.push(m)
+    }
+    if (userContent) {
+      msgs.push({ role: 'user', content: userContent })
+    }
+    return msgs
+  }
+
   const askQuestion = () => {
-    rl.question(`  [${currentModel}] > `, async (input) => {
+    const agentEmoji = currentAgent ? currentAgent.emoji : ''
+    rl.question(`  ${agentEmoji} [${currentModel}] > `, async (input) => {
       const trimmed = input.trim()
 
+      // ── Quit ──
       if (trimmed === '/quit' || trimmed === '/exit' || trimmed === '/q') {
         console.log('\n  Goodbye!')
         rl.close()
         return
       }
 
-      if (trimmed.startsWith('/model')) {
-        const newModel = trimmed.slice(7).trim()
-        const m = MODELS.find((m) => m.id === newModel)
+      // ── Help ──
+      if (trimmed === '/help' || trimmed === '/h') {
+        console.log('\n  ── Chat Commands ──')
+        console.log('  /quit, /q               Exit chat')
+        console.log('  ── Model ──')
+        console.log('  /model <id or #>        Switch model (by ID or number)')
+        console.log('  /models, /ls            List all available models')
+        console.log('  /current                Show current model')
+        console.log('  ── Agent ──')
+        console.log('  /agents                 List all custom agents')
+        console.log('  /agent <name or #>      Switch to an agent')
+        console.log('  /agent-show             Show current agent system prompt')
+        console.log('  /agent-new <name> | <p>  Create new agent with pipe separator')
+        console.log('  /agent-edit <name> | <p> Edit agent system prompt')
+        console.log('  /agent-delete <name>    Delete a custom agent')
+        console.log('  /agent-reset            Reset agents to defaults')
+        console.log('  ── Chat ──')
+        console.log('  /clear                  Clear conversation history')
+        console.log('  /help, /h               Show this help')
+        console.log()
+        askQuestion()
+        return
+      }
+
+      // ── List models ──
+      if (trimmed === '/models' || trimmed === '/ls') {
+        await refreshEntries()
+        printModelPicker(entries, currentModel)
+        askQuestion()
+        return
+      }
+
+      // ── Show current model ──
+      if (trimmed === '/current') {
+        const cur = MODELS.find((m) => m.id === currentModel)
+        console.log(`  Model: ${cur ? cur.displayName : currentModel}`)
+        console.log(`  Agent: ${currentAgent.emoji} ${currentAgent.name}`)
+        askQuestion()
+        return
+      }
+
+      // ── Clear history ──
+      if (trimmed === '/clear') {
+        messages.length = 0
+        console.log('  ✓ Conversation history cleared')
+        askQuestion()
+        return
+      }
+
+      // ── Bare /model shows usage ──
+      if (trimmed === '/model') {
+        console.log('  Usage: /model <id or #>  Switch model. Try /models to see available models.')
+        askQuestion()
+        return
+      }
+
+      // ── Switch model ──
+      if (trimmed.startsWith('/model ')) {
+        const newModelRef = trimmed.slice(7).trim()
+        const m = resolveModel(newModelRef)
         if (m) {
-          currentModel = newModel
-          console.log(`  ✓ Switched to ${m.displayName}`)
+          currentModel = m.id
+          console.log(`  ✓ Switched to ${m.displayName} (${m.id})`)
         } else {
-          console.log(`  ✗ Unknown model: ${newModel}`)
+          const num = parseInt(newModelRef, 10)
+          if (!isNaN(num)) {
+            console.log(`  ✗ Invalid number: ${num}. Try /models to see available models.`)
+          } else {
+            console.log(`  ✗ Unknown model: ${newModelRef}. Try /models to see available models.`)
+          }
         }
         askQuestion()
         return
       }
 
-      if (trimmed === '/help') {
-        console.log('  Commands: /quit, /model <id>, /help')
+      // ── Number shortcut: select model by number ──
+      const num = parseInt(trimmed, 10)
+      if (!isNaN(num) && num >= 1 && num <= entries.length) {
+        const m = entries[num - 1].model
+        currentModel = m.id
+        console.log(`  ✓ Switched to ${m.displayName} (${m.id})`)
         askQuestion()
         return
       }
 
-      try {
-        messages.push({ role: 'user', content: trimmed })
-        const response = await infer({
-          model: currentModel,
-          messages: [...messages],
-          stream: true,
-          writeToStdout: true,
-        })
-        messages.push({ role: 'assistant', content: response })
-        if (!response) console.log('  [No response]')
-      } catch (err) {
-        console.error(`\n  ✗ Error: ${err.message}`)
+      // ── List agents ──
+      if (trimmed === '/agents') {
+        refreshAgents()
+        console.log('\n  ── Custom Agents ──')
+        printAgentPicker(allAgents, currentAgent.id)
+        askQuestion()
+        return
+      }
+
+      // ── Bare /agent shows usage ──
+      if (trimmed === '/agent') {
+        console.log('  Usage: /agent <name or #>  Switch to an agent')
+        console.log('  Try /agents to see available agents with numbers')
+        askQuestion()
+        return
+      }
+
+      // ── Switch agent ──
+      if (trimmed.startsWith('/agent ')) {
+        const ref = trimmed.slice(7).trim()
+        // Try by number first
+        const refNum = parseInt(ref, 10)
+        if (!isNaN(refNum) && refNum >= 1 && refNum <= allAgents.length) {
+          currentAgent = allAgents[refNum - 1]
+          console.log(`  ✓ Switched to ${currentAgent.emoji} ${currentAgent.name}`)
+        } else {
+          const found = allAgents.find((a) => a.id === ref || a.name.toLowerCase() === ref.toLowerCase())
+          if (found) {
+            currentAgent = found
+            console.log(`  ✓ Switched to ${currentAgent.emoji} ${currentAgent.name}`)
+          } else {
+            console.log(`  ✗ Unknown agent: ${ref}. Try /agents to see available agents.`)
+          }
+        }
+        askQuestion()
+        return
+      }
+
+      // ── Show current agent ──
+      if (trimmed === '/agent-show') {
+        console.log(`\n  ${currentAgent.emoji} ${currentAgent.name}`)
+        console.log(`  ${currentAgent.description}`)
+        console.log(`  System Prompt:`)
+        console.log(`  ─${'─'.repeat(50)}`)
+        console.log(`  ${currentAgent.systemPrompt}`)
+        console.log(`  ─${'─'.repeat(50)}\n`)
+        askQuestion()
+        return
+      }
+
+      // ── Create new agent ──
+      if (trimmed.startsWith('/agent-new ')) {
+        const rest = trimmed.slice(11).trim()
+        // Format: /agent-new <name> | <system prompt>
+        const pipeIdx = rest.indexOf('|')
+        if (pipeIdx === -1) {
+          console.log('  ✗ Usage: /agent-new <name> | <system prompt>')
+          console.log('  Example: /agent-new Code Reviewer | You review code for bugs and best practices.')
+          askQuestion()
+          return
+        }
+        const name = rest.slice(0, pipeIdx).trim()
+        const systemPrompt = rest.slice(pipeIdx + 1).trim()
+        if (!name || !systemPrompt) {
+          console.log('  ✗ Both name and system prompt are required.')
+          console.log('  Usage: /agent-new <name> | <system prompt>')
+          askQuestion()
+          return
+        }
+        const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+        try {
+          const agent = createAgent(id, name, `Custom agent: ${name}`, systemPrompt, '🤖')
+          refreshAgents()
+          currentAgent = agent
+          console.log(`  ✓ Created and switched to ${agent.emoji} ${agent.name}`)
+        } catch (err) {
+          console.log(`  ✗ ${err.message}`)
+        }
+        askQuestion()
+        return
+      }
+
+      // ── Edit agent ──
+      if (trimmed.startsWith('/agent-edit ')) {
+        const rest = trimmed.slice(12).trim()
+        const pipeIdx = rest.indexOf('|')
+        if (pipeIdx === -1) {
+          console.log('  ✗ Usage: /agent-edit <name> | <new system prompt>')
+          console.log('  Example: /agent-edit Code Reviewer | You are a strict code reviewer.')
+          askQuestion()
+          return
+        }
+        const name = rest.slice(0, pipeIdx).trim()
+        const newPrompt = rest.slice(pipeIdx + 1).trim()
+        if (!name || !newPrompt) {
+          console.log('  ✗ Both agent name and new system prompt are required.')
+          askQuestion()
+          return
+        }
+        // Try to find by ID, number, or name
+        let targetId = name
+        const nameNum = parseInt(name, 10)
+        if (!isNaN(nameNum) && nameNum >= 1 && nameNum <= allAgents.length) {
+          targetId = allAgents[nameNum - 1].id
+        } else {
+          const found = allAgents.find((a) => a.id === name || a.name.toLowerCase() === name.toLowerCase())
+          if (found) targetId = found.id
+        }
+        try {
+          const updated = updateAgent(targetId, { systemPrompt: newPrompt })
+          refreshAgents()
+          if (currentAgent.id === targetId) {
+            currentAgent = getAgent(targetId)
+          }
+          console.log(`  ✓ Agent "${updated.name}" updated`)
+        } catch (err) {
+          console.log(`  ✗ ${err.message}`)
+        }
+        askQuestion()
+        return
+      }
+
+      // ── Delete agent ──
+      if (trimmed.startsWith('/agent-delete ')) {
+        const ref = trimmed.slice(14).trim()
+        try {
+          const deleted = deleteAgent(ref)
+          if (deleted) {
+            refreshAgents()
+            if (currentAgent.id === ref) {
+              currentAgent = getDefaultAgent()
+              console.log(`  ✓ Deleted. Switched to default: ${currentAgent.emoji} ${currentAgent.name}`)
+            } else {
+              console.log(`  ✓ Agent "${ref}" deleted`)
+            }
+          } else {
+            console.log(`  ✗ Agent "${ref}" not found`)
+          }
+        } catch (err) {
+          console.log(`  ✗ ${err.message}`)
+        }
+        askQuestion()
+        return
+      }
+
+      // ── Reset agents ──
+      if (trimmed === '/agent-reset') {
+        resetAgents()
+        refreshAgents()
+        currentAgent = getDefaultAgent()
+        console.log(`  ✓ Agents reset to defaults. Switched to ${currentAgent.emoji} ${currentAgent.name}`)
+        askQuestion()
+        return
+      }
+
+      // ── Send prompt ──
+      if (trimmed) {
+        try {
+          messages.push({ role: 'user', content: trimmed })
+          const response = await infer({
+            model: currentModel,
+            messages: buildMessages(),
+            stream: true,
+            writeToStdout: true,
+          })
+          if (response) {
+            messages.push({ role: 'assistant', content: response })
+          } else {
+            console.log('  [No response]')
+          }
+        } catch (err) {
+          console.error(`\n  ✗ Error: ${err.message}`)
+        }
       }
 
       askQuestion()

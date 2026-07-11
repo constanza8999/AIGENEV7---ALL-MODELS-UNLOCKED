@@ -203,15 +203,63 @@
       "multimodal": false,
       "max_tokens": "Infinity"
     },
+    "nvidia-llama-3.3-70b": {
+      "provider": "nvidia",
+      "providerModel": "meta/llama-3.3-70b-instruct",
+      "multimodal": false,
+      "max_tokens": "Infinity"
+    },
+    "nvidia-llama-4-maverick": {
+      "provider": "nvidia",
+      "providerModel": "meta/llama-4-maverick-17b-128e-instruct",
+      "multimodal": true,
+      "max_tokens": "Infinity"
+    },
     "nvidia-nemotron-4-340b": {
       "provider": "nvidia",
       "providerModel": "nvidia/nemotron-4-340b-instruct",
       "multimodal": false,
       "max_tokens": "Infinity"
     },
+    "nvidia-nemotron-super-49b": {
+      "provider": "nvidia",
+      "providerModel": "nvidia/llama-3.3-nemotron-super-49b-v1",
+      "multimodal": false,
+      "max_tokens": "Infinity"
+    },
+    "nvidia-nemotron-ultra-253b": {
+      "provider": "nvidia",
+      "providerModel": "nvidia/llama-3.1-nemotron-ultra-253b-v1",
+      "multimodal": false,
+      "max_tokens": "Infinity"
+    },
     "nvidia-mistral-large": {
       "provider": "nvidia",
       "providerModel": "mistralai/mistral-large",
+      "multimodal": false,
+      "max_tokens": "Infinity"
+    },
+    "nvidia-mistral-large-3": {
+      "provider": "nvidia",
+      "providerModel": "mistralai/mistral-large-3-675b-instruct-2512",
+      "multimodal": false,
+      "max_tokens": "Infinity"
+    },
+    "nvidia-mistral-nemotron": {
+      "provider": "nvidia",
+      "providerModel": "mistralai/mistral-nemotron",
+      "multimodal": false,
+      "max_tokens": "Infinity"
+    },
+    "nvidia-deepseek-v4-flash": {
+      "provider": "nvidia",
+      "providerModel": "deepseek-ai/deepseek-v4-flash",
+      "multimodal": false,
+      "max_tokens": "Infinity"
+    },
+    "nvidia-deepseek-v4-pro": {
+      "provider": "nvidia",
+      "providerModel": "deepseek-ai/deepseek-v4-pro",
       "multimodal": false,
       "max_tokens": "Infinity"
     },
