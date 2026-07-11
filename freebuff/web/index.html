@@ -20,6 +20,8 @@
   <script src="js/data.js"></script>
   <!-- Quantum simulator (browser-side, zero API) -->
   <script src="js/quantum.js"></script>
+  <!-- Agent gallery -->
+  <script src="js/gallery.js" defer></script>
   <!-- Animations & UI effects -->
   <script src="js/animations.js" defer></script>
   <!-- Agent chat -->
@@ -45,6 +47,7 @@
   <nav class="header-nav">
     <a href="#features">Features</a>
     <a href="#models">Models</a>
+    <a href="#gallery">Gallery</a>
     <a href="#quantum">Quantum</a>
     <a href="#chat">Chat</a>
     <a href="https://github.com/constanza8999">GitHub</a>
@@ -247,6 +250,19 @@
       </ul>
     </div>
   </div>
+</section>
+
+<!-- ── Gallery Divider ── -->
+<div class="chat-divider" id="gallery"><span>✦ Agent Gallery ✦</span></div>
+
+<!-- ── Agent Gallery ── -->
+<section class="gallery-section">
+  <p class="gallery-subtitle">Browse and download community agent personas. Import them via the CLI with <code>/agent-import from &lt;file&gt;</code>.</p>
+  <div class="gallery-contribute">
+    <a href="https://github.com/constanza8999" target="_blank">Submit your own agent → edit js/data.js</a>
+  </div>
+  <div class="gallery-filters" id="galleryFilters"></div>
+  <div class="gallery-grid" id="agentGallery"></div>
 </section>
 
 <!-- ── Quantum Lab Divider ── -->
