@@ -97,6 +97,36 @@ header nav a:hover{color:var(--accent)}
 .contact-links a{padding:0.5rem 1.2rem;border-radius:var(--radius-sm);border:1px solid var(--border);color:var(--text-dim);text-decoration:none;font-size:0.8rem;transition:all 0.2s}
 .contact-links a:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-glow)}
 
+.floating-premium {
+  position: fixed; bottom: 1.5rem; right: 1.5rem;
+  display: flex; align-items: center; gap: 0.4rem;
+  padding: 0.55rem 1rem 0.55rem 0.8rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  text-decoration: none;
+  z-index: 150;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3), 0 0 0 rgba(136, 85, 255, 0);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  cursor: pointer;
+  animation: fpFadeIn 0.6s ease-out 1s both;
+}
+.floating-premium:hover {
+  border-color: var(--accent);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4), 0 0 25px var(--accent-glow);
+  background: var(--bg-hover);
+}
+.fp-gem { font-size: 1.05rem; line-height: 1; animation: fpPulse 2s ease-in-out infinite; filter: drop-shadow(0 0 4px rgba(136, 85, 255, 0.3)); }
+.fp-text { font-family: var(--font-sans); font-size: 0.82rem; font-weight: 600; color: var(--text); white-space: nowrap; }
+.floating-premium:hover .fp-text { color: var(--accent); }
+.fp-arrow { font-size: 0.7rem; color: var(--text-dim); transition: transform 0.2s; }
+.floating-premium:hover .fp-arrow { transform: translateX(3px); color: var(--accent); }
+@keyframes fpPulse { 0%,100%{transform:scale(1);filter:drop-shadow(0 0 4px rgba(136,85,255,0.3))} 50%{transform:scale(1.15);filter:drop-shadow(0 0 10px rgba(136,85,255,0.6))} }
+@keyframes fpFadeIn { from{opacity:0;transform:translateY(15px)scale(.9)} to{opacity:1;transform:translateY(0)scale(1)} }
+@media(max-width:600px){.floating-premium{bottom:1rem;right:1rem;padding:0.45rem 0.8rem 0.45rem 0.65rem}.fp-text{font-size:0.75rem}.fp-gem{font-size:0.9rem}}
+
 footer{border-top:1px solid var(--border);padding:2rem;text-align:center}
 footer p{color:var(--text-dim);font-size:0.8rem;line-height:1.5}
 footer a{color:var(--accent);text-decoration:none}
