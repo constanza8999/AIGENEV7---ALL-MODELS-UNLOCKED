@@ -372,10 +372,13 @@ section { scroll-margin-top: 80px; }
 
 /* ── Top Bar: Agent + Model pickers ── */
 .chat-topbar {
-  display: flex; gap: 0.75rem; padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--border); flex-shrink: 0; align-items: center; flex-wrap: wrap;
+  display: flex; flex-direction: column; gap: 0.5rem; padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--border); flex-shrink: 0;
 }
-.chat-topbar label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 600; }
+.chat-topbar-row {
+  display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;
+}
+.chat-topbar label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 600; flex-shrink: 0; }
 .agent-chips { display: flex; gap: 0.35rem; flex-wrap: wrap; flex: 1; }
 .agent-chip {
   display: flex; align-items: center; gap: 0.25rem;
@@ -405,10 +408,32 @@ section { scroll-margin-top: 80px; }
 .model-select {
   background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-xs);
   color: var(--text); font-family: var(--font-mono); font-size: 0.75rem;
-  padding: 0.35rem 0.6rem; cursor: pointer; outline: none; min-width: 180px;
+  padding: 0.35rem 0.6rem; cursor: pointer; outline: none; min-width: 160px;
 }
 .model-select:hover, .model-select:focus { border-color: var(--text-muted); }
 .model-select option { background: var(--bg-card); color: var(--text); }
+
+/* ── Model Quick Picks ── */
+.model-quick-picks {
+  display: flex; gap: 0.3rem; flex-wrap: wrap; flex: 1;
+}
+.model-quick-pick {
+  padding: 0.2rem 0.55rem; border-radius: 999px;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--text-dim); font-family: var(--font-sans);
+  font-size: 0.68rem; cursor: pointer;
+  transition: all 0.2s; white-space: nowrap;
+}
+.model-quick-pick:hover {
+  border-color: var(--text-muted); color: var(--text);
+  background: var(--bg-hover);
+}
+.model-quick-pick.active {
+  border-color: var(--accent);
+  background: rgba(0, 255, 136, 0.08);
+  color: var(--accent);
+  box-shadow: 0 0 8px var(--accent-glow);
+}
 
 .chat-current {
   display: flex; align-items: center; gap: 0.5rem; font-size: 0.7rem; color: var(--text-dim);

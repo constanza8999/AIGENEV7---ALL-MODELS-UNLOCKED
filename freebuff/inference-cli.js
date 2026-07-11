@@ -363,6 +363,8 @@ async function chatMode() {
         console.log('  /agent-reset            Reset agents to defaults')
         console.log('  ── Chat ──')
         console.log('  /clear                  Clear conversation history')
+        console.log('  ── Interactive ──')
+        console.log('  /menu                   Show interactive agent & model picker')
         console.log('  ── Premium 💎 ──')
         console.log('  /keygen                 Generate a premium key for CLI')
         console.log('  /keygen <tier>          Generate key for specific tier (pro, elite, enterprise)')
@@ -880,6 +882,55 @@ async function chatMode() {
         } catch (err) {
           console.log(`  ✗ ${err.message}`)
         }
+        askQuestion()
+        return
+      }
+
+      // ── Menu command: interactive agent & model picker ──
+      if (trimmed === '/menu') {
+        console.log()
+        console.log('  ' + c('┄').repeat(44))
+        console.log('  ' + b(c('✦ Interactive Menu ✦')))
+        console.log('  ' + c('┄').repeat(44))
+        console.log()
+        console.log('  ' + b('Agents:'))
+        for (var mi = 0; mi < allAgents.length; mi++) {
+          var ma = allAgents[mi]
+          var mark = ma.id === currentAgent.id ? ' ' + g('◀ ACTIVE') : ''
+          console.log('    [' + g(String(mi + 1).padStart(2)) + '] ' + ma.emoji + ' ' + b(ma.name) + ' ' + d(ma.description) + mark)
+        }
+        console.log()
+        console.log('  ' + d('Type') + ' ' + y('/agent <#>') + ' ' + d('to switch agents'))
+        console.log()
+        console.log('  ' + b('Models:'))
+        // Show a few models grouped by provider
+        var menuEntries = await getNumberedModels()
+        var menuByProv = {}
+        for (var me = 0; me < menuEntries.length; me++) {
+          var em = menuEntries[me]
+          if (!menuByProv[em.provider]) menuByProv[em.provider] = []
+          menuByProv[em.provider].push(em)
+        }
+        var provNames = Object.keys(menuByProv)
+        for (var pn = 0; pn < provNames.length; pn++) {
+          var prov = provNames[pn]
+          var provModels = menuByProv[prov]
+          // Show first 4 models per provider to keep it compact
+          var maxShow = Math.min(provModels.length, 4)
+          for (var pm = 0; pm < maxShow; pm++) {
+            var em2 = provModels[pm]
+            var curMark = em2.model.id === currentModel ? ' ' + g('◀') : ''
+            var prem = em2.model.premium ? ' ' + p('💎') : ''
+            console.log('    [' + g(String(em2.num).padStart(2)) + '] ' + c(em2.model.id.padEnd(24)) + ' ' + d(em2.model.displayName) + prem + curMark)
+          }
+          if (provModels.length > 4) {
+            console.log('    ' + d('  ... +' + (provModels.length - 4) + ' more'))
+          }
+        }
+        console.log()
+        console.log('  ' + d('Type a number or') + ' ' + y('/model <#>') + ' ' + d('to switch models'))
+        console.log('  ' + d('Type') + ' ' + y('/models') + ' ' + d('for full list'))
+        console.log()
         askQuestion()
         return
       }

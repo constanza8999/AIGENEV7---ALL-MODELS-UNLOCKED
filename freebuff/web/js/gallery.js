@@ -66,6 +66,7 @@
       var agent = filtered[i]
       var card = document.createElement('div')
       card.className = 'gallery-card'
+      card.dataset.agentId = agent.id
       card.style.animationDelay = (i * 0.05) + 's'
 
       // Header: emoji + name + badges
@@ -123,6 +124,14 @@
       })
       card.appendChild(expandBtn)
 
+      // ── Make entire card clickable ──
+      card.style.cursor = 'pointer'
+      card.addEventListener('click', function (e) {
+        // Don't trigger if clicking a button inside the card
+        if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return
+        selectAgentInChat(agent)
+      })
+
       // Actions row
       var actions = document.createElement('div')
       actions.className = 'gallery-card-actions'
@@ -130,8 +139,9 @@
       // Preview button
       var previewBtn = document.createElement('button')
       previewBtn.className = 'gallery-action-btn preview'
-      previewBtn.textContent = '👁 Preview in Chat'
-      previewBtn.addEventListener('click', function () {
+      previewBtn.textContent = '👁 Use in Chat'
+      previewBtn.addEventListener('click', function (e) {
+        e.stopPropagation()
         selectAgentInChat(agent)
       })
       actions.appendChild(previewBtn)
@@ -140,7 +150,8 @@
       var dlBtn = document.createElement('button')
       dlBtn.className = 'gallery-action-btn download'
       dlBtn.textContent = '⬇ Download JSON'
-      dlBtn.addEventListener('click', function () {
+      dlBtn.addEventListener('click', function (e) {
+        e.stopPropagation()
         downloadAgent(agent)
       })
       actions.appendChild(dlBtn)
@@ -152,7 +163,6 @@
 
   // ── Select agent in chat ──────────────────────────
   function selectAgentInChat(agent) {
-    // Save to localStorage so chat.js picks it up
     try {
       localStorage.setItem('aigenev7_agent', agent.id)
 
@@ -164,6 +174,11 @@
         localStorage.setItem('aigenev7_custom_agents', JSON.stringify(localAgents))
       }
 
+      // Real-time update: call chat.js exposed function if available
+      if (typeof window.selectChatAgent === 'function') {
+        window.selectChatAgent(agent.id)
+      }
+
       // Scroll to chat section
       var chatSection = document.getElementById('chatContainer')
       if (chatSection) {
@@ -171,7 +186,7 @@
       }
 
       // Show toast
-      showGalleryToast('Agent "' + agent.name + '" selected in chat!')
+      showGalleryToast('✓ Agent "' + agent.name + '" selected!')
     } catch (e) {
       showGalleryToast('Could not select agent: ' + e.message)
     }

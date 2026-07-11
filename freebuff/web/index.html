@@ -387,14 +387,19 @@
   <div class="chat-container" id="chatContainer">
     <!-- Top Bar -->
     <div class="chat-topbar">
-      <label>Agent:</label>
-      <div class="agent-chips" id="agentChips"></div>
-      <label>Model:</label>
-      <select class="model-select" id="modelSelect"></select>
-      <div class="chat-current">
-        <span class="tag" id="currentAgentTag">🤖 Coding Assistant</span>
+      <div class="chat-topbar-row">
+        <label>Agent:</label>
+        <div class="agent-chips" id="agentChips"></div>
+        <div class="chat-current">
+          <span class="tag" id="currentAgentTag">🤖 Coding Assistant</span>
+        </div>
+        <button class="clear-chat-btn" id="clearChatBtn">✕ Clear</button>
       </div>
-      <button class="clear-chat-btn" id="clearChatBtn">✕ Clear</button>
+      <div class="chat-topbar-row">
+        <label>Model:</label>
+        <select class="model-select" id="modelSelect"></select>
+        <div class="model-quick-picks" id="modelQuickPicks"></div>
+      </div>
     </div>
 
     <!-- Messages -->

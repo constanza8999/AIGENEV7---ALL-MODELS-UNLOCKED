@@ -35,6 +35,7 @@
 
     renderAgentChips()
     renderModelSelect()
+    renderModelQuickPicks()
 
     var savedAgent = localStorage.getItem('aigenev7_agent')
     var savedModel = localStorage.getItem('aigenev7_model')
@@ -78,6 +79,46 @@
   }
 
   // ── Render ─────────────────────────────────────────
+  function renderModelQuickPicks() {
+    var quickPickContainer = document.getElementById('modelQuickPicks')
+    if (!quickPickContainer) return
+    quickPickContainer.innerHTML = ''
+
+    // Show a few featured models as quick-pick buttons
+    var featured = []
+    var seen = {}
+    for (var i = 0; i < models.length; i++) {
+      var m = models[i]
+      if (!seen[m.provider]) {
+        seen[m.provider] = true
+        featured.push(m)
+      }
+    }
+    // Limit to 6 quick picks
+    if (featured.length > 6) featured = featured.slice(0, 6)
+
+    for (var j = 0; j < featured.length; j++) {
+      var m = featured[j]
+      var btn = document.createElement('button')
+      btn.className = 'model-quick-pick'
+      if (m.id === currentModelId) btn.classList.add('active')
+      btn.dataset.modelId = m.id
+      btn.textContent = m.displayName || m.id
+      btn.title = m.description
+      ;(function (id) {
+        btn.addEventListener('click', function () {
+          selectModel(id)
+          // Update active state on all quick-picks
+          var allPicks = quickPickContainer.querySelectorAll('.model-quick-pick')
+          for (var p = 0; p < allPicks.length; p++) {
+            allPicks[p].classList.toggle('active', allPicks[p].dataset.modelId === id)
+          }
+        })
+      })(m.id)
+      quickPickContainer.appendChild(btn)
+    }
+  }
+
   function renderAgentChips() {
     if (!chips) return
     chips.innerHTML = ''
@@ -156,12 +197,25 @@
     }
     if (curTag) curTag.textContent = agent.emoji + ' ' + agent.name
     localStorage.setItem('aigenev7_agent', id)
+    // Also update the active gallery card highlight
+    var allGallery = document.querySelectorAll('.gallery-card')
+    for (var g = 0; g < allGallery.length; g++) {
+      allGallery[g].classList.toggle('gallery-active', allGallery[g].dataset.agentId === id)
+    }
   }
+
+  // Expose selectAgent globally so gallery.js can call it directly
+  window.selectChatAgent = selectAgent
 
   function selectModel(id) {
     currentModelId = id
     if (modelSel) modelSel.value = id
     localStorage.setItem('aigenev7_model', id)
+    // Update quick-pick pills active state
+    var allPicks = document.querySelectorAll('.model-quick-pick')
+    for (var p = 0; p < allPicks.length; p++) {
+      allPicks[p].classList.toggle('active', allPicks[p].dataset.modelId === id)
+    }
   }
 
   // ── Messages ──────────────────────────────────────
