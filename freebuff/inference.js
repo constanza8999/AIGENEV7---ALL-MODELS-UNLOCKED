@@ -203,7 +203,7 @@ async function callOpenAICompatible(model, messages, opts) {
 
   // Clone messages for potential chunked generation
   const msgs = messages.map((m) => ({ role: m.role, content: m.content }))
-  const write = opts.writeToStdout ? (chunk) => { process.stdout.write(chunk) } : () => {}
+  const write = opts.writeToStdout ? (chunk) => { process.stdout.write(String(chunk)) } : () => {}
   const maxIterations = 50
   let fullResponse = ''
 
@@ -233,7 +233,6 @@ async function callOpenAICompatible(model, messages, opts) {
 
     if (!response.ok) {
       const text = await response.text()
-      // Handle 402 credit errors - retry with affordable token count
       if (response.status === 402) {
         const match = text.match(/can only afford (\d+)/)
         if (match) {
@@ -255,11 +254,11 @@ async function callOpenAICompatible(model, messages, opts) {
             })
             if (retryResponse.ok) {
               const retryData = await retryResponse.json()
-              const chunk = retryData.choices[0].message.content
+              const chunk = String(retryData.choices[0]?.message?.content || '')
               fullResponse += chunk
               write(chunk)
               if (opts.onChunk) opts.onChunk(chunk)
-              if (retryData.choices[0].finish_reason === 'length' && chunk.length > 0) {
+              if (retryData.choices[0]?.finish_reason === 'length' && chunk.length > 0) {
                 msgs.push({ role: 'assistant', content: chunk })
                 msgs.push({ role: 'user', content: 'continue' })
                 continue
@@ -274,13 +273,12 @@ async function callOpenAICompatible(model, messages, opts) {
     }
 
     const data = await response.json()
-    const chunk = data.choices[0].message.content
+    const chunk = String(data.choices[0]?.message?.content || '')
     fullResponse += chunk
     write(chunk)
     if (opts.onChunk) opts.onChunk(chunk)
 
-    // Check if we should continue generating
-    if (data.choices[0].finish_reason === 'length' && chunk.length > 0 && iteration < maxIterations - 1) {
+    if (data.choices[0]?.finish_reason === 'length' && chunk.length > 0 && iteration < maxIterations - 1) {
       msgs.push({ role: 'assistant', content: chunk })
       msgs.push({ role: 'user', content: 'continue' })
     } else {

@@ -2,7 +2,7 @@
   "_comment": "AIGENEV7 Inference Configuration",
   "_version": "7.0.0",
 
-  "default_model": "deepseek-v4-pro",
+  "default_model": "nvidia-mistral-large",
   "max_tokens": "Infinity",
   "stream": true,
   "uncensored": true,
