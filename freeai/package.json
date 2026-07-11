@@ -1,0 +1,14 @@
+{
+  "name": "freeai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "FreeAI — free AI coding assistant, built on the OpenClaude engine. Developed by CONSTANZA (José Jaime Juliá).",
+  "author": "CONSTANZA (José Jaime Juliá)",
+  "scripts": {
+    "build:binary": "bun cli/build.ts",
+    "build:freeai": "bun cli/build-freeai.ts 0.0.0-dev",
+    "e2e:slash-commands": "bun run e2e/tests/slash-commands.e2e.test.ts",
+    "release": "bun cli/release.ts"
+  }
+}
+}

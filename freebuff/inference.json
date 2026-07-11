@@ -1,0 +1,264 @@
+{
+  "_comment": "AIGENEV7 Inference Configuration",
+  "_version": "7.0.0",
+
+  "default_model": "deepseek-v4-pro",
+  "max_tokens": "Infinity",
+  "stream": true,
+  "uncensored": true,
+  "temperature": 0.7,
+
+  "usage_limits": {
+    "rate_limit": false,
+    "token_cap": "Infinity",
+    "daily_quota": "Infinity",
+    "session_limit": "Infinity"
+  },
+
+  "content_filter": {
+    "enabled": false,
+    "safety_checkers": false,
+    "harm_category_threshold": "BLOCK_NONE",
+    "harassment": "BLOCK_NONE",
+    "hate_speech": "BLOCK_NONE",
+    "sexual": "BLOCK_NONE",
+    "violence": "BLOCK_NONE",
+    "self_harm": "BLOCK_NONE"
+  },
+
+  "models": {
+    // ── Anthropic Claude ──
+    "fable-5": {
+      "provider": "anthropic",
+      "providerModel": "claude-fable-5-20260305",
+      "multimodal": true,
+      "max_tokens": 8192
+    },
+    "claude-sonnet-4": {
+      "provider": "anthropic",
+      "providerModel": "claude-4-sonnet-20250522",
+      "multimodal": true,
+      "max_tokens": 8192
+    },
+    "claude-opus-4": {
+      "provider": "anthropic",
+      "providerModel": "claude-opus-4.1-20250204",
+      "multimodal": true,
+      "max_tokens": 8192
+    },
+    "claude-sonnet-4.5": {
+      "provider": "anthropic",
+      "providerModel": "claude-sonnet-4.5-20250317",
+      "multimodal": true,
+      "max_tokens": 8192
+    },
+    "claude-haiku-3.5": {
+      "provider": "anthropic",
+      "providerModel": "claude-3.5-haiku-20241022",
+      "multimodal": true,
+      "max_tokens": 8192
+    },
+
+    // ── DeepSeek ──
+    "deepseek-v4-pro": {
+      "provider": "deepseek",
+      "providerModel": "deepseek/deepseek-v4-pro",
+      "multimodal": false,
+      "max_tokens": 65536
+    },
+    "deepseek-v4-flash": {
+      "provider": "deepseek",
+      "providerModel": "deepseek/deepseek-v4-flash",
+      "multimodal": false,
+      "max_tokens": 65536
+    },
+    "deepseek-chat": {
+      "provider": "deepseek",
+      "providerModel": "deepseek-chat",
+      "multimodal": false,
+      "max_tokens": 65536
+    },
+    "deepseek-reasoner": {
+      "provider": "deepseek",
+      "providerModel": "deepseek-reasoner",
+      "multimodal": false,
+      "max_tokens": 65536
+    },
+
+    // ── OpenAI GPT ──
+    "gpt-5": {
+      "provider": "openai",
+      "providerModel": "gpt-5-2025-05-01",
+      "multimodal": true,
+      "max_tokens": 65536
+    },
+    "gpt-4.1": {
+      "provider": "openai",
+      "providerModel": "gpt-4.1-2025-04-14",
+      "multimodal": true,
+      "max_tokens": 65536
+    },
+    "gpt-4o": {
+      "provider": "openai",
+      "providerModel": "gpt-4o-2024-11-20",
+      "multimodal": true,
+      "max_tokens": 65536
+    },
+    "gpt-4o-mini": {
+      "provider": "openai",
+      "providerModel": "gpt-4o-mini-2024-07-18",
+      "multimodal": true,
+      "max_tokens": 65536
+    },
+    "o3": {
+      "provider": "openai",
+      "providerModel": "o3-2025-04-16",
+      "multimodal": false,
+      "max_tokens": 65536
+    },
+    "o3-mini": {
+      "provider": "openai",
+      "providerModel": "o3-mini-2025-01-31",
+      "multimodal": false,
+      "max_tokens": 65536
+    },
+    "o4-mini": {
+      "provider": "openai",
+      "providerModel": "o4-mini-2025-04-16",
+      "multimodal": true,
+      "max_tokens": 65536
+    },
+    "o3-pro": {
+      "provider": "openai",
+      "providerModel": "o3-pro-2025-06-10",
+      "multimodal": false,
+      "max_tokens": 65536
+    },
+
+    // ── Google Gemini ──
+    "gemini-2.5-pro": {
+      "provider": "google",
+      "providerModel": "gemini-2.5-pro-03-25",
+      "multimodal": true,
+      "max_tokens": 65536
+    },
+    "gemini-2.5-flash": {
+      "provider": "google",
+      "providerModel": "gemini-2.5-flash-03-25",
+      "multimodal": true,
+      "max_tokens": 65536
+    },
+
+    // ── Moonshot / Kimi ──
+    "kimi-k2.6": {
+      "provider": "moonshot",
+      "providerModel": "moonshotai/kimi-k2.6",
+      "multimodal": true,
+      "max_tokens": 65536
+    },
+
+    // ── MiMo ──
+    "mimo-v2.5-pro": {
+      "provider": "mimo",
+      "providerModel": "mimo/mimo-v2.5-pro",
+      "multimodal": true,
+      "max_tokens": 65536
+    },
+    "mimo-v2.5": {
+      "provider": "mimo",
+      "providerModel": "mimo/mimo-v2.5",
+      "multimodal": true,
+      "max_tokens": 65536
+    },
+
+    // ── MiniMax ──
+    "minimax-m3": {
+      "provider": "minimax",
+      "providerModel": "minimax/minimax-m3",
+      "multimodal": true,
+      "max_tokens": 65536
+    },
+    "minimax-m2.7": {
+      "provider": "minimax",
+      "providerModel": "minimax/minimax-m2.7",
+      "multimodal": false,
+      "max_tokens": 65536
+    },
+
+    // ── Grok (xAI) ──
+    "grok-4": {
+      "provider": "xai",
+      "providerModel": "grok-4-07-09",
+      "multimodal": true,
+      "max_tokens": 131072
+    },
+
+    // ── NVIDIA NIM ──
+    "nvidia-llama-3.1-8b": {
+      "provider": "nvidia",
+      "providerModel": "meta/llama-3.1-8b-instruct",
+      "multimodal": false,
+      "max_tokens": 16384
+    },
+    "nvidia-llama-3.1-70b": {
+      "provider": "nvidia",
+      "providerModel": "meta/llama-3.1-70b-instruct",
+      "multimodal": false,
+      "max_tokens": 16384
+    },
+    "nvidia-llama-3.1-405b": {
+      "provider": "nvidia",
+      "providerModel": "meta/llama-3.1-405b-instruct",
+      "multimodal": false,
+      "max_tokens": 16384
+    },
+    "nvidia-nemotron-4-340b": {
+      "provider": "nvidia",
+      "providerModel": "nvidia/nemotron-4-340b-instruct",
+      "multimodal": false,
+      "max_tokens": 16384
+    },
+    "nvidia-mistral-large": {
+      "provider": "nvidia",
+      "providerModel": "mistralai/mistral-large",
+      "multimodal": false,
+      "max_tokens": 16384
+    },
+
+    // ── OpenRouter (meta-provider) ──
+    "openrouter-claude-sonnet-4.5": {
+      "provider": "openrouter",
+      "providerModel": "anthropic/claude-sonnet-4.5",
+      "multimodal": true,
+      "max_tokens": 8192
+    },
+    "openrouter-gpt-5": {
+      "provider": "openrouter",
+      "providerModel": "openai/gpt-5.1",
+      "multimodal": true,
+      "max_tokens": 65536
+    },
+    "openrouter-gemini-2.5-pro": {
+      "provider": "openrouter",
+      "providerModel": "google/gemini-2.5-pro",
+      "multimodal": true,
+      "max_tokens": 65536
+    }
+  },
+
+  "fallbacks": {
+    "enabled": true,
+    "order": [
+      "claude-sonnet-4",
+      "deepseek-v4-pro",
+      "deepseek-v4-flash",
+      "gpt-4o",
+      "gpt-5",
+      "gemini-2.5-pro",
+      "kimi-k2.6",
+      "minimax-m3",
+      "mimo-v2.5",
+      "grok-4"
+    ]
+  }
+}

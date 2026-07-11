@@ -1,0 +1,12 @@
+[install]
+linker = "hoisted"
+linkWorkspacePackages = true
+# Skip lifecycle scripts for these packages on Windows: their postinstalls
+# invoke tools under paths with spaces (C:\Program Files\...) that aren't
+# quoted correctly, and canvas has no Bun ABI prebuild so it falls back to
+# a node-gyp source rebuild we don't need for the CLI build path.
+ignoreScripts = ["canvas", "gif-encoder-2"]
+
+[test]
+exclude = ["**/*.integration.test.*", "freebuff/e2e/**"]
+preload = ["./sdk/test/setup-env.ts"]

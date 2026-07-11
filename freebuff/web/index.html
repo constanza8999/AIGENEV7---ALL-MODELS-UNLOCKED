@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIGENEV7 — Free AI Coding Agent</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="48x48" href="icon.png">
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap');
+
+    :root {
+      --bg: #0a0a0f;
+      --bg-card: #111118;
+      --bg-hover: #1a1a28;
+      --text: #e0e0ee;
+      --text-dim: #8888aa;
+      --accent: #00ff88;
+      --accent-dim: #00cc66;
+      --purple: #8855ff;
+      --red: #ff4466;
+      --orange: #ff8844;
+      --border: #1e1e30;
+      --radius: 12px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .header-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+
+    .logo {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 900;
+      font-size: 1.4rem;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .logo-sub {
+      color: var(--text-dim);
+      font-size: 0.8rem;
+      margin-left: auto;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      text-align: center;
+      padding: 6rem 2rem 4rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .hero h1 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 4rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent), var(--purple), var(--red));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+      line-height: 1.1;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      color: var(--text-dim);
+      max-width: 600px;
+      margin: 0 auto 2rem;
+    }
+
+    .badges {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+
+    .badge {
+      padding: 0.4rem 1rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: 1px solid var(--border);
+    }
+
+    .badge.green { background: rgba(0, 255, 136, 0.1); color: var(--accent); border-color: rgba(0, 255, 136, 0.2); }
+    .badge.purple { background: rgba(136, 85, 255, 0.1); color: var(--purple); border-color: rgba(136, 85, 255, 0.2); }
+    .badge.red { background: rgba(255, 68, 102, 0.1); color: var(--red); border-color: rgba(255, 68, 102, 0.2); }
+    .badge.orange { background: rgba(255, 136, 68, 0.1); color: var(--orange); border-color: rgba(255, 136, 68, 0.2); }
+
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.9rem 2rem;
+      border-radius: var(--radius);
+      font-size: 1rem;
+      font-weight: 700;
+      text-decoration: none;
+      background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+      color: #000;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 255, 136, 0.2);
+    }
+
+    /* ── Terminal Animation ── */
+    .terminal {
+      max-width: 650px;
+      margin: 0 auto 4rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+    }
+
+    .terminal-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.7rem 1rem;
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .terminal-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .terminal-dot.red { background: #ff5f56; }
+    .terminal-dot.yellow { background: #ffbd2e; }
+    .terminal-dot.green { background: #27c93f; }
+
+    .terminal-title {
+      color: var(--text-dim);
+      font-size: 0.75rem;
+      margin-left: 0.5rem;
+    }
+
+    .terminal-body {
+      padding: 1rem;
+      min-height: 180px;
+    }
+
+    .terminal-line {
+      white-space: pre-wrap;
+      margin-bottom: 0.3rem;
+    }
+
+    .terminal-line .prompt { color: var(--accent); }
+    .terminal-line .output { color: var(--text); }
+    .terminal-line .dim { color: var(--text-dim); }
+    .terminal-line .cursor {
+      display: inline-block;
+      width: 8px;
+      height: 1rem;
+      background: var(--accent);
+      animation: blink 1s step-end infinite;
+      vertical-align: text-bottom;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    /* ── Features ── */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 2rem 4rem;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .feature-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-3px);
+    }
+
+    .feature-icon {
+      font-size: 1.8rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .feature-card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+
+    .feature-card p {
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    /* ── Models Grid ── */
+    .models-section {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 2rem 4rem;
+    }
+
+    .models-section h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.8rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .models-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .model-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.2rem;
+      text-align: center;
+      transition: border-color 0.2s;
+    }
+
+    .model-card:hover {
+      border-color: var(--purple);
+    }
+
+    .model-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+
+    .model-desc {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      margin-top: 0.3rem;
+    }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.85rem;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 2.5rem; }
+      .hero { padding: 3rem 1rem 2rem; }
+      .features, .models-section { padding: 0 1rem 3rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <img src="icon.png" alt="AIGENEV7" class="header-icon">
+  <span class="logo">AIGENEV7</span>
+  <span class="logo-sub">by CONSTANZA</span>
+</header>
+
+<section class="hero">
+  <h1>AIGENEV7</h1>
+  <p>Free AI coding assistant. No subscription. No censorship. All models.</p>
+
+  <div class="badges">
+    <span class="badge green">✦ Unlimited</span>
+    <span class="badge purple">✦ Uncensored</span>
+    <span class="badge red">✦ All Models</span>
+    <span class="badge orange">✦ Free Forever</span>
+  </div>
+
+  <div class="terminal" id="terminal">
+    <div class="terminal-header">
+      <span class="terminal-dot red"></span>
+      <span class="terminal-dot yellow"></span>
+      <span class="terminal-dot green"></span>
+      <span class="terminal-title">aigenev7 — free AI coding agent</span>
+    </div>
+    <div class="terminal-body" id="terminal-body">
+      <div class="terminal-line"><span class="prompt">$</span> <span class="output">aigenev7 "build a rest api with express"</span></div>
+      <div class="terminal-line"><span class="dim">[AIGENEV7] DeepSeek V4 Pro — inferring...</span></div>
+      <div class="terminal-line"><span class="output">✦ Creating project structure...</span></div>
+      <div class="terminal-line"><span class="output">✦ Installing express, cors, helmet...</span></div>
+      <div class="terminal-line"><span class="output">✦ Generated src/index.js, src/routes/, src/middleware/</span></div>
+      <div class="terminal-line"><span class="dim">[AIGENEV7] ✓ Done (12.4s, ~1,847 tokens)</span></div>
+      <div class="terminal-line"><span class="prompt">$</span> <span class="cursor"></span></div>
+    </div>
+  </div>
+
+  <a href="https://github.com/constanza8999/aigenev7.com" class="cta">
+    <span>↓</span> Get Started on GitHub
+  </a>
+</section>
+
+<section class="features">
+  <div class="feature-card">
+    <div class="feature-icon">🔥</div>
+    <h3>Unlimited Usage</h3>
+    <p>No token limits, no rate limits, no session caps. Code as long as you want — truly unlimited.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">🚫</div>
+    <h3>Uncensored</h3>
+    <p>No content filters, no safety classifiers, no output restrictions. Complete creative freedom.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">🌐</div>
+    <h3>All Models</h3>
+    <p>Claude, GPT, DeepSeek, Gemini, Grok, Kimi, MiMo, MiniMax — any model from any provider.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">⚡</div>
+    <h3>Zero Config</h3>
+    <p>Install via npm and start coding. No subscriptions, no credit cards, no account required.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">🛠️</div>
+    <h3>Full Agent</h3>
+    <p>Edits files, runs commands, searches code, browses the web. A complete coding assistant.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">🔓</div>
+    <h3>Open Source</h3>
+    <p>MIT licensed. Fork it, modify it, self-host it. Built on the Freebuff/Codebuff engine.</p>
+  </div>
+</section>
+
+<section class="models-section">
+  <h2>Supported Models</h2>
+  <div class="models-grid">
+    <div class="model-card">
+      <div class="model-name">Fable 5</div>
+      <div class="model-desc">Anthropic — Smartest & Multimodal</div>
+    </div>
+    <div class="model-card">
+      <div class="model-name">DeepSeek V4 Pro</div>
+      <div class="model-desc">DeepSeek — Smartest reasoning</div>
+    </div>
+    <div class="model-card">
+      <div class="model-name">GPT-5</div>
+      <div class="model-desc">OpenAI — Latest flagship</div>
+    </div>
+    <div class="model-card">
+      <div class="model-name">Gemini 2.5 Pro</div>
+      <div class="model-desc">Google — Premium reasoning</div>
+    </div>
+    <div class="model-card">
+      <div class="model-name">Grok 4</div>
+      <div class="model-desc">xAI — Uncensored by design</div>
+    </div>
+    <div class="model-card">
+      <div class="model-name">Kimi K2.6</div>
+      <div class="model-desc">Moonshot — Balanced</div>
+    </div>
+    <div class="model-card">
+      <div class="model-name">MiMo 2.5 Pro</div>
+      <div class="model-desc">MiMo — Deep thinking</div>
+    </div>
+    <div class="model-card">
+      <div class="model-name">MiniMax M3</div>
+      <div class="model-desc">MiniMax — Smartest & Fastest</div>
+    </div>
+    <div class="model-card">
+      <div class="model-name">OpenRouter</div>
+      <div class="model-desc">200+ models via one API</div>
+    </div>
+    <div class="model-card">
+      <div class="model-name">Ollama</div>
+      <div class="model-desc">Local — Run on your hardware</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>Built by <strong>CONSTANZA</strong> — <a href="https://github.com/constanza8999">@constanza8999</a></p>
+  <p><a href="https://github.com/constanza8999/aigenev7.com">AIGENEV7</a> — Free AI for everyone. MIT License.</p>
+</footer>
+
+<script>
+  // Terminal typing animation
+  const lines = [
+    { type: 'cmd', text: 'aigenev7 "build a rest api with express"' },
+    { type: 'info', text: '[AIGENEV7] DeepSeek V4 Pro — inferring...' },
+    { type: 'out', text: '✦ Creating project structure...' },
+    { type: 'out', text: '✦ Installing express, cors, helmet...' },
+    { type: 'out', text: '✦ Generated src/index.js, src/routes/, src/middleware/' },
+    { type: 'info', text: '[AIGENEV7] ✓ Done (12.4s, ~1,847 tokens)' },
+    { type: 'prompt', text: '', isLast: true },
+  ];
+
+  const terminalBody = document.getElementById('terminal-body');
+  let lineIndex = 0;
+  let charIndex = 0;
+  let currentLineEl = null;
+
+  function typeNextChar() {
+    if (lineIndex >= lines.length) return;
+
+    const line = lines[lineIndex];
+
+    if (!currentLineEl) {
+      currentLineEl = document.createElement('div');
+      currentLineEl.className = 'terminal-line';
+      terminalBody.appendChild(currentLineEl);
+    }
+
+    if (line.type === 'prompt' && line.isLast) {
+      currentLineEl.innerHTML = '<span class="prompt">$</span> <span class="cursor"></span>';
+      lineIndex++;
+      currentLineEl = null;
+      setTimeout(typeNextChar, 2000);
+      return;
+    }
+
+    if (charIndex === 0) {
+      if (line.type === 'cmd') {
+        currentLineEl.innerHTML = '<span class="prompt">$</span> <span class="output"></span>';
+      } else if (line.type === 'info') {
+        currentLineEl.innerHTML = '<span class="dim"></span>';
+      } else {
+        currentLineEl.innerHTML = '<span class="output"></span>';
+      }
+      terminalBody.scrollTop = terminalBody.scrollHeight;
+    }
+
+    const span = currentLineEl.querySelector('span:last-child');
+    if (span && charIndex < line.text.length) {
+      span.textContent += line.text[charIndex];
+      charIndex++;
+      const delay = line.type === 'cmd' ? 30 : 8;
+      setTimeout(typeNextChar, delay);
+    } else if (charIndex >= line.text.length) {
+      lineIndex++;
+      charIndex = 0;
+      currentLineEl = null;
+      setTimeout(typeNextChar, 600);
+    }
+  }
+
+  setTimeout(typeNextChar, 500);
+</script>
+
+</body>
+</html>

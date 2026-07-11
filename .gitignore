@@ -1,0 +1,48 @@
+.DS_Store
+.idea/
+.vercel
+
+# Built binary (distributed via GitHub Releases)
+cli/bin/
+
+# Bun build cache (large temp files >100MB)
+*.bun-build
+
+# Packaged release (contains aigenev7.exe >100MB)
+freebuff/package/
+
+# Environment files (secrets) - Bun loads .env.* files natively
+.env
+.env.*
+!.env.example
+
+# ctags
+tags
+
+node_modules
+dev
+dist
+dist-env
+tsconfig.tsbuildinfo
+.manicode
+__mock-projects__
+npm-app/src/__tests__/data/
+.aider*
+.codebuff*
+**.log
+
+debug/
+.context/
+docs/bot-detection.md
+.codex
+
+# Nx cache directories
+.nx/cache
+.nx/workspace-data
+
+# Infisical config (user-specific)
+.infisical.json
+.gstack/
+
+# Buffbench DEBUG_ERROR dumps
+evals/buffbench/*-error-*.json
