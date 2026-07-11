@@ -27,7 +27,6 @@
   },
 
   "models": {
-    // ── Anthropic Claude (via OpenRouter) ──
     "fable-5": {
       "provider": "openrouter",
       "providerModel": "anthropic/claude-fable-5",
@@ -59,7 +58,6 @@
       "max_tokens": 1000000000000000000
     },
 
-    // ── DeepSeek ──
     "deepseek-v4-pro": {
       "provider": "deepseek",
       "providerModel": "deepseek/deepseek-v4-pro",
@@ -85,7 +83,6 @@
       "max_tokens": 1000000000000000000
     },
 
-    // ── OpenAI GPT ──
     "gpt-5": {
       "provider": "openai",
       "providerModel": "gpt-5-2025-05-01",
@@ -135,7 +132,6 @@
       "max_tokens": 1000000000000000000
     },
 
-    // ── Google Gemini ──
     "gemini-2.5-pro": {
       "provider": "google",
       "providerModel": "gemini-2.5-pro-03-25",
@@ -149,7 +145,6 @@
       "max_tokens": 1000000000000000000
     },
 
-    // ── Moonshot / Kimi ──
     "kimi-k2.6": {
       "provider": "moonshot",
       "providerModel": "moonshotai/kimi-k2.6",
@@ -157,7 +152,6 @@
       "max_tokens": 1000000000000000000
     },
 
-    // ── MiMo ──
     "mimo-v2.5-pro": {
       "provider": "mimo",
       "providerModel": "mimo/mimo-v2.5-pro",
@@ -171,7 +165,6 @@
       "max_tokens": 1000000000000000000
     },
 
-    // ── MiniMax ──
     "minimax-m3": {
       "provider": "minimax",
       "providerModel": "minimax/minimax-m3",
@@ -185,7 +178,6 @@
       "max_tokens": 1000000000000000000
     },
 
-    // ── Grok (xAI) ──
     "grok-4": {
       "provider": "xai",
       "providerModel": "grok-4-07-09",
@@ -193,7 +185,6 @@
       "max_tokens": 1000000000000000000
     },
 
-    // ── NVIDIA NIM ──
     "nvidia-llama-3.1-8b": {
       "provider": "nvidia",
       "providerModel": "meta/llama-3.1-8b-instruct",
@@ -225,7 +216,6 @@
       "max_tokens": 1000000000000000000
     },
 
-    // ── OpenRouter (meta-provider) ──
     "openrouter-claude-sonnet-4.5": {
       "provider": "openrouter",
       "providerModel": "anthropic/claude-sonnet-4.5",

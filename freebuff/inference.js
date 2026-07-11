@@ -31,6 +31,24 @@ import { fileURLToPath } from 'url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
+// ── Auto-load .env ───────────────────────────────────────────────────────
+const envPath = resolve(__dirname, '.env')
+if (existsSync(envPath)) {
+  const envContent = readFileSync(envPath, 'utf8')
+  for (const line of envContent.split(/\r?\n/)) {
+    const trimmed = line.trim()
+    if (!trimmed || trimmed.startsWith('#')) continue
+    const eqIdx = trimmed.indexOf('=')
+    if (eqIdx === -1) continue
+    const key = trimmed.slice(0, eqIdx).trim()
+    const val = trimmed.slice(eqIdx + 1).trim()
+    // Only set if not already set (env vars take precedence)
+    if (!process.env[key]) {
+      process.env[key] = val
+    }
+  }
+}
+
 // ── Configuration ───────────────────────────────────────────────────────
 
 /**
