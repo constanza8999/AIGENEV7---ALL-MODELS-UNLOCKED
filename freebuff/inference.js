@@ -227,6 +227,33 @@ async function callOpenAICompatible(model, messages, opts) {
 
   if (!response.ok) {
     const text = await response.text()
+    // Handle 402 credit errors - auto-retry with affordable token count
+    if (response.status === 402) {
+      const match = text.match(/can only afford (\d+)/)
+      if (match) {
+        const affordable = parseInt(match[1], 10)
+        if (affordable > 1) {
+          body.max_tokens = affordable - 1 // leave 1 token safety margin
+          const retryResponse = await fetch(`${baseUrl}/chat/completions`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${apiKey}`,
+              ...(provider === 'openrouter' ? {
+                'HTTP-Referer': 'https://aigenev7.ai',
+                'X-Title': 'AIGENEV7',
+              } : {}),
+            },
+            body: JSON.stringify(body),
+          })
+          if (retryResponse.ok) {
+            if (opts.stream) return handleOpenAIStream(retryResponse, opts.writeToStdout, opts.onChunk)
+            const retryData = await retryResponse.json()
+            return retryData.choices[0].message.content
+          }
+        }
+      }
+    }
     throw new Error(`${provider} API error (${response.status}): ${text}`)
   }
 
