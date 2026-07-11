@@ -271,6 +271,7 @@ async function callOpenAICompatible(model, messages, opts) {
         throw new Error(`${provider} API error (${response.status}): ${text}`)
       }
       throw new Error(`${provider} API error (${response.status}): ${text}`)
+    }
 
     const data = await response.json()
     const chunk = data.choices[0].message.content
