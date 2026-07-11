@@ -135,7 +135,7 @@ function showHelp() {
   console.log('    ' + g('serve') + '            ' + d('Start the web interface server'))
   console.log()
   console.log('  ' + c('▸') + ' ' + b('Options:'))
-  console.log('    ' + y('--model') + ', ' + y('-m') + ' <id>         ' + d('Model ID (default: deepseek-v4-pro)'))
+  console.log('    ' + y('--model') + ', ' + y('-m') + ' <id>         ' + d('Model ID (default: fable-5)'))
   console.log('    ' + y('--stream') + ' / ' + y('--no-stream') + '   ' + d('Enable/disable streaming (stream)'))
   console.log('    ' + y('--max-tokens') + ' <n>         ' + d('Max output tokens (default: Infinity)'))
   console.log('    ' + y('--temperature') + ' <n>        ' + d('Temperature 0-2 (default: 0.7)'))
@@ -247,7 +247,7 @@ async function chatMode() {
   let allAgents = listAgents()
 
   // Resolve initial model, falling back to first free model for non-premium users
-  const initialModelId = model || process.env.AIGENEV7_DEFAULT_MODEL || (entries.length > 0 ? entries[0].model.id : 'nvidia-llama-3.1-70b')
+  const initialModelId = model || process.env.AIGENEV7_DEFAULT_MODEL || (entries.length > 0 ? entries[0].model.id : 'fable-5')
   const initialModel = MODELS.find((m) => m.id === initialModelId)
   if (initialModel && initialModel.premium && !hasFeature('premium_models')) {
     const fallback = entries.find((e) => !e.model.premium)?.model

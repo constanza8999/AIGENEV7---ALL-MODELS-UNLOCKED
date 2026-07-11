@@ -2,7 +2,7 @@
   "_comment": "AIGENEV7 Inference Configuration",
   "_version": "7.0.0",
 
-  "default_model": "nvidia-llama-3.1-70b",
+  "default_model": "fable-5",
   "max_tokens": "Infinity",
   "stream": true,
   "uncensored": true,
