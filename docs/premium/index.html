@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Premium — AIGENEV7 CLI Plans</title>
+  <meta name="description" content="Unlock premium CLI features for AIGENEV7. Pro, Elite, and Enterprise tiers with PayPal, Crypto, MiniPay, and Bank Transfer accepted.">
+  <meta name="theme-color" content="#0a0a0f">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="../js/data.js"></script>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+
+<!-- ── Toasts ── -->
+<div class="toast" id="toast">✓ Copied to clipboard</div>
+
+<div class="page">
+
+<!-- ── Header ── -->
+<header>
+  <a href="/" class="logo">AIGENEV7<span class="logo-sub">premium</span></a>
+  <nav>
+    <a href="#plans" class="premium-nav-link">💎 Premium</a>
+    <a href="#plans">Plans</a>
+    <a href="#activate">Activate</a>
+    <a href="#keygen">🔑 Keygen</a>
+    <a href="#payment">Payment</a>
+    <a href="#faq">Commands</a>
+    <a href="/">← Back to App</a>
+  </nav>
+</header>
+
+<!-- ── Hero ── -->
+<section class="hero">
+  <div class="hero-badge">💎 CLI Premium</div>
+  <h1>Unlock the <span>Full CLI Power</span></h1>
+  <p>Support development and get advanced CLI features. No subscriptions — pay what you want, unlock what you need.</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><strong>4</strong> Tiers</div>
+    <div class="hero-stat"><strong>6</strong> Premium Features</div>
+    <div class="hero-stat"><strong>4</strong> Payment Methods</div>
+  </div>
+</section>
+
+<!-- ── Premium Tiers ── -->
+<div class="section" id="plans">
+  <div class="section-title">Choose Your Tier</div>
+  <h2 class="section-heading">CLI <span>Premium Plans</span></h2>
+  <p class="section-desc">Every tier includes unlimited chat, all models, and the full agent system. Upgrade to unlock advanced features.</p>
+  <div class="tiers-grid" id="tiersGrid"></div>
+</div>
+
+<!-- ── How to Activate ── -->
+<div class="section" id="activate">
+  <div class="section-title">After Payment</div>
+  <h2 class="section-heading">How to <span>Activate</span></h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-title">Pay via any method below</div>
+      <div class="step-desc">Send your chosen amount via PayPal, Crypto, MiniPay, or Bank Transfer. Mention your email or username.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-title">Receive your premium key</div>
+      <div class="step-desc">You'll get an <code>ag7_xxx</code> key by email within 24 hours. The key encodes your tier (pro, elite, enterprise).</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-title">Activate in the CLI</div>
+      <div class="step-desc">Run with <code>--premium-key ag7_pro_your_key</code> or set <code>AIGENEV7_PREMIUM_KEY</code> in your .env file.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-title">Enjoy premium features</div>
+      <div class="step-desc">Export agents to files, run custom quantum circuits, access premium models, and more. See the 💎 badge in your CLI!</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Key Generator ── -->
+<div class="section" id="keygen">
+  <div class="section-title">After Payment</div>
+  <h2 class="section-heading">Generate Your <span>Premium Key</span></h2>
+  <p class="section-desc">Select your tier and generate a key format. After payment, you'll receive your real key by email.</p>
+
+  <div class="keygen-box">
+    <div class="keygen-controls">
+      <label for="keygenTier">Tier:</label>
+      <select id="keygenTier" class="keygen-select">
+        <option value="pro">⭐ Pro</option>
+        <option value="elite">💎 Elite</option>
+        <option value="enterprise">🏢 Enterprise</option>
+      </select>
+      <button class="keygen-generate-btn" id="keygenGenerate">⟳ Generate</button>
+    </div>
+
+    <div class="keygen-display">
+      <div class="keygen-label">Your Premium Key</div>
+      <div class="keygen-key-row">
+        <code class="keygen-key" id="keygenKey">ag7_pro_x8m2k9p4v3q1w6n5</code>
+        <button class="keygen-copy-btn" id="keygenCopyKey" title="Copy key to clipboard">📋 Copy</button>
+      </div>
+    </div>
+
+    <div class="keygen-display">
+      <div class="keygen-label">CLI Command (copy & paste)</div>
+      <div class="keygen-key-row">
+        <code class="keygen-key keygen-cmd" id="keygenCmd">bun run inference-cli.js chat --premium-key ag7_pro_x8m2k9p4v3q1w6n5</code>
+        <button class="keygen-copy-btn" id="keygenCopyCmd" title="Copy command to clipboard">📋 Copy</button>
+      </div>
+    </div>
+
+    <div class="keygen-note">
+      💡 <strong>How it works:</strong> After paying, email CONSTANZA with your tier and email.
+      You'll receive your real <code>ag7_xxx</code> key within 24 hours.
+      Set it via <code>--premium-key</code> flag or <code>AIGENEV7_PREMIUM_KEY</code> env var.
+    </div>
+  </div>
+</div>
+
+<!-- ── Payment Methods ── -->
+<div class="section" id="payment">
+  <div class="section-title">Payments go to the developer</div>
+  <h2 class="section-heading">Accepted <span>Payment Methods</span></h2>
+  <p class="section-desc">All payments go directly to CONSTANZA. Choose the method that works best for you.</p>
+  <div class="payment-grid" id="paymentGrid"></div>
+</div>
+
+<!-- ── Premium CLI Commands Reference ── -->
+<div class="section" id="faq">
+  <div class="section-title">Reference</div>
+  <h2 class="section-heading">Premium CLI <span>Commands</span></h2>
+  <div class="cmd-ref">
+    <div class="cmd-row">
+      <div class="cmd-name">/agent-export &lt;name&gt; to &lt;file&gt;</div>
+      <div class="cmd-tier pro">Pro+</div>
+      <div class="cmd-desc">Export an agent persona to a JSON file on disk</div>
+    </div>
+    <div class="cmd-row">
+      <div class="cmd-name">/agent-import from &lt;file&gt;</div>
+      <div class="cmd-tier pro">Pro+</div>
+      <div class="cmd-desc">Import an agent persona from a JSON file</div>
+    </div>
+    <div class="cmd-row">
+      <div class="cmd-name">/quantum run &lt;gates&gt;</div>
+      <div class="cmd-tier pro">Pro+</div>
+      <div class="cmd-desc">Run custom quantum circuits with unlimited shots</div>
+    </div>
+    <div class="cmd-row">
+      <div class="cmd-name">--model &lt;premium-model&gt;</div>
+      <div class="cmd-tier elite">Elite+</div>
+      <div class="cmd-desc">Use premium models: GPT-4.1, Claude Opus 4, O3 Pro, Grok 4, Fable 5</div>
+    </div>
+    <div class="cmd-row">
+      <div class="cmd-name">Full API access</div>
+      <div class="cmd-tier elite">Elite+</div>
+      <div class="cmd-desc">Use the local API server for programmatic access</div>
+    </div>
+    <div class="cmd-row">
+      <div class="cmd-name">Batch inference</div>
+      <div class="cmd-tier enterprise">Enterprise</div>
+      <div class="cmd-desc">Multi-file processing and batch prompting</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Footer ── -->
+<footer>
+  <p>Built by <strong>CONSTANZA</strong> — <a href="https://github.com/constanza8999">@constanza8999</a></p>
+  <p style="margin-top:0.5rem;">
+    <a href="../fairregister.pdf" target="_blank" class="proof-badge">
+      <span>📜</span> Proof of Authorship
+    </a>
+  </p>
+  <p style="margin-top:0.5rem;font-size:0.72rem;color:var(--text-muted)">AIGENEV7 — Free AI for everyone. MIT License.</p>
+</footer>
+
+</div>
+
+<!-- ── Premium Tiers Renderer ── -->
+<script>
+(function() {
+  'use strict'
+  var tiers = window.AIGENEV7_PREMIUM_TIERS || []
+  var grid = document.getElementById('tiersGrid')
+  if (!grid || tiers.length === 0) return
+
+  for (var i = 0; i < tiers.length; i++) {
+    var t = tiers[i]
+    var card = document.createElement('div')
+    card.className = 'tier-card'
+    if (t.id === 'pro') card.classList.add('tier-popular')
+    card.style.animationDelay = (i * 0.1) + 's'
+
+    // Badge
+    if (t.badge) {
+      var badge = document.createElement('div')
+      badge.className = 'tier-badge'
+      badge.textContent = t.badge
+      card.appendChild(badge)
+    }
+
+    // Header
+    var hdr = document.createElement('div')
+    hdr.className = 'tier-header'
+    hdr.innerHTML = '<span class="tier-emoji">' + t.emoji + '</span>'
+    card.appendChild(hdr)
+
+    // Name
+    var name = document.createElement('div')
+    name.className = 'tier-name'
+    name.style.color = t.color
+    name.textContent = t.name
+    card.appendChild(name)
+
+    // Price
+    if (t.price) {
+      var price = document.createElement('div')
+      price.className = 'tier-price'
+      price.textContent = t.price
+      card.appendChild(price)
+    }
+
+    // Description
+    if (t.description) {
+      var desc = document.createElement('div')
+      desc.className = 'tier-desc'
+      desc.textContent = t.description
+      card.appendChild(desc)
+    }
+
+    // Features
+    var ul = document.createElement('ul')
+    ul.className = 'tier-features'
+    for (var f = 0; f < t.features.length; f++) {
+      var li = document.createElement('li')
+      li.textContent = t.features[f]
+      ul.appendChild(li)
+    }
+    card.appendChild(ul)
+
+    // CTA
+    var ctaWrap = document.createElement('div')
+    ctaWrap.className = 'tier-cta-wrap'
+    var cta = document.createElement('a')
+    cta.className = 'tier-cta'
+    cta.href = '#payment'
+    if (t.id === 'free') {
+      cta.href = '/'
+      cta.classList.add('tier-cta-free')
+    }
+    cta.textContent = t.cta
+    ctaWrap.appendChild(cta)
+    card.appendChild(ctaWrap)
+
+    grid.appendChild(card)
+  }
+})()
+</script>
+
+<!-- ── Key Generator JS ── -->
+<script>
+(function() {
+  'use strict'
+  var tierSelect = document.getElementById('keygenTier')
+  var generateBtn = document.getElementById('keygenGenerate')
+  var keyEl = document.getElementById('keygenKey')
+  var cmdEl = document.getElementById('keygenCmd')
+  var copyKeyBtn = document.getElementById('keygenCopyKey')
+  var copyCmdBtn = document.getElementById('keygenCopyCmd')
+  if (!tierSelect || !keyEl || !cmdEl) return
+
+  function generateKey() {
+    var tier = tierSelect.value
+    // Generate 16 random hex chars
+    var chars = '0123456789abcdefghijklmnopqrstuvwxyz'
+    var rand = ''
+    for (var i = 0; i < 16; i++) {
+      rand += chars.charAt(Math.floor(Math.random() * chars.length))
+    }
+    var key = 'ag7_' + tier + '_' + rand
+    keyEl.textContent = key
+    cmdEl.textContent = 'bun run inference-cli.js chat --premium-key ' + key
+  }
+
+  function showToast() {
+    var toast = document.getElementById('toast')
+    if (!toast) return
+    toast.classList.remove('show')
+    void toast.offsetWidth
+    toast.classList.add('show')
+    setTimeout(function() {
+      toast.classList.remove('show')
+    }, 2000)
+  }
+
+  function copyToClipboard(el, btn) {
+    var text = el.textContent
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function() {
+        btn.textContent = '✓ Copied!'
+        btn.classList.add('copied')
+        showToast()
+        setTimeout(function() {
+          btn.textContent = '📋 Copy'
+          btn.classList.remove('copied')
+        }, 2000)
+      }).catch(function() {
+        fallbackCopy(text, btn)
+      })
+    } else {
+      fallbackCopy(text, btn)
+    }
+  }
+
+  function fallbackCopy(text, btn) {
+    var ta = document.createElement('textarea')
+    ta.value = text
+    ta.style.position = 'fixed'
+    ta.style.opacity = '0'
+    document.body.appendChild(ta)
+    ta.select()
+    try {
+      document.execCommand('copy')
+      btn.textContent = '✓ Copied!'
+      btn.classList.add('copied')
+      showToast()
+      setTimeout(function() {
+        btn.textContent = '📋 Copy'
+        btn.classList.remove('copied')
+      }, 2000)
+    } catch (e) {}
+    document.body.removeChild(ta)
+  }
+
+  generateBtn.addEventListener('click', generateKey)
+  tierSelect.addEventListener('change', generateKey)
+  copyKeyBtn.addEventListener('click', function() { copyToClipboard(keyEl, copyKeyBtn) })
+  copyCmdBtn.addEventListener('click', function() { copyToClipboard(cmdEl, copyCmdBtn) })
+
+  // Generate initial key
+  generateKey()
+})()
+</script>
+
+<!-- ── Payment Methods Renderer ── -->
+<script>
+(function() {
+  'use strict'
+  var methods = window.AIGENEV7_PAYMENT_METHODS || []
+  var grid = document.getElementById('paymentGrid')
+  if (!grid || methods.length === 0) return
+
+  for (var i = 0; i < methods.length; i++) {
+    var m = methods[i]
+    var card = document.createElement('div')
+    card.className = 'payment-card'
+    card.style.animationDelay = (i * 0.08) + 's'
+
+    var emoji = document.createElement('div')
+    emoji.className = 'payment-card-emoji'
+    emoji.textContent = m.emoji
+    card.appendChild(emoji)
+
+    var name = document.createElement('div')
+    name.className = 'payment-card-name'
+    name.textContent = m.name
+    card.appendChild(name)
+
+    var detail = document.createElement('div')
+    detail.className = 'payment-card-detail'
+    detail.textContent = m.detail
+    card.appendChild(detail)
+
+    var desc = document.createElement('div')
+    desc.className = 'payment-card-desc'
+    desc.textContent = m.description
+    card.appendChild(desc)
+
+    if (m.url) {
+      var link = document.createElement('a')
+      link.className = 'payment-card-link'
+      link.href = m.url
+      link.target = '_blank'
+      link.textContent = 'Pay Now →'
+      card.appendChild(link)
+    } else {
+      var hint = document.createElement('div')
+      hint.className = 'payment-card-hint'
+      hint.textContent = 'Contact for details'
+      card.appendChild(hint)
+    }
+
+    grid.appendChild(card)
+  }
+})()
+</script>
+
+</body>
+</html>
