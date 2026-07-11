@@ -366,6 +366,7 @@ async function chatMode() {
         console.log('  ── Premium 💎 ──')
         console.log('  /keygen                 Generate a premium key for CLI')
         console.log('  /keygen <tier>          Generate key for specific tier (pro, elite, enterprise)')
+        console.log('  /pay                    Show payment info and open payment page')
         console.log('  ── Quantum ⚛️ ──')
         console.log('  /quantum               List available quantum demos')
         console.log('  /quantum <demo>        Run a demo (bell, ghz, deutsch, superposition, bell-swap)')
@@ -879,6 +880,36 @@ async function chatMode() {
         } catch (err) {
           console.log(`  ✗ ${err.message}`)
         }
+        askQuestion()
+        return
+      }
+
+      // ── Pay command ──
+      if (trimmed === '/pay') {
+        var url = 'https://aigen7ev.ai/premium/'
+        console.log()
+        console.log('  ' + p('💎') + ' ' + b('Premium Payment') + ' ' + c('✦'))
+        console.log('  ' + c('┄').repeat(44))
+        console.log('  ' + d('All payments go directly to the developer.'))
+        console.log()
+        console.log('  ' + b('Accepted Methods:'))
+        console.log('    ' + g('✓') + ' ' + b('PayPal') + '     ' + d('josejaimejulia7@gmail.com'))
+        console.log('    ' + g('✓') + ' ' + b('Crypto') + '     ' + d('BTC, ETH, USDT, SOL'))
+        console.log('    ' + g('✓') + ' ' + b('MiniPay') + '    ' + d('cUSD/cEUR via Celo'))
+        console.log('    ' + g('✓') + ' ' + b('Bank') + '       ' + d('CAIXABANK ES96 2100 2034 1010 0102 7113'))
+        console.log()
+        console.log('  ' + d('Visit for details:') + ' ' + c(url))
+        console.log()
+        // Try to open the browser
+        try {
+          var cmd = process.platform === 'win32' ? 'start' : process.platform === 'darwin' ? 'open' : 'xdg-open'
+          var cp = await import('child_process')
+          cp.exec(cmd + ' ' + url, function() {})
+          console.log('  ' + g('✓') + ' ' + d('Browser opened to') + ' ' + c('premium page'))
+        } catch (e) {
+          console.log('  ' + d('Open') + ' ' + c(url) + ' ' + d('in your browser'))
+        }
+        console.log()
         askQuestion()
         return
       }
