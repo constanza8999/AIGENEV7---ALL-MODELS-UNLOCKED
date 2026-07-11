@@ -55,5 +55,17 @@ freebuff/chat_*.txt
 freebuff/test-*.mjs
 freebuff/test-*.js
 
+# Common developer clutter (temp, backup, cache)
+*.tmp
+*.bak
+coverage/
+.nyc_output/
+junit/
+test-results/
+__pycache__/
+*.pyc
+*.egg-info/
+*.cache/
+
 # Buffbench DEBUG_ERROR dumps
 evals/buffbench/*-error-*.json
