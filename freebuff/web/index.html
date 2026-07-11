@@ -9,7 +9,7 @@
   <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
 
     :root {
       --bg: #0a0a0f;
@@ -17,13 +17,20 @@
       --bg-hover: #1a1a28;
       --text: #e0e0ee;
       --text-dim: #8888aa;
+      --text-muted: #55557a;
       --accent: #00ff88;
       --accent-dim: #00cc66;
+      --accent-glow: rgba(0, 255, 136, 0.15);
       --purple: #8855ff;
+      --purple-glow: rgba(136, 85, 255, 0.15);
       --red: #ff4466;
+      --red-glow: rgba(255, 68, 102, 0.15);
       --orange: #ff8844;
+      --orange-glow: rgba(255, 136, 68, 0.15);
+      --blue: #4488ff;
       --border: #1e1e30;
       --radius: 12px;
+      --radius-sm: 8px;
     }
 
     * {
@@ -38,6 +45,74 @@
       color: var(--text);
       line-height: 1.6;
       min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Animated Background Grid ── */
+    .bg-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    .bg-glow {
+      position: fixed;
+      top: -30%;
+      left: -20%;
+      width: 140%;
+      height: 140%;
+      pointer-events: none;
+      z-index: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(0, 255, 136, 0.03) 0%, transparent 60%);
+      animation: glowPulse 8s ease-in-out infinite alternate;
+    }
+
+    @keyframes glowPulse {
+      0% { opacity: 0.5; transform: scale(1); }
+      100% { opacity: 1; transform: scale(1.05); }
+    }
+
+    /* ── Floating Particles ── */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: var(--accent);
+      border-radius: 50%;
+      opacity: 0;
+      animation: particleFloat linear infinite;
+    }
+
+    @keyframes particleFloat {
+      0% { transform: translateY(100vh) scale(0); opacity: 0; }
+      10% { opacity: 0.6; }
+      90% { opacity: 0.6; }
+      100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+    }
+
+    /* ── Page Content ── */
+    .page {
+      position: relative;
+      z-index: 1;
     }
 
     /* ── Header ── */
@@ -47,6 +122,11 @@
       display: flex;
       align-items: center;
       gap: 1rem;
+      background: rgba(10, 10, 15, 0.8);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
     .header-icon {
@@ -54,6 +134,11 @@
       height: 28px;
       border-radius: 6px;
       flex-shrink: 0;
+      transition: transform 0.3s;
+    }
+
+    .header-icon:hover {
+      transform: rotate(15deg) scale(1.1);
     }
 
     .logo {
@@ -72,6 +157,29 @@
       margin-left: auto;
     }
 
+    .header-nav {
+      display: flex;
+      gap: 1.5rem;
+      margin-left: auto;
+      align-items: center;
+    }
+
+    .header-nav a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.2s;
+    }
+
+    .header-nav a:hover {
+      color: var(--accent);
+    }
+
+    /* ── Smooth Sections ── */
+    section {
+      scroll-margin-top: 80px;
+    }
+
     /* ── Hero ── */
     .hero {
       text-align: center;
@@ -88,15 +196,36 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      margin-bottom: 1rem;
+      margin-bottom: 0.5rem;
       line-height: 1.1;
+      animation: fadeInUp 0.8s ease-out;
     }
 
-    .hero p {
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-subtitle {
       font-size: 1.2rem;
       color: var(--text-dim);
       max-width: 600px;
-      margin: 0 auto 2rem;
+      margin: 0 auto 1.5rem;
+      min-height: 1.8em;
+    }
+
+    .hero-subtitle .cursor-blink {
+      display: inline-block;
+      width: 2px;
+      height: 1.2em;
+      background: var(--accent);
+      animation: blink 0.8s step-end infinite;
+      vertical-align: text-bottom;
+      margin-left: 2px;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
     }
 
     .badges {
@@ -105,6 +234,7 @@
       justify-content: center;
       flex-wrap: wrap;
       margin-bottom: 2rem;
+      animation: fadeInUp 0.8s ease-out 0.2s both;
     }
 
     .badge {
@@ -113,12 +243,32 @@
       font-size: 0.85rem;
       font-weight: 600;
       border: 1px solid var(--border);
+      transition: all 0.3s;
+      cursor: default;
+    }
+
+    .badge:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     }
 
     .badge.green { background: rgba(0, 255, 136, 0.1); color: var(--accent); border-color: rgba(0, 255, 136, 0.2); }
+    .badge.green:hover { background: rgba(0, 255, 136, 0.2); border-color: var(--accent); }
     .badge.purple { background: rgba(136, 85, 255, 0.1); color: var(--purple); border-color: rgba(136, 85, 255, 0.2); }
+    .badge.purple:hover { background: rgba(136, 85, 255, 0.2); border-color: var(--purple); }
     .badge.red { background: rgba(255, 68, 102, 0.1); color: var(--red); border-color: rgba(255, 68, 102, 0.2); }
+    .badge.red:hover { background: rgba(255, 68, 102, 0.2); border-color: var(--red); }
     .badge.orange { background: rgba(255, 136, 68, 0.1); color: var(--orange); border-color: rgba(255, 136, 68, 0.2); }
+    .badge.orange:hover { background: rgba(255, 136, 68, 0.2); border-color: var(--orange); }
+
+    /* ── CTA Button ── */
+    .cta-group {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      animation: fadeInUp 0.8s ease-out 0.4s both;
+    }
 
     .cta {
       display: inline-flex;
@@ -131,24 +281,74 @@
       text-decoration: none;
       background: linear-gradient(135deg, var(--accent), var(--accent-dim));
       color: #000;
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        45deg,
+        transparent 40%,
+        rgba(255,255,255,0.1) 45%,
+        rgba(255,255,255,0.1) 55%,
+        transparent 60%
+      );
+      transition: transform 0.6s;
+      transform: translateX(-100%) rotate(45deg);
+    }
+
+    .cta:hover::before {
+      transform: translateX(100%) rotate(45deg);
     }
 
     .cta:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(0, 255, 136, 0.2);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(0, 255, 136, 0.3);
+    }
+
+    .cta:active {
+      transform: translateY(-1px);
+    }
+
+    .cta.secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .cta.secondary::before { display: none; }
+
+    .cta.secondary:hover {
+      border-color: var(--text-dim);
+      box-shadow: none;
     }
 
     /* ── Terminal Animation ── */
+    .terminal-wrapper {
+      max-width: 700px;
+      margin: 0 auto 3rem;
+      animation: fadeInUp 0.8s ease-out 0.3s both;
+    }
+
     .terminal {
-      max-width: 650px;
-      margin: 0 auto 4rem;
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       overflow: hidden;
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.85rem;
+      transition: box-shadow 0.3s;
+    }
+
+    .terminal:hover {
+      box-shadow: 0 0 40px rgba(0, 255, 136, 0.05);
     }
 
     .terminal-header {
@@ -158,12 +358,18 @@
       padding: 0.7rem 1rem;
       background: rgba(255,255,255,0.03);
       border-bottom: 1px solid var(--border);
+      user-select: none;
     }
 
     .terminal-dot {
       width: 10px;
       height: 10px;
       border-radius: 50%;
+      transition: opacity 0.2s;
+    }
+
+    .terminal:hover .terminal-dot {
+      opacity: 0.8;
     }
 
     .terminal-dot.red { background: #ff5f56; }
@@ -178,18 +384,43 @@
 
     .terminal-body {
       padding: 1rem;
-      min-height: 180px;
+      min-height: 200px;
+      max-height: 300px;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+    }
+
+    .terminal-body::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .terminal-body::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .terminal-body::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 2px;
     }
 
     .terminal-line {
       white-space: pre-wrap;
       margin-bottom: 0.3rem;
+      animation: lineFadeIn 0.3s ease-out;
+    }
+
+    @keyframes lineFadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .terminal-line .prompt { color: var(--accent); }
     .terminal-line .output { color: var(--text); }
     .terminal-line .dim { color: var(--text-dim); }
-    .terminal-line .cursor {
+    .terminal-line .error { color: var(--red); }
+    .terminal-line .highlight { color: var(--purple); }
+
+    .terminal-line .cursor-char {
       display: inline-block;
       width: 8px;
       height: 1rem;
@@ -198,8 +429,104 @@
       vertical-align: text-bottom;
     }
 
-    @keyframes blink {
-      50% { opacity: 0; }
+    .terminal-progress {
+      display: flex;
+      gap: 0.3rem;
+      margin: 0.3rem 0;
+    }
+
+    .terminal-progress-bar {
+      flex: 1;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .terminal-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--purple));
+      border-radius: 2px;
+      transition: width 0.3s;
+    }
+
+    .terminal-restart-btn {
+      display: none;
+      text-align: center;
+      padding: 0.5rem;
+      color: var(--text-dim);
+      font-size: 0.75rem;
+      cursor: pointer;
+      border-top: 1px solid var(--border);
+      transition: color 0.2s, background 0.2s;
+    }
+
+    .terminal-restart-btn:hover {
+      color: var(--accent);
+      background: rgba(0, 255, 136, 0.03);
+    }
+
+    /* ── Copy Command ── */
+    .command-block {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.6rem 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.3s;
+      user-select: none;
+      margin: 0 auto;
+      max-width: 100%;
+      overflow: hidden;
+    }
+
+    .command-block:hover {
+      border-color: var(--text-dim);
+      background: var(--bg-hover);
+    }
+
+    .command-block .cmd-text {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .command-block .cmd-icon {
+      flex-shrink: 0;
+      font-size: 1rem;
+      transition: transform 0.3s;
+    }
+
+    .command-block.copied .cmd-icon {
+      color: var(--accent);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--accent);
+      color: #000;
+      padding: 0.6rem 1.2rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 600;
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 200;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
     }
 
     /* ── Features ── */
@@ -209,7 +536,7 @@
       gap: 1.5rem;
       max-width: 1000px;
       margin: 0 auto;
-      padding: 0 2rem 4rem;
+      padding: 2rem 2rem 4rem;
     }
 
     .feature-card {
@@ -217,17 +544,56 @@
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 1.5rem;
-      transition: border-color 0.2s, transform 0.2s;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    .feature-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .feature-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--purple));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .feature-card:hover::after {
+      opacity: 1;
     }
 
     .feature-card:hover {
-      border-color: var(--accent);
-      transform: translateY(-3px);
+      border-color: transparent;
+      transform: translateY(-4px) scale(1.01);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
     }
+
+    .feature-card:nth-child(1) { transition-delay: 0.05s; }
+    .feature-card:nth-child(2) { transition-delay: 0.1s; }
+    .feature-card:nth-child(3) { transition-delay: 0.15s; }
+    .feature-card:nth-child(4) { transition-delay: 0.2s; }
+    .feature-card:nth-child(5) { transition-delay: 0.25s; }
+    .feature-card:nth-child(6) { transition-delay: 0.3s; }
 
     .feature-icon {
       font-size: 1.8rem;
       margin-bottom: 0.75rem;
+      display: inline-block;
+      transition: transform 0.3s;
+    }
+
+    .feature-card:hover .feature-icon {
+      transform: scale(1.2) rotate(-5deg);
     }
 
     .feature-card h3 {
@@ -242,6 +608,46 @@
       line-height: 1.5;
     }
 
+    /* ── Stats Section ── */
+    .stats-section {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 2rem 4rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .stat-card {
+      text-align: center;
+      padding: 2rem 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition: all 0.3s;
+    }
+
+    .stat-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .stat-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2.5rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-label {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      margin-top: 0.3rem;
+    }
+
     /* ── Models Grid ── */
     .models-section {
       max-width: 1000px;
@@ -252,8 +658,15 @@
     .models-section h2 {
       font-family: 'JetBrains Mono', monospace;
       font-size: 1.8rem;
-      margin-bottom: 1.5rem;
+      margin-bottom: 0.5rem;
       text-align: center;
+    }
+
+    .models-subtitle {
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
     }
 
     .models-grid {
@@ -268,11 +681,54 @@
       border-radius: var(--radius);
       padding: 1rem 1.2rem;
       text-align: center;
-      transition: border-color 0.2s;
+      transition: all 0.3s;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .model-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, var(--purple-glow) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.4s;
+      pointer-events: none;
+    }
+
+    .model-card:hover::before {
+      opacity: 1;
     }
 
     .model-card:hover {
       border-color: var(--purple);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(136, 85, 255, 0.1);
+    }
+
+    .model-card:active {
+      transform: translateY(-1px);
+    }
+
+    .model-card .model-provider {
+      display: none;
+      font-size: 0.75rem;
+      color: var(--accent);
+      margin-top: 0.4rem;
+      font-weight: 500;
+    }
+
+    .model-card.expanded .model-provider {
+      display: block;
+      animation: fadeInUp 0.3s ease-out;
+    }
+
+    .model-card.expanded {
+      border-color: var(--accent);
     }
 
     .model-name {
@@ -280,12 +736,118 @@
       font-weight: 700;
       font-size: 0.9rem;
       color: var(--text);
+      position: relative;
+      z-index: 1;
     }
 
     .model-desc {
       font-size: 0.8rem;
       color: var(--text-dim);
       margin-top: 0.3rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Rewards Section ── */
+    .rewards-section {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 2rem 4rem;
+    }
+
+    .rewards-section h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+
+    .rewards-subtitle {
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+    }
+
+    .rewards-tiers {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .reward-tier {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem 1rem;
+      text-align: center;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .reward-tier:hover {
+      transform: translateY(-3px);
+    }
+
+    .reward-tier .tier-badge {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .reward-tier .tier-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .reward-tier .tier-points {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      margin-bottom: 0.8rem;
+    }
+
+    .reward-tier .tier-perks {
+      list-style: none;
+      text-align: left;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    .reward-tier .tier-perks li::before {
+      content: '✦ ';
+      color: var(--accent);
+    }
+
+    .reward-tier.bronze { border-color: rgba(0, 255, 136, 0.2); }
+    .reward-tier.bronze:hover { border-color: var(--accent); }
+    .reward-tier.silver { border-color: rgba(136, 85, 255, 0.2); }
+    .reward-tier.silver:hover { border-color: var(--purple); }
+    .reward-tier.gold { border-color: rgba(255, 136, 68, 0.2); }
+    .reward-tier.gold:hover { border-color: var(--orange); }
+    .reward-tier.diamond { border-color: rgba(68, 136, 255, 0.2); }
+    .reward-tier.diamond:hover { border-color: var(--blue); }
+    .reward-tier.legend { border-color: rgba(255, 68, 102, 0.2); }
+    .reward-tier.legend:hover { border-color: var(--red); }
+
+    .rewards-cta {
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    .rewards-cta a {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+
+    .rewards-cta a:hover {
+      color: var(--accent-dim);
+      text-decoration: underline;
     }
 
     /* ── Footer ── */
@@ -300,9 +862,11 @@
     footer a {
       color: var(--accent);
       text-decoration: none;
+      transition: color 0.2s;
     }
 
     footer a:hover {
+      color: var(--accent-dim);
       text-decoration: underline;
     }
 
@@ -311,20 +875,48 @@
       .hero h1 { font-size: 2.5rem; }
       .hero { padding: 3rem 1rem 2rem; }
       .features, .models-section { padding: 0 1rem 3rem; }
+      .header-nav { display: none; }
+      .stat-number { font-size: 2rem; }
+    }
+    @media (max-width: 380px) {
+      .hero h1 { font-size: 1.8rem; }
+      .hero { padding: 2rem 0.5rem 1.5rem; }
+      .badge { font-size: 0.75rem; padding: 0.3rem 0.7rem; }
+      .cta { font-size: 0.85rem; padding: 0.7rem 1.2rem; }
+      .terminal { font-size: 0.75rem; }
     }
   </style>
 </head>
 <body>
 
+<!-- ── Background Effects ── -->
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+<div class="particles" id="particles"></div>
+
+<!-- ── Toast Notification ── -->
+<div class="toast" id="toast">✓ Copied to clipboard</div>
+
+<!-- ── Page ── -->
+<div class="page">
+
 <header>
   <img src="icon.png" alt="AIGENEV7" class="header-icon">
   <span class="logo">AIGENEV7</span>
+  <nav class="header-nav">
+    <a href="#features">Features</a>
+    <a href="#models">Models</a>
+    <a href="https://github.com/constanza8999">GitHub</a>
+  </nav>
   <span class="logo-sub">by CONSTANZA</span>
 </header>
 
+<!-- ── Hero ── -->
 <section class="hero">
   <h1>AIGENEV7</h1>
-  <p>Free AI coding assistant. No subscription. No censorship. All models.</p>
+  <p class="hero-subtitle" id="subtitle">
+    <span id="subtitle-text"></span><span class="cursor-blink"></span>
+  </p>
 
   <div class="badges">
     <span class="badge green">✦ Unlimited</span>
@@ -333,30 +925,61 @@
     <span class="badge orange">✦ Free Forever</span>
   </div>
 
-  <div class="terminal" id="terminal">
-    <div class="terminal-header">
-      <span class="terminal-dot red"></span>
-      <span class="terminal-dot yellow"></span>
-      <span class="terminal-dot green"></span>
-      <span class="terminal-title">aigenev7 — free AI coding agent</span>
-    </div>
-    <div class="terminal-body" id="terminal-body">
-      <div class="terminal-line"><span class="prompt">$</span> <span class="output">aigenev7 "build a rest api with express"</span></div>
-      <div class="terminal-line"><span class="dim">[AIGENEV7] DeepSeek V4 Pro — inferring...</span></div>
-      <div class="terminal-line"><span class="output">✦ Creating project structure...</span></div>
-      <div class="terminal-line"><span class="output">✦ Installing express, cors, helmet...</span></div>
-      <div class="terminal-line"><span class="output">✦ Generated src/index.js, src/routes/, src/middleware/</span></div>
-      <div class="terminal-line"><span class="dim">[AIGENEV7] ✓ Done (12.4s, ~1,847 tokens)</span></div>
-      <div class="terminal-line"><span class="prompt">$</span> <span class="cursor"></span></div>
+  <!-- Terminal -->
+  <div class="terminal-wrapper">
+    <div class="terminal" id="terminal">
+      <div class="terminal-header">
+        <span class="terminal-dot red"></span>
+        <span class="terminal-dot yellow"></span>
+        <span class="terminal-dot green"></span>
+        <span class="terminal-title">aigenev7 — free AI coding agent</span>
+      </div>
+      <div class="terminal-body" id="terminal-body"></div>
+      <div class="terminal-restart-btn" id="terminal-restart">↻ Replay</div>
     </div>
   </div>
 
-  <a href="https://github.com/constanza8999/aigenev7.com" class="cta">
-    <span>↓</span> Get Started on GitHub
-  </a>
+  <!-- CTA Buttons -->
+  <div class="cta-group">
+    <a href="https://github.com/constanza8999/aigenev7.com" class="cta">
+      <span>↓</span> Get Started on GitHub
+    </a>
+    <a href="#features" class="cta secondary">
+      Learn More →
+    </a>
+  </div>
+
+  <!-- Copy Command -->
+  <div style="margin-top: 1.5rem; display: flex; justify-content: center;">
+    <div class="command-block" id="copy-command">
+      <span class="cmd-icon">📋</span>
+      <span class="cmd-text">bun freebuff/local-api-server.js &amp;&amp; ./aigenev7.exe</span>
+    </div>
+  </div>
 </section>
 
-<section class="features">
+<!-- ── Stats ── -->
+<section class="stats-section">
+  <div class="stat-card">
+    <div class="stat-number" data-target="10">0</div>
+    <div class="stat-label">LLM Providers</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number" data-target="28">0</div>
+    <div class="stat-label">Models Supported</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number" data-target="0">∞</div>
+    <div class="stat-label">Usage Limits</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number" data-target="100">0</div>
+    <div class="stat-label">% Local & Private</div>
+  </div>
+</section>
+
+<!-- ── Features ── -->
+<section class="features" id="features">
   <div class="feature-card">
     <div class="feature-icon">🔥</div>
     <h3>Unlimited Usage</h3>
@@ -389,101 +1012,335 @@
   </div>
 </section>
 
-<section class="models-section">
+<!-- ── Models ── -->
+<section class="models-section" id="models">
   <h2>Supported Models</h2>
+  <p class="models-subtitle">Click any model for details</p>
   <div class="models-grid">
-    <div class="model-card">
+    <div class="model-card" data-provider="Anthropic">
       <div class="model-name">Fable 5</div>
-      <div class="model-desc">Anthropic — Smartest & Multimodal</div>
+      <div class="model-desc">Smartest & Multimodal</div>
+      <div class="model-provider">via Anthropic</div>
     </div>
-    <div class="model-card">
+    <div class="model-card" data-provider="DeepSeek">
       <div class="model-name">DeepSeek V4 Pro</div>
-      <div class="model-desc">DeepSeek — Smartest reasoning</div>
+      <div class="model-desc">Smartest reasoning</div>
+      <div class="model-provider">via DeepSeek</div>
     </div>
-    <div class="model-card">
+    <div class="model-card" data-provider="OpenAI">
       <div class="model-name">GPT-5</div>
-      <div class="model-desc">OpenAI — Latest flagship</div>
+      <div class="model-desc">Latest flagship</div>
+      <div class="model-provider">via OpenAI</div>
     </div>
-    <div class="model-card">
+    <div class="model-card" data-provider="Google">
       <div class="model-name">Gemini 2.5 Pro</div>
-      <div class="model-desc">Google — Premium reasoning</div>
+      <div class="model-desc">Premium reasoning</div>
+      <div class="model-provider">via Google</div>
     </div>
-    <div class="model-card">
+    <div class="model-card" data-provider="xAI">
       <div class="model-name">Grok 4</div>
-      <div class="model-desc">xAI — Uncensored by design</div>
+      <div class="model-desc">Uncensored by design</div>
+      <div class="model-provider">via xAI</div>
     </div>
-    <div class="model-card">
+    <div class="model-card" data-provider="Moonshot">
       <div class="model-name">Kimi K2.6</div>
-      <div class="model-desc">Moonshot — Balanced</div>
+      <div class="model-desc">Balanced performance</div>
+      <div class="model-provider">via Moonshot</div>
     </div>
-    <div class="model-card">
+    <div class="model-card" data-provider="MiMo">
       <div class="model-name">MiMo 2.5 Pro</div>
-      <div class="model-desc">MiMo — Deep thinking</div>
+      <div class="model-desc">Deep thinking</div>
+      <div class="model-provider">via MiMo</div>
     </div>
-    <div class="model-card">
+    <div class="model-card" data-provider="MiniMax">
       <div class="model-name">MiniMax M3</div>
-      <div class="model-desc">MiniMax — Smartest & Fastest</div>
+      <div class="model-desc">Smartest & Fastest</div>
+      <div class="model-provider">via MiniMax</div>
     </div>
-    <div class="model-card">
+    <div class="model-card" data-provider="OpenRouter">
       <div class="model-name">OpenRouter</div>
       <div class="model-desc">200+ models via one API</div>
+      <div class="model-provider">via OpenRouter</div>
     </div>
-    <div class="model-card">
+    <div class="model-card" data-provider="Local">
       <div class="model-name">Ollama</div>
-      <div class="model-desc">Local — Run on your hardware</div>
+      <div class="model-desc">Run on your hardware</div>
+      <div class="model-provider">Local — no API key needed</div>
     </div>
   </div>
 </section>
 
+<!-- ── Rewards ── -->
+<section class="rewards-section">
+  <h2>Contributor Rewards</h2>
+  <p class="rewards-subtitle">Free forever. Rewarded by impact. Earn points, unlock tiers, get recognized.</p>
+
+  <div class="rewards-tiers">
+    <div class="reward-tier bronze">
+      <div class="tier-badge">🥉</div>
+      <div class="tier-name" style="color: var(--accent);">Bronze</div>
+      <div class="tier-points">25+ points</div>
+      <ul class="tier-perks">
+        <li>Name in CONTRIBUTORS.md</li>
+        <li>Release notes shoutout</li>
+        <li>Bronze badge</li>
+      </ul>
+    </div>
+    <div class="reward-tier silver">
+      <div class="tier-badge">🥈</div>
+      <div class="tier-name" style="color: var(--purple);">Silver</div>
+      <div class="tier-points">100+ points</div>
+      <ul class="tier-perks">
+        <li>All Bronze rewards</li>
+        <li>Priority issue assignment</li>
+        <li>Early access to features</li>
+        <li>Vote on features</li>
+      </ul>
+    </div>
+    <div class="reward-tier gold">
+      <div class="tier-badge">🥇</div>
+      <div class="tier-name" style="color: var(--orange);">Gold</div>
+      <div class="tier-points">500+ points</div>
+      <ul class="tier-perks">
+        <li>All Silver rewards</li>
+        <li>Direct roadmap input</li>
+        <li>Private core chat</li>
+        <li>Co-author credit</li>
+      </ul>
+    </div>
+    <div class="reward-tier diamond">
+      <div class="tier-badge">💎</div>
+      <div class="tier-name" style="color: var(--blue);">Diamond</div>
+      <div class="tier-points">2,000+ points</div>
+      <ul class="tier-perks">
+        <li>All Gold rewards</li>
+        <li>Direct line to maintainer</li>
+        <li>Priority project support</li>
+        <li>Featured on website</li>
+      </ul>
+    </div>
+    <div class="reward-tier legend">
+      <div class="tier-badge">👑</div>
+      <div class="tier-name" style="color: var(--red);">Legend</div>
+      <div class="tier-points">10,000+ points</div>
+      <ul class="tier-perks">
+        <li>All Diamond rewards</li>
+        <li>Maintainer access</li>
+        <li>Co-creator credit</li>
+        <li>Project governance</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="rewards-cta">
+    <p>Every contribution counts — <a href="https://github.com/constanza8999/AIGENEV7---ALL-MODELS-UNLOCKED/blob/main/CONTRIBUTING.md">Read the full guide →</a></p>
+  </div>
+</section>
+
 <footer>
-  <p>Built by <strong>CONSTANZA</strong> — <a href="https://github.com/constanza8999">@constanza8999</a></p>
-  <p><a href="https://github.com/constanza8999/aigenev7.com">AIGENEV7</a> — Free AI for everyone. MIT License.</p>
+  <p>Built by <strong>CONSTANZA</strong> with ❤️ for the community — <a href="https://github.com/constanza8999">@constanza8999</a></p>
+  <p><a href="https://github.com/constanza8999/aigenev7.com">AIGENEV7</a> — Free AI for everyone. Free forever. MIT License.</p>
 </footer>
 
+</div><!-- /page -->
+
 <script>
-  // Terminal typing animation
-  const lines = [
-    { type: 'cmd', text: 'aigenev7 "build a rest api with express"' },
-    { type: 'info', text: '[AIGENEV7] DeepSeek V4 Pro — inferring...' },
-    { type: 'out', text: '✦ Creating project structure...' },
-    { type: 'out', text: '✦ Installing express, cors, helmet...' },
-    { type: 'out', text: '✦ Generated src/index.js, src/routes/, src/middleware/' },
-    { type: 'info', text: '[AIGENEV7] ✓ Done (12.4s, ~1,847 tokens)' },
-    { type: 'prompt', text: '', isLast: true },
+// ───────────────────────────────────────────────────────────────────────────
+// 1. PARTICLES
+// ───────────────────────────────────────────────────────────────────────────
+(function createParticles() {
+  const container = document.getElementById('particles');
+  const isMobile = window.matchMedia('(max-width: 600px)').matches;
+  const count = isMobile ? 15 : 40;
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.animationDuration = (15 + Math.random() * 25) + 's';
+    p.style.animationDelay = (Math.random() * 20) + 's';
+    p.style.width = p.style.height = (1 + Math.random() * 2) + 'px';
+    container.appendChild(p);
+  }
+})();
+
+// ───────────────────────────────────────────────────────────────────────────
+// 2. SUBTITLE TYPING ANIMATION
+// ───────────────────────────────────────────────────────────────────────────
+(function typeSubtitle() {
+  const texts = [
+    'Free AI coding assistant. No subscription. No censorship.',
+    '10 providers. 28 models. One local agent.',
+    'DeepSeek. OpenAI. Anthropic. Gemini. Grok. More.',
+    'Your code stays on your machine. Always.',
+    'Built by CONSTANZA. For everyone.'
+  ];
+  let textIndex = 0;
+  let charIndex = 0;
+  let isDeleting = false;
+  const el = document.getElementById('subtitle-text');
+
+  function type() {
+    const current = texts[textIndex];
+    if (!isDeleting) {
+      el.textContent = current.substring(0, charIndex + 1);
+      charIndex++;
+      if (charIndex === current.length) {
+        setTimeout(() => { isDeleting = true; type(); }, 2500);
+        return;
+      }
+      setTimeout(type, 40 + Math.random() * 30);
+    } else {
+      el.textContent = current.substring(0, charIndex - 1);
+      charIndex--;
+      if (charIndex === 0) {
+        isDeleting = false;
+        textIndex = (textIndex + 1) % texts.length;
+        setTimeout(type, 500);
+        return;
+      }
+      setTimeout(type, 20 + Math.random() * 15);
+    }
+  }
+  setTimeout(type, 1000);
+})();
+
+// ───────────────────────────────────────────────────────────────────────────
+// 3. TERMINAL TYPING ANIMATION
+// ───────────────────────────────────────────────────────────────────────────
+(function terminalAnimation() {
+  const demos = [
+    // Demo 1: Build REST API
+    [
+      { type: 'cmd', text: 'aigenev7 "build a rest api with express"' },
+      { type: 'info', text: '[AIGENEV7] DeepSeek V4 Pro — inferring...' },
+      { type: 'progress', progress: 30 },
+      { type: 'out', text: '✦ Creating project structure...' },
+      { type: 'progress', progress: 60 },
+      { type: 'out', text: '✦ Installing express, cors, helmet...' },
+      { type: 'progress', progress: 85 },
+      { type: 'out', text: '✦ Generated src/index.js, src/routes/, src/middleware/' },
+      { type: 'progress', progress: 100 },
+      { type: 'info', text: '[AIGENEV7] ✓ Done (12.4s, ~1,847 tokens)' },
+      { type: 'prompt' },
+    ],
+    // Demo 2: Refactor code
+    [
+      { type: 'cmd', text: 'aigenev7 "refactor this auth middleware to use JWT"' },
+      { type: 'info', text: '[AIGENEV7] Claude Sonnet 4 — analyzing code...' },
+      { type: 'progress', progress: 25 },
+      { type: 'out', text: '✦ Reading src/middleware/auth.js...' },
+      { type: 'progress', progress: 50 },
+      { type: 'out', text: '✦ Rewriting authentication logic...' },
+      { type: 'progress', progress: 75 },
+      { type: 'out', text: '✦ Added JWT verification, refresh tokens, error handling' },
+      { type: 'progress', progress: 100 },
+      { type: 'info', text: '[AIGENEV7] ✓ Done (18.2s, ~3,201 tokens)' },
+      { type: 'prompt' },
+    ],
+    // Demo 3: Debug
+    [
+      { type: 'cmd', text: 'aigenev7 "find the memory leak in this react app"' },
+      { type: 'info', text: '[AIGENEV7] GPT-5 — tracing execution...' },
+      { type: 'progress', progress: 20 },
+      { type: 'out', text: '✦ Scanning component tree...' },
+      { type: 'progress', progress: 45 },
+      { type: 'error', text: '⚠ Found 3 useEffect missing cleanup functions' },
+      { type: 'progress', progress: 70 },
+      { type: 'out', text: '✦ Auto-fixing useCallback dependencies...' },
+      { type: 'progress', progress: 100 },
+      { type: 'info', text: '[AIGENEV7] ✓ Fixed 3 memory leaks (8.7s, ~1,024 tokens)' },
+      { type: 'prompt' },
+    ],
   ];
 
-  const terminalBody = document.getElementById('terminal-body');
+  let demoIndex = 0;
   let lineIndex = 0;
   let charIndex = 0;
   let currentLineEl = null;
+  let progressFill = null;
+  let running = false;
 
-  function typeNextChar() {
-    if (lineIndex >= lines.length) return;
+  const terminalBody = document.getElementById('terminal-body');
+  const restartBtn = document.getElementById('terminal-restart');
 
-    const line = lines[lineIndex];
+  function runDemo() {
+    running = true;
+    lineIndex = 0;
+    charIndex = 0;
+    currentLineEl = null;
+    terminalBody.innerHTML = '';
+    restartBtn.style.display = 'none';
+    typeNextLine();
+  }
+
+  function typeNextLine() {
+    if (lineIndex >= demos[demoIndex].length) {
+      running = false;
+      restartBtn.style.display = 'block';
+      return;
+    }
+
+    const line = demos[demoIndex][lineIndex];
+
+    if (line.type === 'progress') {
+      // Show or update progress bar
+      if (!progressFill) {
+        const progressLine = document.createElement('div');
+        progressLine.className = 'terminal-line';
+        progressLine.innerHTML = '<span class="dim">[          ]</span>';
+        terminalBody.appendChild(progressLine);
+
+        const progressContainer = document.createElement('div');
+        progressContainer.className = 'terminal-progress';
+        const bar = document.createElement('div');
+        bar.className = 'terminal-progress-bar';
+        const fill = document.createElement('div');
+        fill.className = 'terminal-progress-fill';
+        fill.style.width = '0%';
+        bar.appendChild(fill);
+        progressContainer.appendChild(bar);
+        terminalBody.appendChild(progressContainer);
+        progressFill = fill;
+      }
+
+      progressFill.style.width = line.progress + '%';
+      terminalBody.scrollTop = terminalBody.scrollHeight;
+      lineIndex++;
+      const delay = line.progress === 100 ? 800 : 200 + Math.random() * 300;
+      setTimeout(typeNextLine, delay);
+      return;
+    }
+
+    if (line.type === 'prompt') {
+      const el = document.createElement('div');
+      el.className = 'terminal-line';
+      el.innerHTML = '<span class="prompt">$</span> <span class="cursor-char"></span>';
+      terminalBody.appendChild(el);
+      terminalBody.scrollTop = terminalBody.scrollHeight;
+      lineIndex++;
+      // After showing prompt, advance to next demo
+      setTimeout(() => {
+        demoIndex = (demoIndex + 1) % demos.length;
+        progressFill = null;
+        setTimeout(runDemo, 1500);
+      }, 2000);
+      return;
+    }
 
     if (!currentLineEl) {
       currentLineEl = document.createElement('div');
       currentLineEl.className = 'terminal-line';
-      terminalBody.appendChild(currentLineEl);
-    }
 
-    if (line.type === 'prompt' && line.isLast) {
-      currentLineEl.innerHTML = '<span class="prompt">$</span> <span class="cursor"></span>';
-      lineIndex++;
-      currentLineEl = null;
-      setTimeout(typeNextChar, 2000);
-      return;
-    }
-
-    if (charIndex === 0) {
       if (line.type === 'cmd') {
         currentLineEl.innerHTML = '<span class="prompt">$</span> <span class="output"></span>';
       } else if (line.type === 'info') {
         currentLineEl.innerHTML = '<span class="dim"></span>';
+      } else if (line.type === 'error') {
+        currentLineEl.innerHTML = '<span class="error"></span>';
       } else {
         currentLineEl.innerHTML = '<span class="output"></span>';
       }
+      terminalBody.appendChild(currentLineEl);
       terminalBody.scrollTop = terminalBody.scrollHeight;
     }
 
@@ -491,17 +1348,170 @@
     if (span && charIndex < line.text.length) {
       span.textContent += line.text[charIndex];
       charIndex++;
-      const delay = line.type === 'cmd' ? 30 : 8;
-      setTimeout(typeNextChar, delay);
+      const delay = line.type === 'cmd' ? 25 : 10;
+      setTimeout(typeNextLine, delay);
     } else if (charIndex >= line.text.length) {
       lineIndex++;
       charIndex = 0;
       currentLineEl = null;
-      setTimeout(typeNextChar, 600);
+      setTimeout(typeNextLine, 600);
     }
   }
 
-  setTimeout(typeNextChar, 500);
+  restartBtn.addEventListener('click', () => {
+    demoIndex = (demoIndex + 1) % demos.length;
+    progressFill = null;
+    runDemo();
+  });
+
+  setTimeout(runDemo, 1500);
+})();
+
+// ───────────────────────────────────────────────────────────────────────────
+// 4. SCROLL REVEAL (Intersection Observer)
+// ───────────────────────────────────────────────────────────────────────────
+(function scrollReveal() {
+  const cards = document.querySelectorAll('.feature-card');
+  if (!('IntersectionObserver' in window)) {
+    cards.forEach(c => c.classList.add('visible'));
+    return;
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+  cards.forEach(c => observer.observe(c));
+})();
+
+// ───────────────────────────────────────────────────────────────────────────
+// 5. STAT COUNTER ANIMATION
+// ───────────────────────────────────────────────────────────────────────────
+(function statCounters() {
+  const counters = document.querySelectorAll('.stat-number');
+  const infinities = ['∞'];
+  let animated = false;
+
+  function animateCounters() {
+    if (animated) return;
+    animated = true;
+
+    counters.forEach(counter => {
+      const target = parseInt(counter.getAttribute('data-target'));
+      if (infinities.includes(counter.textContent.trim())) return;
+
+      const duration = 2000;
+      const step = Math.ceil(target / 60);
+      let current = 0;
+
+      const update = setInterval(() => {
+        current += step;
+        if (current >= target) {
+          counter.textContent = target;
+          clearInterval(update);
+        } else {
+          counter.textContent = current;
+        }
+      }, duration / 60);
+    });
+  }
+
+  if ('IntersectionObserver' in window) {
+    const statsSection = document.querySelector('.stats-section');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateCounters();
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.3 });
+    observer.observe(statsSection);
+  } else {
+    animateCounters();
+  }
+})();
+
+// ───────────────────────────────────────────────────────────────────────────
+// 6. MODEL CARD CLICK TO EXPAND
+// ───────────────────────────────────────────────────────────────────────────
+(function modelCards() {
+  const cards = document.querySelectorAll('.model-card');
+  cards.forEach(card => {
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+    card.addEventListener('click', () => {
+      const wasExpanded = card.classList.contains('expanded');
+      cards.forEach(c => c.classList.remove('expanded'));
+      if (!wasExpanded) {
+        card.classList.add('expanded');
+      }
+    });
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        card.click();
+      }
+    });
+  });
+})();
+
+// ───────────────────────────────────────────────────────────────────────────
+// 7. COPY COMMAND
+// ───────────────────────────────────────────────────────────────────────────
+(function copyCommand() {
+  const block = document.getElementById('copy-command');
+  const toast = document.getElementById('toast');
+  let timeout = null;
+
+  block.addEventListener('click', async () => {
+    const text = 'bun freebuff/local-api-server.js && ./aigenev7.exe';
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      // Fallback
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      try {
+        ta.select();
+        document.execCommand('copy');
+      } finally {
+        document.body.removeChild(ta);
+      }
+    }
+
+    block.classList.add('copied');
+    toast.classList.add('show');
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      toast.classList.remove('show');
+      block.classList.remove('copied');
+    }, 2000);
+  });
+})();
+
+// ───────────────────────────────────────────────────────────────────────────
+// 8. SMOOTH SCROLL FOR NAV LINKS
+// ───────────────────────────────────────────────────────────────────────────
+(function smoothScroll() {
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', (e) => {
+      const href = anchor.getAttribute('href');
+      if (href === '#') return;
+      e.preventDefault();
+      const target = document.querySelector(href);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+})();
 </script>
 
 </body>
