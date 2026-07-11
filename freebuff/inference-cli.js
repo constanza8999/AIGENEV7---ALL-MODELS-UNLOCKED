@@ -72,6 +72,52 @@ if (flags.premium_key) {
 
 let premiumStatus = checkPremium()
 
+// ── ANSI color helpers ──
+const C = {
+  reset: '\x1b[0m',
+  green: '\x1b[38;5;83m',
+  cyan: '\x1b[38;5;51m',
+  red: '\x1b[38;5;196m',
+  yellow: '\x1b[38;5;226m',
+  purple: '\x1b[38;5;147m',
+  dim: '\x1b[2m',
+  bold: '\x1b[1m',
+  pink: '\x1b[38;5;213m',
+  orange: '\x1b[38;5;214m',
+}
+function g(t) { return C.green + t + C.reset }
+function c(t) { return C.cyan + t + C.reset }
+function r(t) { return C.red + t + C.reset }
+function y(t) { return C.yellow + t + C.reset }
+function p(t) { return C.purple + t + C.reset }
+function d(t) { return C.dim + t + C.reset }
+function b(t) { return C.bold + t + C.reset }
+
+// ── ASCII Art Banner ──
+function showBanner(title) {
+  const art = [
+    '  ╔══════════════════════════════════════════════╗',
+    '  ║     ' + c('████████╗ ██████╗  ██████╗ ██╗     ███████╗') + '     ║',
+    '  ║     ' + c('╚══██╔══╝██╔═══██╗██╔═══██╗██║     ██╔════╝') + '     ║',
+    '  ║     ' + c('   ██║   ██║   ██║██║   ██║██║     █████╗') + '       ║',
+    '  ║     ' + c('   ██║   ██║   ██║██║   ██║██║     ██╔══╝') + '       ║',
+    '  ║     ' + c('   ██║   ╚██████╔╝╚██████╔╝███████╗███████╗') + '     ║',
+    '  ║     ' + c('   ╚═╝    ╚═════╝  ╚═════╝ ╚══════╝╚══════╝') + '     ║',
+    '  ╚══════════════════════════════════════════════╝',
+  ]
+  // ── Title line ──
+  var premBadge = premiumStatus.isPremium ? ' ' + p('💎') : ''
+  var titleLine = '  ' + b(c('▸ ' + title)) + premBadge
+  var versionLine = '  ' + d('v7.0.0 ─ Free AI Coding Agent') + (premiumStatus.isPremium ? ' ' + p('Premium') : '')
+  console.log()
+  for (var i = 0; i < art.length; i++) console.log(art[i])
+  console.log('  ' + c('┄'.repeat(46)))
+  console.log(titleLine)
+  if (premiumStatus.message) console.log('  ' + d(premiumStatus.message))
+  console.log(versionLine)
+  console.log()
+}
+
 // ── Prompt tone (terminal bell) ──
 function playPromptTone() {
   try { process.stdout.write('\x07') } catch {}
@@ -79,38 +125,32 @@ function playPromptTone() {
 
 // ── Help ──
 function showHelp() {
-  const badge = premiumStatus.isPremium ? ' 💎' : ''
-  console.log(`
-  AIGENEV7 — Free AI Coding Agent v7.0.0${badge}
-  ${premiumStatus.message}
-
-  Usage:
-    bun inference-cli.js <command> [options]
-
-  Commands:
-    ask <prompt>     Send a one-shot prompt (default)
-    chat             Interactive chat session
-    models           List all available models
-    serve            Start the web interface server
-
-  Options:
-    --model, -m <id>         Model ID (default: deepseek-v4-pro)
-    --stream / --no-stream   Enable/disable streaming (default: stream)
-    --max-tokens <n>         Max output tokens (default: Infinity)
-    --temperature <n>        Temperature 0-2 (default: 0.7)
-    --uncensored             Uncensored mode (default: true)
-    --port <n>               Web server port (default: 3456)
-    --premium-key <key>      Premium key (format: ag7_{tier}_{key})
-    --help                   Show this help message
-
-  Examples:
-    bun inference-cli.js "Explain quantum computing"
-    bun inference-cli.js ask "Write a REST API" --model fable-5 --no-stream
-    bun inference-cli.js chat
-    bun inference-cli.js models
-    bun inference-cli.js serve --port 8080
-    bun inference-cli.js chat --premium-key ag7_pro_your_key
-`)
+  showBanner('Help & Usage')
+  console.log('  ' + c('▸') + ' ' + b('Usage:') + '  ' + d('bun inference-cli.js <command> [options]'))
+  console.log()
+  console.log('  ' + c('▸') + ' ' + b('Commands:'))
+  console.log('    ' + g('ask') + ' <prompt>     ' + d('Send a one-shot prompt (default)'))
+  console.log('    ' + g('chat') + '             ' + d('Interactive chat session'))
+  console.log('    ' + g('models') + '           ' + d('List all available models'))
+  console.log('    ' + g('serve') + '            ' + d('Start the web interface server'))
+  console.log()
+  console.log('  ' + c('▸') + ' ' + b('Options:'))
+  console.log('    ' + y('--model') + ', ' + y('-m') + ' <id>         ' + d('Model ID (default: deepseek-v4-pro)'))
+  console.log('    ' + y('--stream') + ' / ' + y('--no-stream') + '   ' + d('Enable/disable streaming (stream)'))
+  console.log('    ' + y('--max-tokens') + ' <n>         ' + d('Max output tokens (default: Infinity)'))
+  console.log('    ' + y('--temperature') + ' <n>        ' + d('Temperature 0-2 (default: 0.7)'))
+  console.log('    ' + y('--port') + ' <n>               ' + d('Web server port (default: 3456)'))
+  console.log('    ' + p('--premium-key') + ' <key>      ' + d('Premium key (format: ag7_{tier}_{key})'))
+  console.log('    ' + y('--help') + '                   ' + d('Show this help message'))
+  console.log()
+  console.log('  ' + c('▸') + ' ' + b('Examples:'))
+  console.log('    ' + d('$') + ' ' + g('bun inference-cli.js') + ' ' + d('"Explain quantum computing"'))
+  console.log('    ' + d('$') + ' ' + g('bun inference-cli.js ask') + ' ' + d('"Write a REST API" --model fable-5'))
+  console.log('    ' + d('$') + ' ' + g('bun inference-cli.js chat'))
+  console.log('    ' + d('$') + ' ' + g('bun inference-cli.js models'))
+  console.log('    ' + d('$') + ' ' + g('bun inference-cli.js serve') + ' ' + y('--port') + ' 8080')
+  console.log('    ' + d('$') + ' ' + g('bun inference-cli.js chat') + ' ' + p('--premium-key') + ' ag7_pro_your_key')
+  console.log()
 }
 
 // ── Models Command ──
@@ -118,25 +158,25 @@ async function listModels() {
   const { MODELS, getModelsByProvider } = await import('./models.js')
   const byProvider = getModelsByProvider()
 
-  console.log('\n  ╔══════════════════════════════════════════════╗')
-  console.log('  ║     AIGENEV7 — Available Models             ║')
-  console.log('  ╚══════════════════════════════════════════════╝\n')
+  showBanner('Available Models')
 
   for (const [provider, models] of Object.entries(byProvider)) {
-    console.log(`  ${provider.charAt(0).toUpperCase() + provider.slice(1)}:`)
+    console.log('  ' + c('▸') + ' ' + b(provider.charAt(0).toUpperCase() + provider.slice(1)))
     for (const m of models) {
-      const tag = m.multimodal ? ' 📷' : ''
-      const keyStatus = process.env[`${provider.toUpperCase()}_API_KEY`] ? '✓' : '○'
-      console.log(`    ${keyStatus} ${m.id.padEnd(28)} ${m.displayName}${tag}`)
-      console.log(`      ${m.description}`)
+      const tag = m.multimodal ? ' ' + c('📷') : ''
+      const premTag = m.premium ? ' ' + p('💎') : ''
+      const keyStatus = process.env[`${provider.toUpperCase()}_API_KEY`] ? g('✓') : d('○')
+      const nameColored = m.premium ? p(m.id.padEnd(30)) : c(m.id.padEnd(30))
+      console.log('    ' + keyStatus + ' ' + nameColored + ' ' + d(m.displayName) + tag + premTag)
+      console.log('      ' + d(m.description))
     }
     console.log()
   }
 
-  const premium = checkPremium()
-  console.log('  ✓ = API key configured   ○ = No key set')
-  if (!premium.isPremium) {
-    console.log('  💎 = Premium models (set AIGENEV7_PREMIUM_KEY to unlock)')
+  const prem = checkPremium()
+  console.log('  ' + g('✓') + ' ' + d('= API key configured') + '   ' + d('○') + ' ' + d('= No key set'))
+  if (!prem.isPremium) {
+    console.log('  ' + p('💎') + ' ' + d('= Premium models (set AIGENEV7_PREMIUM_KEY to unlock)'))
   }
   console.log()
 }
@@ -166,19 +206,20 @@ function printModelPicker(entries, currentId) {
   console.log()
   for (const [provider, models] of Object.entries(byProvider)) {
     const hasAnyKey = models.some((m) => m.hasKey)
-    const keyIcon = hasAnyKey ? '🔑' : '○'
-    console.log(`  ${keyIcon} ${provider.charAt(0).toUpperCase() + provider.slice(1)}`)
+    const keyIcon = hasAnyKey ? c('🔑') : d('○')
+    console.log('  ' + keyIcon + ' ' + b(provider.charAt(0).toUpperCase() + provider.slice(1)))
     for (const e of models) {
-      const tag = e.model.multimodal ? ' 📷' : ''
-      const premiumTag = e.model.premium ? ' 💎' : ''
-      const isCurrent = e.model.id === currentId ? ' →' : ''
+      const tag = e.model.multimodal ? ' ' + c('📷') : ''
+      const premiumTag = e.model.premium ? ' ' + p('💎') : ''
+      const isCurrent = e.model.id === currentId ? ' ' + g('→') : ''
       const padNum = String(e.num).padStart(2, ' ')
-      const keyMark = e.hasKey ? '✓' : ' '
-      console.log(`    [${padNum}] ${keyMark} ${e.model.id.padEnd(26)} ${e.model.displayName}${tag}${premiumTag}${isCurrent}`)
+      const keyMark = e.hasKey ? g('✓') : d(' ')
+      const nameColored = e.model.premium ? p(e.model.id.padEnd(28)) : c(e.model.id.padEnd(28))
+      console.log('    [' + g(padNum) + '] ' + keyMark + ' ' + nameColored + ' ' + d(e.model.displayName) + tag + premiumTag + isCurrent)
     }
     console.log()
   }
-  console.log('  ✓ = API key ready    Enter number to select model')
+  console.log('  ' + g('✓') + ' ' + d('= API key ready    Enter number to select model'))
   console.log()
 }
 
@@ -187,18 +228,16 @@ function printAgentPicker(agents, currentAgentId) {
   console.log()
   for (let i = 0; i < agents.length; i++) {
     const a = agents[i]
-    const isCurrent = a.id === currentAgentId ? ' →' : ''
+    const isCurrent = a.id === currentAgentId ? ' ' + g('→') : ''
     const padNum = String(i + 1).padStart(2, ' ')
-    console.log(`    [${padNum}] ${a.emoji} ${a.name.padEnd(20)} ${a.description}${isCurrent}`)
+    console.log('    [' + g(padNum) + '] ' + a.emoji + ' ' + b(a.name.padEnd(20)) + ' ' + d(a.description) + isCurrent)
   }
   console.log()
 }
 
 // ── Chat Command with Agents ──
 async function chatMode() {
-  console.log('\n  ╔══════════════════════════════════════════════╗')
-  console.log('  ║     AIGENEV7 — Interactive Chat             ║')
-  console.log('  ╚══════════════════════════════════════════════╝')
+  showBanner('Interactive Chat')
 
   const { MODELS } = await import('./models.js')
   const entries = await getNumberedModels()
@@ -220,17 +259,17 @@ async function chatMode() {
     ? (entries.find((e) => !e.model.premium)?.model.id || initialModelId)
     : initialModelId
 
-  // Show agent picker at startup
-  console.log('\n  ── Select an Agent ──')
+  // ── Agent Picker ──
+  console.log('  ' + c('▸') + ' ' + b('Select an Agent'))
   printAgentPicker(allAgents, currentAgent.id)
-  console.log(`  Default: ${currentAgent.emoji} ${currentAgent.name} (press Enter to use this)`)
-  console.log('  Type /agents to re-list, /agent <name or #> to switch')
+  console.log('  ' + d('Default:') + ' ' + currentAgent.emoji + ' ' + b(currentAgent.name) + ' ' + d('(press Enter to use this)'))
+  console.log('  ' + d('Type') + ' ' + y('/agents') + ' ' + d('to re-list,') + ' ' + y('/agent <name or #>') + ' ' + d('to switch'))
   console.log()
 
-  // ── Show model picker ──
-  console.log('  ── Select a Model ──')
+  // ── Model Picker ──
+  console.log('  ' + c('▸') + ' ' + b('Select a Model'))
   printModelPicker(entries, currentModel)
-  console.log(`  Default: ${currentModel} (press Enter to use this)`)
+  console.log('  ' + d('Default:') + ' ' + c(currentModel) + ' ' + d('(press Enter to use this)'))
   console.log()
 
   const rl = createInterface({
@@ -283,19 +322,22 @@ async function chatMode() {
 
   const askQuestion = () => {
     const agentEmoji = currentAgent ? currentAgent.emoji : ''
-    rl.question(`  ${agentEmoji} [${currentModel}] > `, async (input) => {
+    const premTag = hasFeature('premium_models') ? ' ' + p('💎') : ''
+    rl.question('  ' + agentEmoji + ' ' + c('[' + currentModel + ']') + premTag + ' ' + g('>') + ' ', async (input) => {
       const trimmed = input.trim()
 
       // ── Quit ──
       if (trimmed === '/quit' || trimmed === '/exit' || trimmed === '/q') {
-        console.log('\n  Goodbye!')
+        console.log('\n  ' + g('✦') + ' ' + b('Goodbye!') + ' ' + p('✦'))
         rl.close()
         return
       }
 
       // ── Help ──
       if (trimmed === '/help' || trimmed === '/h') {
-        console.log('\n  ── Chat Commands ──')
+        console.log('\n  ' + c('┄').repeat(46))
+        console.log('  ' + b(c('✦ Chat Commands ✦')))
+        console.log('  ' + c('┄').repeat(46))
         console.log('  /quit, /q               Exit chat')
         console.log('  ── Model ──')
         console.log('  /model <id or #>        Switch model (by ID or number)')
@@ -351,7 +393,7 @@ async function chatMode() {
       // ── Clear history ──
       if (trimmed === '/clear') {
         messages.length = 0
-        console.log('  ✓ Conversation history cleared')
+        console.log('  ' + g('✓') + ' ' + d('Conversation history cleared'))
         askQuestion()
         return
       }
