@@ -66,20 +66,54 @@ CODEBUFF_API_KEY=local-dev-key CODEBUFF_APP_URL=http://localhost:3457 ./aigenev7
 
 ## 🤖 Supported Models
 
-| Model | Provider | Best For |
-|-------|----------|----------|
-| Fable 5 | Anthropic | Smartest & multimodal |
-| DeepSeek V4 Pro | DeepSeek | Best overall balance |
-| DeepSeek V4 Flash | DeepSeek | Fastest option |
-| GPT-5 | OpenAI | Latest flagship |
-| Claude Sonnet 4 | Anthropic | Excellent coding |
-| Gemini 2.5 Pro | Google | Strong all-around |
-| Grok 4 | xAI | Uncensored by design |
-| Kimi K2.6 | Moonshot | Long contexts |
-| MiMo 2.5 Pro | MiMo | Deep thinking |
-| MiniMax M3 | MiniMax | Smartest & fastest |
-| OpenRouter | — | 200+ models |
-| Ollama | Local | Run on your hardware |
+### 🟢 Configured & Tested ✅
+
+| Model ID | Model | Provider | Description |
+|----------|-------|----------|-------------|
+| `nvidia-llama-3.1-8b` | Llama 3.1 8B | NVIDIA | ✅ Meta Llama 3.1 8B via NIM |
+| `nvidia-llama-3.1-70b` | Llama 3.1 70B | NVIDIA | ✅ Meta Llama 3.1 70B via NIM |
+| `nvidia-llama-3.1-405b` | Llama 3.1 405B | NVIDIA | ✅ Meta Llama 3.1 405B via NIM |
+| `nvidia-nemotron-4-340b` | Nemotron 4 340B | NVIDIA | ✅ NVIDIA Nemotron via NIM |
+| `nvidia-mistral-large` | Mistral Large | NVIDIA | ✅ Mistral Large via NIM |
+| `deepseek-v4-pro` | DeepSeek V4 Pro | DeepSeek | ✅ Smartest general reasoning |
+| `deepseek-v4-flash` | DeepSeek V4 Flash | DeepSeek | ✅ Smart & Fast |
+| `deepseek-chat` | DeepSeek Chat | DeepSeek | ✅ General purpose |
+| `deepseek-reasoner` | DeepSeek Reasoner | DeepSeek | ✅ Chain-of-thought reasoning |
+| `fable-5` | Fable 5 | Anthropic | ✅ Smartest & Multimodal |
+| `claude-sonnet-4` | Claude Sonnet 4 | Anthropic | ✅ Premium reasoning |
+| `claude-opus-4` | Claude Opus 4.1 | Anthropic | ✅ Maximum intelligence |
+| `claude-sonnet-4.5` | Claude Sonnet 4.5 | Anthropic | ✅ Balanced power & speed |
+| `claude-haiku-3.5` | Claude 3.5 Haiku | Anthropic | ✅ Fast & affordable |
+| `gemini-2.5-pro` | Gemini 2.5 Pro | Google | ✅ Google flagship reasoning |
+| `gemini-2.5-flash` | Gemini 2.5 Flash | Google | ✅ Fast Google AI |
+| `gpt-5` | GPT-5 | OpenAI ¹ | ✅ Latest flagship |
+| `gpt-4.1` | GPT-4.1 | OpenAI ¹ | ✅ Strong general reasoning |
+| `gpt-4o` | GPT-4o | OpenAI ¹ | ✅ Omni modal |
+| `gpt-4o-mini` | GPT-4o Mini | OpenAI ¹ | ✅ Fast & cheap |
+| `o3` | O3 | OpenAI ¹ | ✅ Deep reasoning |
+| `o3-mini` | O3 Mini | OpenAI ¹ | ✅ Fast reasoning |
+| `o4-mini` | O4 Mini | OpenAI ¹ | ✅ Multimodal reasoning |
+| `o3-pro` | O3 Pro | OpenAI ¹ | ✅ Maximum reasoning |
+| `openrouter-claude-sonnet-4.5` | OR Claude Sonnet 4.5 | OpenRouter | ✅ Sonnet 4.5 via OR |
+| `openrouter-gpt-5` | OR GPT-5 | OpenRouter | ✅ GPT-5 via OR |
+| `openrouter-gemini-2.5-pro` | OR Gemini 2.5 Pro | OpenRouter | ✅ Gemini 2.5 Pro via OR |
+
+> ¹ OpenAI models are routed through **OpenRouter** using the OpenRouter API key.
+
+### ⏳ Need API Key
+
+| Model ID | Model | Provider | Description |
+|----------|-------|----------|-------------|
+| `grok-4` | Grok 4 | xAI | ⏳ xAI flagship — needs `XAI_API_KEY` |
+| `kimi-k2.6` | Kimi K2.6 | Moonshot | ⏳ Balanced general purpose — needs `MOONSHOT_API_KEY` |
+| `mimo-v2.5-pro` | MiMo 2.5 Pro | MiMo | ⏳ Deep thinking — needs `MIMO_API_KEY` |
+| `mimo-v2.5` | MiMo 2.5 | MiMo | ⏳ Multimodal — needs `MIMO_API_KEY` |
+| `minimax-m3` | MiniMax M3 | MiniMax | ⏳ Smartest & fastest — needs `MINIMAX_API_KEY` |
+| `minimax-m2.7` | MiniMax M2.7 | MiniMax | ⏳ Fast legacy — needs `MINIMAX_API_KEY` |
+
+**Total: 33 models — 27 configured ✅ · 6 need keys ⏳**
+
+To enable all models, add the corresponding API key to your `.env` file (see [Configuration](#%EF%B8%8F-configuration) below).
 
 ---
 
