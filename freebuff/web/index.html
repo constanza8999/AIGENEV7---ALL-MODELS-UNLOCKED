@@ -425,6 +425,38 @@
 <section class="premium-section">
   <p class="premium-subtitle">Unlock advanced CLI features. All payments go directly to the developer. No recurring subscriptions required.</p>
   <div class="premium-grid" id="premiumGrid"></div>
+
+  <div class="keygen-box" style="margin-top:2rem">
+    <div class="keygen-header">🔑 Generate Your Premium Key</div>
+    <p class="keygen-desc">Select your tier, generate a sample key, and copy the CLI command. After payment you'll receive your real key.</p>
+    <div class="keygen-controls">
+      <label for="keygenTierMain">Tier:</label>
+      <select id="keygenTierMain" class="keygen-select">
+        <option value="pro">⭐ Pro</option>
+        <option value="elite">💎 Elite</option>
+        <option value="enterprise">🏢 Enterprise</option>
+      </select>
+      <button class="keygen-generate-btn" id="keygenGenerateMain">⟳ Generate</button>
+    </div>
+    <div class="keygen-display">
+      <div class="keygen-label">Your Premium Key</div>
+      <div class="keygen-key-row">
+        <code class="keygen-key" id="keygenKeyMain">ag7_pro_x8m2k9p4v3q1w6n5</code>
+        <button class="keygen-copy-btn" id="keygenCopyKeyMain" title="Copy key">📋 Copy</button>
+      </div>
+    </div>
+    <div class="keygen-display">
+      <div class="keygen-label">CLI Command</div>
+      <div class="keygen-key-row">
+        <code class="keygen-key keygen-cmd" id="keygenCmdMain">bun run inference-cli.js chat --premium-key ag7_pro_x8m2k9p4v3q1w6n5</code>
+        <button class="keygen-copy-btn" id="keygenCopyCmdMain" title="Copy command">📋 Copy</button>
+      </div>
+    </div>
+    <div class="keygen-note">
+      💡 After paying via the methods below, you'll receive your real <code>ag7_xxx</code> key by email.
+      Use it with <code>--premium-key</code> or <code>AIGENEV7_PREMIUM_KEY</code>.
+    </div>
+  </div>
 </section>
 
 <!-- ── Payment Methods Divider ── -->
@@ -712,6 +744,61 @@
 
     grid.appendChild(card)
   }
+})()
+</script>
+
+<!-- ── Premium Key Generator JS (main site) ── -->
+<script>
+(function() {
+  'use strict'
+  var tierSelect = document.getElementById('keygenTierMain')
+  var generateBtn = document.getElementById('keygenGenerateMain')
+  var keyEl = document.getElementById('keygenKeyMain')
+  var cmdEl = document.getElementById('keygenCmdMain')
+  var copyKeyBtn = document.getElementById('keygenCopyKeyMain')
+  var copyCmdBtn = document.getElementById('keygenCopyCmdMain')
+  if (!tierSelect || !keyEl || !cmdEl) return
+
+  function generateKey() {
+    var tier = tierSelect.value
+    var chars = '0123456789abcdefghijklmnopqrstuvwxyz'
+    var rand = ''
+    for (var i = 0; i < 16; i++) {
+      rand += chars.charAt(Math.floor(Math.random() * chars.length))
+    }
+    var key = 'ag7_' + tier + '_' + rand
+    keyEl.textContent = key
+    cmdEl.textContent = 'bun run inference-cli.js chat --premium-key ' + key
+  }
+
+  function copyToClipboard(el, btn) {
+    var text = el.textContent
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function() {
+        btn.textContent = '✓ Copied!'
+        btn.classList.add('copied')
+        setTimeout(function() {
+          btn.textContent = '📋 Copy'
+          btn.classList.remove('copied')
+        }, 2000)
+      }).catch(function() { fallbackCopy(text, btn) })
+    } else { fallbackCopy(text, btn) }
+  }
+
+  function fallbackCopy(text, btn) {
+    var ta = document.createElement('textarea')
+    ta.value = text
+    ta.style.position = 'fixed'; ta.style.opacity = '0'
+    document.body.appendChild(ta); ta.select()
+    try { document.execCommand('copy'); btn.textContent = '✓ Copied!'; btn.classList.add('copied'); setTimeout(function(){ btn.textContent = '📋 Copy'; btn.classList.remove('copied') }, 2000) } catch(e) {}
+    document.body.removeChild(ta)
+  }
+
+  generateBtn.addEventListener('click', generateKey)
+  tierSelect.addEventListener('change', generateKey)
+  copyKeyBtn.addEventListener('click', function() { copyToClipboard(keyEl, copyKeyBtn) })
+  copyCmdBtn.addEventListener('click', function() { copyToClipboard(cmdEl, copyCmdBtn) })
+  generateKey()
 })()
 </script>
 
