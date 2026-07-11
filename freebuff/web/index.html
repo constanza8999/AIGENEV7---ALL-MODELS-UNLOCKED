@@ -22,6 +22,8 @@
   <script src="js/quantum.js"></script>
   <!-- Agent gallery -->
   <script src="js/gallery.js" defer></script>
+  <!-- Store (aigen7ev.store) -->
+  <script src="js/store.js" defer></script>
   <!-- Animations & UI effects -->
   <script src="js/animations.js" defer></script>
   <!-- Agent chat -->
@@ -48,6 +50,7 @@
     <a href="#features">Features</a>
     <a href="#models">Models</a>
     <a href="#pricing">Pricing</a>
+    <a href="#store">Store</a>
     <a href="#gallery">Gallery</a>
     <a href="#quantum">Quantum</a>
     <a href="#chat">Chat</a>
@@ -273,6 +276,56 @@
 
   <div class="pricing-grid" id="pricingGrid"></div>
 </section>
+
+<!-- ── Store Divider ── -->
+<div class="chat-divider" id="store"><span>🛒 aigen7ev.store 🛒</span></div>
+
+<!-- ── Store Section ── -->
+<section class="store-section" id="storeSection">
+  <div class="store-header-bar">
+    <div class="store-domain">
+      <a href="https://aigen7ev.store" target="_blank">aigen7ev.store</a>
+      — AI store for developers
+    </div>
+    <div class="store-cart-icon" id="cartIcon" title="Open Cart">
+      🛒
+      <span class="store-cart-count" id="cartCount">0</span>
+    </div>
+  </div>
+
+  <!-- Category Tabs -->
+  <div class="store-categories" id="storeCategories"></div>
+
+  <!-- Product Grid -->
+  <div class="store-grid" id="storeGrid"></div>
+</section>
+
+<!-- ── Cart Overlay ── -->
+<div class="cart-overlay" id="cartOverlay"></div>
+
+<!-- ── Cart Sidebar ── -->
+<div class="cart-sidebar" id="cartSidebar">
+  <div class="cart-header">
+    <h3>🛒 Your Cart</h3>
+    <div style="display:flex;gap:0.5rem;align-items:center;">
+      <button class="cart-clear" id="cartClear" title="Remove all items">Clear</button>
+      <button class="cart-close" id="cartClose" title="Close">✕</button>
+    </div>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <div class="cart-empty">Your cart is empty.</div>
+  </div>
+  <div class="cart-footer">
+    <div class="cart-total-row">
+      <span class="cart-total-label">Total</span>
+      <span class="cart-total" id="cartTotal">$0.00</span>
+    </div>
+    <button class="cart-checkout-btn" id="checkoutBtn" disabled>
+      <span class="lock-icon">🔒</span> Proceed to Checkout
+    </button>
+    <div class="cart-powered">Secured by <strong>Stripe</strong> — Payments handled on checkout page</div>
+  </div>
+</div>
 
 <!-- ── Gallery Divider ── -->
 <div class="chat-divider" id="gallery"><span>✦ Agent Gallery ✦</span></div>
