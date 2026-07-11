@@ -417,6 +417,15 @@
   </div>
 </section>
 
+<!-- ── Premium CLI Plans Divider ── -->
+<div class="chat-divider" id="premium"><span>✦ Premium CLI Plans ✦</span></div>
+
+<!-- ── Premium CLI Plans Section ── -->
+<section class="premium-section">
+  <p class="premium-subtitle">Unlock advanced CLI features. All payments go directly to the developer. No recurring subscriptions required.</p>
+  <div class="premium-grid" id="premiumGrid"></div>
+</section>
+
 <!-- ── Payment Methods Divider ── -->
 <div class="chat-divider" id="payment"><span>✦ Payment Methods ✦</span></div>
 
@@ -629,6 +638,79 @@
       if (darkIcon) darkIcon.style.display = 'inline'
     }
   })
+})()
+</script>
+
+<!-- ── Premium CLI Plans JS ── -->
+<script>
+(function() {
+  'use strict'
+  var tiers = window.AIGENEV7_PREMIUM_TIERS || []
+  var grid = document.getElementById('premiumGrid')
+  if (!grid || tiers.length === 0) return
+
+  for (var i = 0; i < tiers.length; i++) {
+    var t = tiers[i]
+    var card = document.createElement('div')
+    card.className = 'premium-card'
+    if (t.id === 'pro') card.classList.add('premium-popular')
+    card.style.animationDelay = (i * 0.08) + 's'
+
+    // Badge
+    if (t.badge) {
+      var badge = document.createElement('div')
+      badge.className = 'premium-badge'
+      badge.textContent = t.badge
+      card.appendChild(badge)
+    }
+
+    // Emoji
+    var emoji = document.createElement('div')
+    emoji.className = 'premium-card-emoji'
+    emoji.textContent = t.emoji
+    card.appendChild(emoji)
+
+    // Name
+    var name = document.createElement('div')
+    name.className = 'premium-card-name'
+    name.style.color = t.color
+    name.textContent = t.name
+    card.appendChild(name)
+
+    // Price
+    var price = document.createElement('div')
+    price.className = 'premium-card-price'
+    price.textContent = t.price
+    card.appendChild(price)
+
+    // Description
+    var desc = document.createElement('div')
+    desc.className = 'premium-card-desc'
+    desc.textContent = t.description
+    card.appendChild(desc)
+
+    // Features
+    var ul = document.createElement('ul')
+    ul.className = 'premium-features'
+    for (var f = 0; f < t.features.length; f++) {
+      var li = document.createElement('li')
+      li.textContent = t.features[f]
+      ul.appendChild(li)
+    }
+    card.appendChild(ul)
+
+    // CTA
+    var cta = document.createElement('a')
+    cta.className = 'premium-cta'
+    cta.href = t.ctaLink
+    if (t.id === 'free') {
+      cta.className = 'premium-cta premium-cta-free'
+    }
+    cta.textContent = t.cta
+    card.appendChild(cta)
+
+    grid.appendChild(card)
+  }
 })()
 </script>
 

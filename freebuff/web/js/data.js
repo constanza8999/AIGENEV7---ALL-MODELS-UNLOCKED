@@ -508,6 +508,85 @@ window.AIGENEV7_STORE_CATEGORIES = {
   services: { label: 'Consulting', emoji: '🤝', desc: 'Expert developer services' },
 }
 
+// ── CLI Premium Tiers ───────────────────────────────────────────────────
+// Maps directly to the premium.js license tiers (pro, elite, enterprise)
+// Shown on the main site so users understand what each tier unlocks.
+
+window.AIGENEV7_PREMIUM_TIERS = [
+  {
+    id: 'free',
+    name: 'Free',
+    emoji: '🆓',
+    color: 'var(--text-dim)',
+    price: '$0',
+    description: 'Full-featured CLI with all core capabilities.',
+    features: [
+      'All 30+ models (standard access)',
+      'Unlimited chat & prompting',
+      'Agent system (create/edit/delete)',
+      'Console export of agents',
+      'Inline JSON agent import',
+      'Quantum circuit demos',
+      'All 16 agent personas',
+      'Unlimited token usage',
+    ],
+    cta: 'Start Free',
+    ctaLink: '#chat',
+  },
+  {
+    id: 'pro',
+    name: 'Pro',
+    emoji: '⭐',
+    color: 'var(--accent)',
+    price: 'Pay what you want',
+    description: 'Unlock file-based workflows and custom quantum circuits.',
+    badge: 'Most Popular',
+    features: [
+      'Everything in Free',
+      'Export agents to JSON file',
+      'Import agents from JSON file',
+      'Custom quantum circuits (unlimited shots)',
+      'Priority queue',
+    ],
+    cta: 'Get Pro',
+    ctaLink: '#payment',
+  },
+  {
+    id: 'elite',
+    name: 'Elite',
+    emoji: '💎',
+    color: 'var(--purple)',
+    price: 'Pay what you want',
+    description: 'Access premium AI models and full API.',
+    badge: 'Best Value',
+    features: [
+      'Everything in Pro',
+      'Premium model access (GPT-4.1, Claude Opus 4, O3 Pro, Grok 4)',
+      'Full API access via local server',
+      'VIP support',
+    ],
+    cta: 'Get Elite',
+    ctaLink: '#payment',
+  },
+  {
+    id: 'enterprise',
+    name: 'Enterprise',
+    emoji: '🏢',
+    color: 'var(--red)',
+    price: 'Custom',
+    description: 'Batch processing, multi-file inference, and priority everything.',
+    features: [
+      'Everything in Elite',
+      'Batch inference (multi-file processing)',
+      'Dedicated support channel',
+      'Custom feature requests',
+      'Project governance',
+    ],
+    cta: 'Contact',
+    ctaLink: '#payment',
+  },
+]
+
 // ── Accepted Payment Methods ────────────────────────────────────────────
 // Shown on the site so customers know how to pay.
 
