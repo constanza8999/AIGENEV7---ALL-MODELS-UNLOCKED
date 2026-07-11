@@ -630,10 +630,13 @@ section { scroll-margin-top: 80px; }
   height: 2px; background: linear-gradient(90deg, var(--accent), var(--purple));
   opacity: 0; transition: opacity 0.3s;
 }
-.gallery-card:hover::after { opacity: 1; }
-.gallery-card:hover {
-  border-color: transparent; transform: translateY(-3px);
-  box-shadow: 0 12px 35px rgba(0,0,0,0.3);
+.gallery-card:hover::after { opacity: 1; }.gallery-card:hover {
+    border-color: transparent; transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(0,0,0,0.3);
+}
+.gallery-card.gallery-active {
+  border-color: var(--accent);
+  box-shadow: 0 0 15px var(--accent-glow), 0 0 30px rgba(0, 255, 136, 0.05);
 }
 
 .gallery-card-header {
