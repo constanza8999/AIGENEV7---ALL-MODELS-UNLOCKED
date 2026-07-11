@@ -249,6 +249,13 @@ We take security seriously. See our **[Security Policy](./SECURITY.md)** for vul
 
 MIT License — see [LICENSE](LICENSE) for details.
 
+This software is registered with **FairRegister**:
+
+[![FairRegister](https://img.shields.io/badge/FairRegister-RC--FAREG--2892484475--2-00ff88?style=flat-square)](https://fairregister.net/works/RC-FAREG-2892484475-2)
+
+> 📜 Registration ID: **RC-FAREG-2892484475-2**  
+> 🔗 [View registration →](https://fairregister.net/works/RC-FAREG-2892484475-2)
+
 ---
 
 <div align="center">
