@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>aigen7ev.store — AI Developer Store</title>
+  <meta name="description" content="AI subscription plans, agent persona packs, digital downloads, merch, and consulting services for developers.">
+  <meta name="theme-color" content="#0a0a0f">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+  <link rel="icon" type="image/png" sizes="48x48" href="../icon.png">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ── Background ── -->
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+
+<div class="page">
+
+<!-- ── Header ── -->
+<header>
+  <a href="/" class="logo">
+    <span class="logo-icon">🛒</span> aigen7ev
+    <span class="logo-domain">.store</span>
+  </a>
+  <nav>
+    <a href="#products">Products</a>
+    <a href="#subscriptions">Subscriptions</a>
+    <a href="#packs">Agent Packs</a>
+    <a href="#digital">Digital</a>
+    <a href="#merch">Merch</a>
+    <a href="#services">Services</a>
+  </nav>
+  <div class="header-actions">
+    <div class="header-cart-icon" id="cartIcon" title="Open Cart">
+      🛒
+      <span class="header-cart-count" id="cartCount">0</span>
+    </div>
+  </div>
+</header>
+
+<!-- ── Hero ── -->
+<section class="hero">
+  <div class="brand-strip">
+    <a href="https://aigenev7.ai">aigenev7.ai</a>
+    <span class="sep">✦</span>
+    <span>by CONSTANZA</span>
+    <span class="sep">✦</span>
+    <span>AI for developers</span>
+  </div>
+
+  <h1>
+    <span class="gradient-text">The AI Developer Store</span>
+  </h1>
+  <p class="hero-subtitle">
+    Subscriptions, agent packs, digital downloads, merch, and consulting services —
+    everything you need to build with AI, from the team behind AIGENEV7.
+  </p>
+
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-value">20+</div>
+      <div class="hero-stat-label">Products</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-value">4</div>
+      <div class="hero-stat-label">Subscription Tiers</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-value">5</div>
+      <div class="hero-stat-label">Categories</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-value">🔒</div>
+      <div class="hero-stat-label">Stripe Secure</div>
+    </div>
+  </div>
+
+  <div class="hero-cta-group">
+    <a href="#products" class="hero-cta primary">Browse Products ↓</a>
+    <a href="https://github.com/constanza8999" target="_blank" class="hero-cta secondary">GitHub →</a>
+  </div>
+</section>
+
+<!-- ── Features Bar ── -->
+<div class="features-bar">
+  <span class="feature-pill">🔒 Stripe Secure Checkout</span>
+  <span class="feature-pill">⚡ Instant Digital Delivery</span>
+  <span class="feature-pill">♻️ Cancel Anytime</span>
+  <span class="feature-pill">💎 Premium Quality</span>
+  <span class="feature-pill">🤝 Support Included</span>
+</div>
+
+<!-- ── Scroll Anchor IDs for Nav ── -->
+<div id="subscriptions" style="scroll-margin-top:80px"></div>
+<div id="packs" style="scroll-margin-top:80px"></div>
+<div id="digital" style="scroll-margin-top:80px"></div>
+<div id="merch" style="scroll-margin-top:80px"></div>
+<div id="services" style="scroll-margin-top:80px"></div>
+
+<!-- ── Products Section ── -->
+<div class="section-divider" id="products"><span>🛍️ Products</span></div>
+
+<section class="store-section">
+  <!-- Category Tabs -->
+  <div class="category-bar" id="categoryBar"></div>
+
+  <!-- Product Grid -->
+  <div class="product-grid" id="productGrid"></div>
+</section>
+
+<!-- ── Newsletter / CTA ── -->
+<div class="section-divider"><span>📬 Stay Updated</span></div>
+
+<section style="max-width:600px;margin:0 auto 4rem;padding:0 2rem;text-align:center;">
+  <p style="color:var(--text-dim);font-size:0.9rem;margin-bottom:1.5rem;line-height:1.6;">
+    Follow the project for new products, discounts, and early access to agent packs and digital downloads.
+  </p>
+  <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+    <a href="https://github.com/constanza8999" target="_blank" class="hero-cta secondary" style="font-size:0.85rem;padding:0.7rem 1.5rem;">⭐ Star on GitHub</a>
+    <a href="https://aigenev7.ai" target="_blank" class="hero-cta secondary" style="font-size:0.85rem;padding:0.7rem 1.5rem;">🌐 AIGENEV7 Site</a>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer>
+  <div class="footer-brand">🛒 aigen7ev.store</div>
+  <div class="footer-links">
+    <a href="https://aigenev7.ai">AIGENEV7</a>
+    <a href="https://github.com/constanza8999">GitHub</a>
+    <a href="https://github.com/constanza8999/AIGENEV7---ALL-MODELS-UNLOCKED">Source Code</a>
+  </div>
+  <p>
+    Built by <strong>CONSTANZA</strong> — <a href="https://github.com/constanza8999">@constanza8999</a><br>
+    Payments powered by <strong>Stripe</strong>. All transactions secure and encrypted.
+  </p>
+  <p style="margin-top:0.5rem;font-size:0.72rem;color:var(--text-muted);">
+    © 2026 AIGENEV7. MIT License.
+  </p>
+</footer>
+
+</div>
+
+<!-- ── Cart Overlay ── -->
+<div class="cart-overlay" id="cartOverlay"></div>
+
+<!-- ── Cart Sidebar ── -->
+<div class="cart-sidebar" id="cartSide">
+  <div class="cart-header">
+    <div class="cart-header-left">
+      <h3>🛒 Your Cart</h3>
+      <button class="cart-clear" id="cartClear">Clear</button>
+    </div>
+    <button class="cart-close" id="cartClose">✕</button>
+  </div>
+
+  <div class="cart-items" id="cartItems">
+    <div class="cart-empty">Your cart is empty. Browse the store and add items!</div>
+  </div>
+
+  <div class="cart-footer">
+    <div class="cart-total-row">
+      <span class="cart-total-label">Total</span>
+      <span class="cart-total" id="cartTotal">$0.00</span>
+    </div>
+    <button class="cart-checkout-btn" id="checkoutBtn" disabled>
+      <span style="font-size:0.85rem;">🔒</span> Proceed to Checkout
+    </button>
+    <div class="cart-secure-badge">
+      🔒 Secured by <strong>Stripe</strong> — Your payment info never touches our servers
+    </div>
+  </div>
+</div>
+
+<!-- ── Scripts ── -->
+<script src="js/store.js"></script>
+
+</body>
+</html>
