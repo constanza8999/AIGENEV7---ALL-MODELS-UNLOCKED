@@ -272,6 +272,12 @@ async function chatMode() {
   console.log('  ' + d('Default:') + ' ' + c(currentModel) + ' ' + d('(press Enter to use this)'))
   console.log()
 
+  // ── Non-premium: show keygen hint ──
+  if (!hasFeature('premium_models')) {
+    console.log('  ' + p('💎') + ' ' + d('Tip: type') + ' ' + y('/keygen') + ' ' + d('to generate a premium key and unlock elite models'))
+    console.log()
+  }
+
   const rl = createInterface({
     input: process.stdin,
     output: process.stdout,
