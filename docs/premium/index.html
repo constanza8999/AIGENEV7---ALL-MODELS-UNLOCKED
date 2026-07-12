@@ -116,9 +116,9 @@
       <div class="keygen-controls">
         <label for="keygenTier">Tier:</label>
         <select id="keygenTier" class="keygen-select">
-          <option value="pro">⭐ Pro</option>
-          <option value="elite">💎 Elite</option>
-          <option value="enterprise">🏢 Enterprise</option>
+        <option value="pro">⭐ Pro — $5/mo</option>
+        <option value="elite">💎 Elite — $15/mo</option>
+        <option value="enterprise">🏢 Enterprise — $35/mo</option>
         </select>
         <button class="keygen-generate-btn" id="keygenGenerate">⟳ Generate</button>
       </div>
@@ -224,7 +224,7 @@
     var t = tiers[i]
     var card = document.createElement('div')
     card.className = 'tier-card'
-    if (t.id === 'pro') card.classList.add('tier-popular')
+    if (t.badge === 'Most Popular') card.classList.add('tier-popular')
     card.style.animationDelay = (i * 0.1) + 's'
 
     // Badge

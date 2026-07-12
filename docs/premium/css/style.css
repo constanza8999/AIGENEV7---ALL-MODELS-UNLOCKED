@@ -517,9 +517,9 @@ header nav a.premium-nav-link:hover {
   display: block; text-align: center; text-decoration: none;
   padding: 0.55rem 1rem; border-radius: var(--radius-xs);
   font-family: var(--font-sans); font-size: 0.82rem; font-weight: 700;
-  border: 1px solid #0070ba; color: #0070ba;
+  border: 1px solid #0070ba; color: #fff;
   background: linear-gradient(135deg, #0070ba, #003087);
-  color: #fff; transition: all 0.2s;
+  transition: all 0.2s;
 }
 .tier-cta-paypal:hover {
   box-shadow: 0 4px 20px rgba(0, 112, 186, 0.3);
@@ -593,20 +593,6 @@ footer a:hover { color: var(--accent-dim); text-decoration: underline; }
   box-shadow: 0 0 15px var(--accent-glow); transform: translateY(-2px);
 }
 .proof-badge span { font-size: 0.85rem; }
-
-/* ── Accessibility: Reduced Motion ── */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-  html { scroll-behavior: auto; }
-  .locked-bar-icon { animation: none; box-shadow: 0 0 20px rgba(255, 68, 102, 0.1); }
-  .bg-glow { animation: none; opacity: 0.4; }
-  .hero, .tier-card, .step, .payment-card, .cmd-row { animation: none; }
-  .crypto-modal-inner { animation: none; }
-}
 
 /* ── Accessibility: Reduced Motion ── */
 @media (prefers-reduced-motion: reduce) {
