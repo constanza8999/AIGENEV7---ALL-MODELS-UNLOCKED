@@ -47,16 +47,17 @@ jobs:
           git config user.name "AIGENEV7 Wiki Bot"
           git config user.email "aigenev7-wiki[bot]@users.noreply.github.com"
 
-          # Determine auth token (use WIKI_PAT secret or fall back to GITHUB_TOKEN)
-          if [ -n "$WIKI_PAT" ]; then
-            AUTH_TOKEN="$WIKI_PAT"
-          else
-            AUTH_TOKEN="${{ github.token }}"
+          # Validate WIKI_PAT is set
+          if [ -z "$WIKI_PAT" ]; then
+            echo "❌ WIKI_PAT secret is not set!"
+            echo "   Please add a Personal Access Token (repo scope) as WIKI_PAT"
+            echo "   Settings → Secrets and variables → Actions → New repository secret"
+            exit 1
           fi
 
           REPO_OWNER="${{ github.repository_owner }}"
           REPO_NAME="${{ github.event.repository.name }}"
-          WIKI_URL="https://${AUTH_TOKEN}@github.com/${REPO_OWNER}/${REPO_NAME}.wiki.git"
+          WIKI_URL="https://${WIKI_PAT}@github.com/${REPO_OWNER}/${REPO_NAME}.wiki.git"
 
           echo "📦 Cloning wiki repository..."
           git clone "$WIKI_URL" /tmp/wiki-repo || {
@@ -84,7 +85,7 @@ jobs:
             exit 0
           fi
 
-          git commit -m "📚 Auto-sync wiki from main (commit ${GITHUB_SHA::7})"
+          git commit -m "📚 Auto-sync wiki from main (commit ${{ github.sha }})"
 
           echo "🚀 Pushing to wiki..."
           git push origin master
