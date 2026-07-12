@@ -3,11 +3,11 @@
 /**
  * FreeAI build wrapper.
  *
- * Builds the FreeAI binary using OpenClaude as the runtime engine, with
+ * Builds the FreeAI binary using AIGENEV7 as the runtime engine, with
  * `FREEBUFF_MODE=true` set at compile time. Produces TWO artifacts, in
  * DIFFERENT directories (so the engine's distributable dir stays pristine):
  *
- *   1. <OPENCLAUDE_DIR>/dist/cli.mjs  - the bundled ESM (the engine's own
+ *   1. <AIGENEV7_DIR>/dist/cli.mjs  - the bundled ESM (the engine's own
  *                                       `scripts/build.ts` writes it there;
  *                                       this wrapper does not move it).
  *   2. <repoRoot>/dist/<exeName>      - a native executable produced via
@@ -33,7 +33,7 @@
  *                                       Every other provider works. See
  *                                       `stubProblemImportsInBundle` below.
  *
- * The FreeAI binary is a rebranded OpenClaude: same multi-provider CLI (OpenAI,
+ * The FreeAI binary is a rebranded AIGENEV7: same multi-provider CLI (OpenAI,
  * Gemini, DeepSeek, Ollama, 200+ models), but the CLI name, terminal title,
  * brand constants, and developer attribution switch to "FreeAI"/"freeai" with
  * "developed by CONSTANZA (José Jaime Juliá)" in --help.
@@ -43,7 +43,7 @@
  *   bun freeai/cli/build-freeai.ts [version] --no-exe   # skip the exe step
  *
  * Env overrides:
- *   OPENCLAUDE_DIR    - path to the openclaude checkout (default: sibling at
+ *   AIGENEV7_DIR    - path to the aigenev7 checkout (default: sibling at
  *                       the user's Desktop)
  *   FREEAI_TARGET     - bun compile target (default: auto-detected from
  *                       process.platform/process.arch, e.g. bun-windows-x64)
@@ -62,7 +62,7 @@ import { fileURLToPath } from 'url'
 // Resolve the script's own location AND its parent (freeai/) as absolute
 // paths. Using `join(__dirname, '..', '..')` earlier produced a relative
 // path that depended on the spawning process's cwd, which silently broke
-// `freeaiDistDir` (the new code) and the openclaude lookup (worked by
+// `freeaiDistDir` (the new code) and the aigenev7 lookup (worked by
 // accident). `resolve()` makes both absolute and cwd-independent.
 const __dirname = resolve(dirname(fileURLToPath(import.meta.url)))
 const repoRoot = resolve(__dirname, '..') // freeai/ (parent of cli/)
@@ -73,41 +73,41 @@ const positional = args.filter((a) => !a.startsWith('--'))
 const version = positional[0] ?? '0.0.0-dev'
 
 // ---------------------------------------------------------------------------
-// 1. Resolve OpenClaude engine location
+// 1. Resolve AIGENEV7 engine location
 // ---------------------------------------------------------------------------
 
-const openclaudeDir = process.env.OPENCLAUDE_DIR
-  ? resolve(process.env.OPENCLAUDE_DIR)
-  : resolve(repoRoot, '..', '..', '..', 'openclaude-0.22.0')
+const aigenev7Dir = process.env.AIGENEV7_DIR
+  ? resolve(process.env.AIGENEV7_DIR)
+  : resolve(repoRoot, '..', '..', '..', 'aigenev7-0.22.0')
 
-if (!existsSync(openclaudeDir)) {
+if (!existsSync(aigenev7Dir)) {
   console.error(
-    `❌ OpenClaude engine not found at ${openclaudeDir}\n` +
-      `   Set OPENCLAUDE_DIR to the path of an openclaude checkout, or place\n` +
-      `   it at C:\\Users\\josej\\Desktop\\openclaude-0.22.0.`,
+    `❌ AIGENEV7 engine not found at ${aigenev7Dir}\n` +
+      `   Set AIGENEV7_DIR to the path of an aigenev7 checkout, or place\n` +
+      `   it at C:\\Users\\josej\\Desktop\\aigenev7-0.22.0.`,
   )
   process.exit(1)
 }
 
-const buildScript = join(openclaudeDir, 'scripts', 'build.ts')
+const buildScript = join(aigenev7Dir, 'scripts', 'build.ts')
 if (!existsSync(buildScript)) {
   console.error(
-    `❌ OpenClaude build script not found at ${buildScript}\n` +
-      `   The engine checkout looks incomplete. Re-clone or fix OPENCLAUDE_DIR.`,
+    `❌ AIGENEV7 build script not found at ${buildScript}\n` +
+      `   The engine checkout looks incomplete. Re-clone or fix AIGENEV7_DIR.`,
   )
   process.exit(1)
 }
 
 // ---------------------------------------------------------------------------
-// 2. Run the OpenClaude build (bundles to dist/cli.mjs with FREEBUFF_MODE=true)
+// 2. Run the AIGENEV7 build (bundles to dist/cli.mjs with FREEBUFF_MODE=true)
 // ---------------------------------------------------------------------------
 
 console.log(
-  `[1/2] Building FreeAI v${version} (engine: OpenClaude at ${openclaudeDir})...`,
+  `[1/2] Building FreeAI v${version} (engine: AIGENEV7 at ${aigenev7Dir})...`,
 )
 
 const buildResult = spawnSync('bun', ['run', 'scripts/build.ts'], {
-  cwd: openclaudeDir,
+  cwd: aigenev7Dir,
   stdio: 'inherit',
   env: {
     ...process.env,
@@ -120,11 +120,11 @@ if (buildResult.status !== 0) {
   process.exit(buildResult.status ?? 1)
 }
 
-const distFile = join(openclaudeDir, 'dist', 'cli.mjs')
+const distFile = join(aigenev7Dir, 'dist', 'cli.mjs')
 if (!existsSync(distFile)) {
   console.error(
     `❌ Build reported success but ${distFile} was not produced. ` +
-      `Check the OpenClaude build log above.`,
+      `Check the AIGENEV7 build log above.`,
   )
   process.exit(1)
 }
@@ -132,7 +132,7 @@ if (!existsSync(distFile)) {
 console.log(`✅ FreeAI v${version} ESM bundle built: ${distFile}`)
 
 // ---------------------------------------------------------------------------
-// 2b. Run `bun install` in the OpenClaude directory.
+// 2b. Run `bun install` in the AIGENEV7 directory.
 //
 // `bun build --compile` re-analyzes the entry point and tries to resolve
 // every import, including ones that scripts/build.ts marked `external` for
@@ -148,11 +148,11 @@ console.log(`✅ FreeAI v${version} ESM bundle built: ${distFile}`)
 // ---------------------------------------------------------------------------
 
 console.log(
-  `\n[2b] Running 'bun install' in ${openclaudeDir} to make sure all transitive deps are resolvable for the standalone exe bundle...`,
+  `\n[2b] Running 'bun install' in ${aigenev7Dir} to make sure all transitive deps are resolvable for the standalone exe bundle...`,
 )
 
 const installResult = spawnSync('bun', ['install'], {
-  cwd: openclaudeDir,
+  cwd: aigenev7Dir,
   stdio: 'inherit',
 })
 
@@ -178,7 +178,7 @@ if (skipExe) {
 // require Node or node_modules at runtime — the Bun runtime is embedded.
 //
 // The `dist/cli.mjs` is the correct entry: it's the fully-bundled output of
-// the OpenClaude build, with all build-time plugins (productionReact,
+// the AIGENEV7 build, with all build-time plugins (productionReact,
 // featureFlagPreprocess, etc.) already applied. Re-compiling from the
 // TypeScript source would skip those plugins and is not what we want.
 
@@ -234,12 +234,12 @@ function defaultExeName(): string {
  *
  * Why the stubbed file lives in the engine's dist/ tree (not freeai/):
  * `bun build --compile` walks up from the entry point looking for
- * `node_modules/`. If the entry is outside openclaude's tree, the
- * resolver can't reach openclaude's node_modules and fails to resolve
+ * `node_modules/`. If the entry is outside aigenev7's tree, the
+ * resolver can't reach aigenev7's node_modules and fails to resolve
  * even the non-stubbed imports. So the stubbed bundle MUST be inside
- * the openclaude dir tree for resolution to work.
+ * the aigenev7 dir tree for resolution to work.
  *
- * The stubbed file is written to `<openclaudeDir>/dist/.freeai-stub/`
+ * The stubbed file is written to `<aigenev7Dir>/dist/.freeai-stub/`
  * — a hidden subdir (the leading `.` keeps it out of casual `ls`; the
  * `freeai-stub` name makes the purpose explicit) that is cleaned up
  * after the build via the returned `cleanup` function (callers should
@@ -250,8 +250,8 @@ function defaultExeName(): string {
  * the .freeai-stub/ dir; safe to call on success or failure.
  */
 function stubProblemImportsInBundle(): { entryPath: string; cleanup: () => void } {
-  const originalDist = resolve(openclaudeDir, 'dist', 'cli.mjs')
-  const stubDir = resolve(openclaudeDir, 'dist', '.freeai-stub')
+  const originalDist = resolve(aigenev7Dir, 'dist', 'cli.mjs')
+  const stubDir = resolve(aigenev7Dir, 'dist', '.freeai-stub')
   const stubbedDist = join(stubDir, 'cli-stubbed.mjs')
   const source = readFileSync(originalDist, 'utf8')
 
@@ -335,7 +335,7 @@ const bunTarget = detectBunTarget()
 const exeName = defaultExeName()
 
 // Output path: <repoRoot>/dist/<exeName>, i.e. codebuff-main/freeai/dist/freeai.exe.
-// We deliberately keep the OpenClaude dist/ directory's MAIN contents pristine
+// We deliberately keep the AIGENEV7 dist/ directory's MAIN contents pristine
 // (the engine's distributable artifacts: dist/cli.mjs, dist/sdk.mjs). The
 // only FreeAI-owned file that lands in the engine's tree is the transient
 // stubbed bundle in `dist/.freeai-stub/` (hidden subdir; cleaned up after
@@ -360,8 +360,8 @@ try {
 // didn't get to its own cleanup step. Same for any orphan `cli-freeai.mjs`
 // the old pre-rename code path might have left behind in the engine's dist/.
 for (const stale of [
-  resolve(openclaudeDir, 'dist', '.freeai-stub', 'cli-stubbed.mjs'),
-  resolve(openclaudeDir, 'dist', 'cli-freeai.mjs'),
+  resolve(aigenev7Dir, 'dist', '.freeai-stub', 'cli-stubbed.mjs'),
+  resolve(aigenev7Dir, 'dist', 'cli-freeai.mjs'),
 ]) {
   try {
     if (existsSync(stale)) {
@@ -385,8 +385,8 @@ const compileStart = Date.now()
 // --external alone doesn't suppress bun's static resolve check,
 // --no-bundle isn't valid with --compile, and pre-bundling with esbuild
 // would duplicate the build pipeline. The stubbed file is written to
-// <openclaudeDir>/dist/.freeai-stub/ so bun's resolver can walk up and
-// find openclaude/node_modules/ — the location is load-bearing for
+// <aigenev7Dir>/dist/.freeai-stub/ so bun's resolver can walk up and
+// find aigenev7/node_modules/ — the location is load-bearing for
 // resolution to work.
 const { entryPath: exeEntry, cleanup: stubCleanup } = stubProblemImportsInBundle()
 
@@ -405,7 +405,7 @@ try {
       `--outfile=${exePath}`,
     ],
     {
-      cwd: openclaudeDir,
+      cwd: aigenev7Dir,
       stdio: 'inherit',
     },
   )

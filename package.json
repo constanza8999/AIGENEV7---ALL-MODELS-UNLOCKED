@@ -36,7 +36,7 @@
     "build:aigenev7:test": "FREEBUFF_MODE=true bun freeai/cli/build.ts 7.0.0 test",
     "build:aigenev7:prod": "FREEBUFF_MODE=true bun freeai/cli/build.ts 7.0.0 prod",
     "build:aigenev7:local": "FREEBUFF_MODE=true AIGENEV7_LOCAL=true NEXT_PUBLIC_CODEBUFF_APP_URL=http://localhost:3457 bun freeai/cli/build.ts 7.0.0 dev",
-    "build:aigenev7:freeai": "OPENCLAUDE_DIR=$HOME/Desktop/openclaude-0.22.0 bun freeai/cli/build-freeai.ts 7.0.0",
+    "build:aigenev7:freeai": "AIGENEV7_DIR=$HOME/Desktop/aigenev7-0.22.0 bun freeai/cli/build-freeai.ts 7.0.0",
     "build:aigenev7:all": "bun run build:aigenev7 && bun run build:aigenev7:freeai",
     "buffbench": "bun --cwd evals run-buffbench",
     "ci": "bun run build:sdk && bun run build:freebuff:test"
