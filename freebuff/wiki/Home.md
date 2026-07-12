@@ -38,6 +38,12 @@ AIGENEV7 is a free, open-source AI coding assistant that runs in your terminal. 
 | [Token Balance](Token-Balance) | Token tracking and usage monitoring |
 | [Snippets](Snippets) | Save, organize, and reuse code snippets |
 | [Debug Agent](Debug-Agent) | Auto-debug loop with AI-powered fixes |
+| [Premium Features](Premium-Features) | Tiers, token limits, and premium access |
+| [Local API Server](Local-API-Server) | OpenAI-compatible local HTTP server |
+| [Inference Engine](Inference-Engine) | Multi-provider LLM inference system |
+| [Web Interface](Web-Interface) | Browser-based chat and tools |
+| [CLI Installation Guide](CLI-Installation-Guide) | Detailed setup instructions |
+| [FAQ](FAQ) | Common questions and troubleshooting |
 | [Contributing](Contributing) | How to contribute to AIGENEV7 |
 
 ## Quick Links

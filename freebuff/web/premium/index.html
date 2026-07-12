@@ -18,6 +18,11 @@
 <!-- ── Toasts ── -->
 <div class="toast" id="toast">✓ Copied to clipboard</div>
 
+<!-- ── Crypto Checkout Modal ── -->
+<div class="crypto-modal" id="cryptoModal">
+  <div class="crypto-modal-inner" id="cryptoModalContent"></div>
+</div>
+
 <div class="page">
 
 <!-- ── Header ── -->
@@ -51,33 +56,51 @@
   <div class="section-title">Choose Your Tier</div>
   <h2 class="section-heading">CLI <span>Premium Plans</span></h2>
   <p class="section-desc">Every tier includes unlimited chat, all models, and the full agent system. Upgrade to unlock advanced features.</p>
-  <div class="tiers-grid" id="tiersGrid"></div>
+  <div class="locked-overlay">
+    <div class="locked-blur">
+      <div class="tiers-grid" id="tiersGrid"></div>
+    </div>
+    <div class="locked-bar">
+      <div class="locked-bar-icon">🔒</div>
+      <div class="locked-bar-text">🔒 Payment Required</div>
+      <div class="locked-bar-subtext">Pay to unlock premium tier plans</div>
+    </div>
+  </div>
 </div>
 
 <!-- ── How to Activate ── -->
 <div class="section" id="activate">
   <div class="section-title">After Payment</div>
   <h2 class="section-heading">How to <span>Activate</span></h2>
-  <div class="steps">
-    <div class="step">
-      <div class="step-num">1</div>
-      <div class="step-title">Pay via any method below</div>
-      <div class="step-desc">Send your chosen amount via PayPal, Crypto, MiniPay, or Bank Transfer. Mention your email or username.</div>
+  <div class="locked-overlay">
+    <div class="locked-blur">
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-title">Pay via any method below</div>
+          <div class="step-desc">Send your chosen amount via PayPal, Crypto, MiniPay, or Bank Transfer. Mention your email or username.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-title">Receive your premium key</div>
+          <div class="step-desc">You'll get an <code>ag7_xxx</code> key by email within 24 hours. The key encodes your tier (pro, elite, enterprise).</div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-title">Activate in the CLI</div>
+          <div class="step-desc">Run with <code>--premium-key ag7_pro_your_key</code> or set <code>AIGENEV7_PREMIUM_KEY</code> in your .env file.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-title">Enjoy premium features</div>
+          <div class="step-desc">Export agents to files, run custom quantum circuits, access premium models, and more. See the 💎 badge in your CLI!</div>
+        </div>
+      </div>
     </div>
-    <div class="step">
-      <div class="step-num">2</div>
-      <div class="step-title">Receive your premium key</div>
-      <div class="step-desc">You'll get an <code>ag7_xxx</code> key by email within 24 hours. The key encodes your tier (pro, elite, enterprise).</div>
-    </div>
-    <div class="step">
-      <div class="step-num">3</div>
-      <div class="step-title">Activate in the CLI</div>
-      <div class="step-desc">Run with <code>--premium-key ag7_pro_your_key</code> or set <code>AIGENEV7_PREMIUM_KEY</code> in your .env file.</div>
-    </div>
-    <div class="step">
-      <div class="step-num">4</div>
-      <div class="step-title">Enjoy premium features</div>
-      <div class="step-desc">Export agents to files, run custom quantum circuits, access premium models, and more. See the 💎 badge in your CLI!</div>
+    <div class="locked-bar">
+      <div class="locked-bar-icon">🔒</div>
+      <div class="locked-bar-text">🔒 Payment Required</div>
+      <div class="locked-bar-subtext">Pay to unlock activation instructions</div>
     </div>
   </div>
 </div>
@@ -88,37 +111,44 @@
   <h2 class="section-heading">Generate Your <span>Premium Key</span></h2>
   <p class="section-desc">Select your tier and generate a key format. After payment, you'll receive your real key by email.</p>
 
-  <div class="keygen-box">
-    <div class="keygen-controls">
-      <label for="keygenTier">Tier:</label>
-      <select id="keygenTier" class="keygen-select">
-        <option value="pro">⭐ Pro</option>
-        <option value="elite">💎 Elite</option>
-        <option value="enterprise">🏢 Enterprise</option>
-      </select>
-      <button class="keygen-generate-btn" id="keygenGenerate">⟳ Generate</button>
-    </div>
+  <div class="keygen-box locked-overlay">
+    <div class="locked-blur">
+      <div class="keygen-controls">
+        <label for="keygenTier">Tier:</label>
+        <select id="keygenTier" class="keygen-select">
+          <option value="pro">⭐ Pro</option>
+          <option value="elite">💎 Elite</option>
+          <option value="enterprise">🏢 Enterprise</option>
+        </select>
+        <button class="keygen-generate-btn" id="keygenGenerate">⟳ Generate</button>
+      </div>
 
-    <div class="keygen-display">
-      <div class="keygen-label">Your Premium Key</div>
-      <div class="keygen-key-row">
-        <code class="keygen-key" id="keygenKey">ag7_pro_x8m2k9p4v3q1w6n5</code>
-        <button class="keygen-copy-btn" id="keygenCopyKey" title="Copy key to clipboard">📋 Copy</button>
+      <div class="keygen-display">
+        <div class="keygen-label">Your Premium Key</div>
+        <div class="keygen-key-row">
+          <code class="keygen-key" id="keygenKey">ag7_pro_x8m2k9p4v3q1w6n5</code>
+          <button class="keygen-copy-btn" id="keygenCopyKey" title="Copy key to clipboard">📋 Copy</button>
+        </div>
+      </div>
+
+      <div class="keygen-display">
+        <div class="keygen-label">CLI Command (copy & paste)</div>
+        <div class="keygen-key-row">
+          <code class="keygen-key keygen-cmd" id="keygenCmd">bun run inference-cli.js chat --premium-key ag7_pro_x8m2k9p4v3q1w6n5</code>
+          <button class="keygen-copy-btn" id="keygenCopyCmd" title="Copy command to clipboard">📋 Copy</button>
+        </div>
+      </div>
+
+      <div class="keygen-note">
+        💡 <strong>How it works:</strong> After paying, email CONSTANZA with your tier and email.
+        You'll receive your real <code>ag7_xxx</code> key within 24 hours.
+        Set it via <code>--premium-key</code> flag or <code>AIGENEV7_PREMIUM_KEY</code> env var.
       </div>
     </div>
-
-    <div class="keygen-display">
-      <div class="keygen-label">CLI Command (copy & paste)</div>
-      <div class="keygen-key-row">
-        <code class="keygen-key keygen-cmd" id="keygenCmd">bun run inference-cli.js chat --premium-key ag7_pro_x8m2k9p4v3q1w6n5</code>
-        <button class="keygen-copy-btn" id="keygenCopyCmd" title="Copy command to clipboard">📋 Copy</button>
-      </div>
-    </div>
-
-    <div class="keygen-note">
-      💡 <strong>How it works:</strong> After paying, email CONSTANZA with your tier and email.
-      You'll receive your real <code>ag7_xxx</code> key within 24 hours.
-      Set it via <code>--premium-key</code> flag or <code>AIGENEV7_PREMIUM_KEY</code> env var.
+    <div class="locked-bar">
+      <div class="locked-bar-icon">🔒</div>
+      <div class="locked-bar-text">🔒 Payment Required</div>
+      <div class="locked-bar-subtext">Pay to unlock premium key generation</div>
     </div>
   </div>
 </div>
@@ -136,33 +166,33 @@
   <div class="section-title">Reference</div>
   <h2 class="section-heading">Premium CLI <span>Commands</span></h2>
   <div class="cmd-ref">
-    <div class="cmd-row">
-      <div class="cmd-name">/agent-export &lt;name&gt; to &lt;file&gt;</div>
+    <div class="cmd-row locked-row">
+      <div class="cmd-name">/agent-export &lt;name&gt; to &lt;file&gt;<span class="cmd-lock">Locked</span></div>
       <div class="cmd-tier pro">Pro+</div>
       <div class="cmd-desc">Export an agent persona to a JSON file on disk</div>
     </div>
-    <div class="cmd-row">
-      <div class="cmd-name">/agent-import from &lt;file&gt;</div>
+    <div class="cmd-row locked-row">
+      <div class="cmd-name">/agent-import from &lt;file&gt;<span class="cmd-lock">Locked</span></div>
       <div class="cmd-tier pro">Pro+</div>
       <div class="cmd-desc">Import an agent persona from a JSON file</div>
     </div>
-    <div class="cmd-row">
-      <div class="cmd-name">/quantum run &lt;gates&gt;</div>
+    <div class="cmd-row locked-row">
+      <div class="cmd-name">/quantum run &lt;gates&gt;<span class="cmd-lock">Locked</span></div>
       <div class="cmd-tier pro">Pro+</div>
       <div class="cmd-desc">Run custom quantum circuits with unlimited shots</div>
     </div>
-    <div class="cmd-row">
-      <div class="cmd-name">--model &lt;premium-model&gt;</div>
+    <div class="cmd-row locked-row">
+      <div class="cmd-name">--model &lt;premium-model&gt;<span class="cmd-lock">Locked</span></div>
       <div class="cmd-tier elite">Elite+</div>
       <div class="cmd-desc">Use premium models: GPT-4.1, Claude Opus 4, O3 Pro, Grok 4, Fable 5</div>
     </div>
-    <div class="cmd-row">
-      <div class="cmd-name">Full API access</div>
+    <div class="cmd-row locked-row">
+      <div class="cmd-name">Full API access<span class="cmd-lock">Locked</span></div>
       <div class="cmd-tier elite">Elite+</div>
       <div class="cmd-desc">Use the local API server for programmatic access</div>
     </div>
-    <div class="cmd-row">
-      <div class="cmd-name">Batch inference</div>
+    <div class="cmd-row locked-row">
+      <div class="cmd-name">Batch inference<span class="cmd-lock">Locked</span></div>
       <div class="cmd-tier enterprise">Enterprise</div>
       <div class="cmd-desc">Multi-file processing and batch prompting</div>
     </div>
@@ -244,18 +274,40 @@
     }
     card.appendChild(ul)
 
-    // CTA
+    // Payment buttons
     var ctaWrap = document.createElement('div')
     ctaWrap.className = 'tier-cta-wrap'
-    var cta = document.createElement('a')
-    cta.className = 'tier-cta'
-    cta.href = '#payment'
     if (t.id === 'free') {
-      cta.href = '/'
-      cta.classList.add('tier-cta-free')
+      var freeBtn = document.createElement('a')
+      freeBtn.className = 'tier-cta tier-cta-free'
+      freeBtn.href = '/'
+      freeBtn.textContent = t.cta
+      ctaWrap.appendChild(freeBtn)
+    } else {
+      // PayPal button
+      if (t.paypalUrl) {
+        var paypalBtn = document.createElement('a')
+        paypalBtn.className = 'tier-cta tier-cta-paypal'
+        paypalBtn.href = t.paypalUrl
+        paypalBtn.target = '_blank'
+        paypalBtn.rel = 'noopener noreferrer'
+        paypalBtn.innerHTML = '💳 Pay with PayPal'
+        ctaWrap.appendChild(paypalBtn)
+      }
+      // Crypto button (Coinbase Commerce)
+      if (t.amount) {
+        var cryptoBtn = document.createElement('button')
+        cryptoBtn.className = 'tier-cta tier-cta-crypto'
+        cryptoBtn.innerHTML = '₿ Pay with Crypto'
+        cryptoBtn.dataset.tier = t.id
+        cryptoBtn.dataset.amount = t.amount
+        cryptoBtn.dataset.name = t.name
+        cryptoBtn.addEventListener('click', function() {
+          openCryptoCheckout(this.dataset.tier, this.dataset.amount, this.dataset.name)
+        })
+        ctaWrap.appendChild(cryptoBtn)
+      }
     }
-    cta.textContent = t.cta
-    ctaWrap.appendChild(cta)
     card.appendChild(ctaWrap)
 
     grid.appendChild(card)
@@ -345,6 +397,91 @@
 
   // Generate initial key
   generateKey()
+})()
+</script>
+
+<!-- ── Crypto Checkout Modal ── -->
+<script>
+(function() {
+  'use strict'
+
+  var COINBASE_STORE_ID = window.AIGENEV7_COINCOMMERCE_STORE_ID || ''
+  var WORKER_URL = window.AIGENEV7_PAYMENT_WORKER_URL || ''
+
+  window.openCryptoCheckout = function(tier, amount, tierName) {
+    if (!COINBASE_STORE_ID && !WORKER_URL) {
+      showToastMsg('Crypto checkout is being configured. Please use PayPal for now.', 'info')
+      return
+    }
+
+    var email = prompt('Enter your email to receive your premium key after payment:')
+    if (!email) return
+
+    var modal = document.getElementById('cryptoModal')
+    var modalContent = document.getElementById('cryptoModalContent')
+    modalContent.innerHTML = '<div class="crypto-loading">⏳ Creating crypto payment...</div>'
+    modal.style.display = 'flex'
+    document.body.style.overflow = 'hidden'
+
+    if (!WORKER_URL || WORKER_URL.indexOf('your-subdomain') !== -1) {
+      modalContent.innerHTML = '<div class="crypto-info">'
+        + '<h3>₿ Crypto Payment</h3>'
+        + '<p>Amount: <strong>$' + amount + ' USD</strong></p>'
+        + '<p>Tier: <strong>' + tierName + '</strong></p>'
+        + '<p>Email: <strong>' + email + '</strong></p>'
+        + '<hr style="border-color:var(--border);margin:1rem 0">'
+        + '<p style="font-size:0.82rem;color:var(--text-dim)">Send payment and email proof to:</p>'
+        + '<div style="font-family:var(--font-mono);font-size:0.85rem;color:var(--accent);background:var(--bg-hover);padding:0.75rem;border-radius:var(--radius-xs);word-break:break-all;margin:0.5rem 0">josejaimejulia7@gmail.com</div>'
+        + '<p style="font-size:0.72rem;color:var(--text-muted);margin-top:0.5rem">Include your tier (' + tier + ') and email in the payment note. You\'ll receive your key within 24 hours.</p>'
+        + '<button class="crypto-close-btn" onclick="document.getElementById(\'cryptoModal\').style.display=\'none\';document.body.style.overflow=\'\'">✕ Close</button>'
+        + '</div>'
+      return
+    }
+
+    fetch(WORKER_URL + '/api/create-charge', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        tier: tier, amount: amount, email: email,
+        currency: 'USD', name: 'AIGENEV7 ' + tierName + ' Subscription'
+      })
+    })
+    .then(function(r) { return r.json() })
+    .then(function(data) {
+      if (data.hosted_url) { window.location.href = data.hosted_url }
+      else { throw new Error(data.error || 'No checkout URL') }
+    })
+    .catch(function(err) {
+      modalContent.innerHTML = '<div class="crypto-info">'
+        + '<h3>₿ Crypto Payment</h3>'
+        + '<p style="color:var(--red)">Could not create automatic checkout: ' + err.message + '</p>'
+        + '<p style="font-size:0.82rem;color:var(--text-dim);margin-top:1rem">Send <strong>$' + amount + ' USD</strong> worth of crypto to:</p>'
+        + '<div style="font-family:var(--font-mono);font-size:0.85rem;color:var(--accent);background:var(--bg-hover);padding:0.75rem;border-radius:var(--radius-xs);word-break:break-all;margin:0.5rem 0">josejaimejulia7@gmail.com</div>'
+        + '<p style="font-size:0.72rem;color:var(--text-muted);margin-top:0.5rem">Include tier (' + tier + ') and email (' + email + ') in the note.</p>'
+        + '<button class="crypto-close-btn" onclick="document.getElementById(\'cryptoModal\').style.display=\'none\';document.body.style.overflow=\'\'">✕ Close</button>'
+        + '</div>'
+    })
+  }
+
+  function showToastMsg(msg) {
+    var t = document.getElementById('toast')
+    if (!t) return
+    t.textContent = msg
+    t.classList.remove('show')
+    void t.offsetWidth
+    t.classList.add('show')
+    setTimeout(function() { t.classList.remove('show') }, 3000)
+  }
+
+  // Also expose globally so keygen can use it
+  if (!window.showToast) window.showToast = showToastMsg
+
+  document.addEventListener('click', function(e) {
+    if (e.target.id === 'cryptoModal') {
+      e.target.style.display = 'none'
+      document.body.style.overflow = ''
+    }
+  })
 })()
 </script>
 

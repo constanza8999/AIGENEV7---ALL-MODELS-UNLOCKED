@@ -1,0 +1,104 @@
+# 💳 Payment Webhook — Premium Key Generation
+#
+# Triggered by Coinbase Commerce webhooks via the Cloudflare Worker.
+# When a payment is confirmed, this workflow:
+#   1. Receives payment details (tier, email, charge_id)
+#   2. Generates a premium key for the purchased tier
+#   3. Emails the key to the customer
+#   4. Logs the transaction
+#
+# Required secrets:
+#   - GITHUB_TOKEN: Already available by default
+#   - SMTP_PASSWORD: For sending email (optional — falls back to manual)
+#
+# Trigger: repository_dispatch with event_type: "payment_received"
+
+name: Payment Webhook
+
+on:
+  repository_dispatch:
+    types: [payment_received]
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  process-payment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log payment details
+        run: |
+          echo "📦 Payment received!"
+          echo "├─ Tier: ${{ github.event.client_payload.tier }}"
+          echo "├─ Email: ${{ github.event.client_payload.email }}"
+          echo "├─ Amount: ${{ github.event.client_payload.amount }} ${{ github.event.client_payload.currency }}"
+          echo "├─ Charge ID: ${{ github.event.client_payload.charge_id }}"
+          echo "└─ Payment Method: ${{ github.event.client_payload.payment_method }}"
+
+      - name: Generate premium key
+        id: genkey
+        run: |
+          TIER="${{ github.event.client_payload.tier }}"
+          EMAIL="${{ github.event.client_payload.email }}"
+
+          # Validate tier
+          if [[ ! "$TIER" =~ ^(pro|elite|enterprise)$ ]]; then
+            echo "❌ Invalid tier: $TIER"
+            exit 1
+          fi
+
+          # Generate a random 32-char hex key
+          RANDOM_KEY=$(openssl rand -hex 16)
+          PREMIUM_KEY="ag7_${TIER}_${RANDOM_KEY}"
+
+          echo "🔑 Generated key: ag7_${TIER}_****"
+          echo "key=${PREMIUM_KEY}" >> "$GITHUB_OUTPUT"
+          echo "tier=${TIER}" >> "$GITHUB_OUTPUT"
+          echo "email=${EMAIL}" >> "$GITHUB_OUTPUT"
+
+      - name: Create key delivery issue (optional notification)
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const tier = '${{ steps.genkey.outputs.tier }}'
+            const email = '${{ steps.genkey.outputs.email }}'
+            const chargeId = '${{ github.event.client_payload.charge_id }}'
+            const amount = '${{ github.event.client_payload.amount }}'
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `💳 Premium Key Delivery — ${tier.toUpperCase()}`,
+              body: `## Payment Confirmed\n\n` +
+                `| Field | Value |\n|-------|-------|\n` +
+                `| Tier | ${tier} |\n` +
+                `| Email | ${email} |\n` +
+                `| Amount | $${amount} USD |\n` +
+                `| Charge ID | ${chargeId} |\n` +
+                `| Payment Method | Coinbase Commerce |\n\n` +
+                `## Action Required\n\n` +
+                `- [ ] Verify payment in Coinbase Commerce dashboard\n` +
+                `- [ ] Send premium key to ${email}\n` +
+                `- [ ] Close this issue after key delivery\n`,
+              labels: ['payment', 'premium', tier],
+            })
+
+      - name: Comment on delivery status
+        run: |
+          echo ""
+          echo "✅ Payment processed successfully!"
+          echo "📧 Email the premium key to: ${{ steps.genkey.outputs.email }}"
+          echo "🔑 Premium tier: ${{ steps.genkey.outputs.tier }}"
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "📋 Key (for manual email):"
+          echo "${{ steps.genkey.outputs.key }}"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          echo "💡 To activate in CLI:"
+          echo "   bun run inference-cli.js chat --premium-key ${{ steps.genkey.outputs.key }}"
+          echo ""
