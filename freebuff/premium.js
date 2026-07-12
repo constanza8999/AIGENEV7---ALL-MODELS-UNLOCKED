@@ -26,12 +26,35 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 // ── Premium feature map ────────────────────────────────────────────────
 // Each feature can be gated independently by tier
 export const PREMIUM_FEATURES = {
+  // ── Pro Features ($5/mo) ──
   export_agent_file: { tier: 'pro', label: 'Export agents to file' },
   import_agent_file: { tier: 'pro', label: 'Import agents from file' },
-  custom_quantum: { tier: 'pro', label: 'Custom quantum circuits (1024+ shots)' },
-  premium_models: { tier: 'elite', label: 'Premium model access (GPT-4.1, Opus 4, O3 Pro)' },
-  api_access: { tier: 'elite', label: 'Full API access' },
+  code_completion: { tier: 'pro', label: 'AI code completion (context-aware suggestions)' },
+  code_analytics: { tier: 'pro', label: 'Code analytics & complexity metrics' },
+  pro_models: { tier: 'pro', label: 'Pro model access (Claude Sonnet 4, DeepSeek V4 Pro, MiMo 2.5 Pro)' },
+  typescript_agent: { tier: 'pro', label: 'TypeScript Expert agent' },
+  golang_agent: { tier: 'pro', label: 'Go Expert agent' },
+  rust_agent: { tier: 'pro', label: 'Rust Expert agent' },
+  java_agent: { tier: 'pro', label: 'Java/Spring Expert agent' },
+  // ── Elite Features ($15/mo) ──
+  custom_quantum: { tier: 'elite', label: 'Custom quantum circuits (unlimited shots)' },
+  premium_models: { tier: 'elite', label: 'Elite model access (GPT-5, GPT-5 Plus, Opus 4, O3 Pro)' },
+  api_access: { tier: 'elite', label: 'Full API access via local server' },
+  project_context: { tier: 'elite', label: 'Project-aware AI context (full codebase understanding)' },
+  fullstack_agent: { tier: 'elite', label: 'Full Stack Developer agent' },
+  devops_agent: { tier: 'elite', label: 'DevOps Engineer agent' },
+  mobile_agent: { tier: 'elite', label: 'Mobile Developer agent' },
+  blockchain_agent: { tier: 'elite', label: 'Blockchain Developer agent' },
+  // ── Enterprise Features ($35/mo) ──
   batch_inference: { tier: 'enterprise', label: 'Batch inference (multi-file processing)' },
+  enterprise_models: { tier: 'enterprise', label: 'Enterprise model access (GPT-5.1, Claude Ultra, Gemini Ultra)' },
+  long_context: { tier: 'enterprise', label: '1M context window for massive projects' },
+  ai_research_agent: { tier: 'enterprise', label: 'AI Research agent' },
+  data_science_agent: { tier: 'enterprise', label: 'Data Science agent' },
+  performance_agent: { tier: 'enterprise', label: 'Performance Engineer agent' },
+  refactoring_agent: { tier: 'enterprise', label: 'Refactoring Expert agent' },
+  team_collaboration: { tier: 'enterprise', label: 'Team collaboration & shared workspaces' },
+  custom_integrations: { tier: 'enterprise', label: 'Custom integrations (webhooks, CI/CD, IDE plugins)' },
 }
 
 // ── Token balances per tier ────────────────────────────────────────────

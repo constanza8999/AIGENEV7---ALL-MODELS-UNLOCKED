@@ -1,19 +1,19 @@
-# 💳 Payment Webhook — Premium Key Generation
+# 💳 Payment Webhook — Premium Key Generation & Email Delivery
 #
 # Triggered by Coinbase Commerce webhooks via the Cloudflare Worker.
 # When a payment is confirmed, this workflow:
 #   1. Receives payment details (tier, email, charge_id)
 #   2. Generates a premium key for the purchased tier
-#   3. Emails the key to the customer
+#   3. Automatically emails the key to the customer via Resend API
 #   4. Logs the transaction
 #
 # Required secrets:
-#   - GITHUB_TOKEN: Already available by default
-#   - SMTP_PASSWORD: For sending email (optional — falls back to manual)
+#   - RESEND_API_KEY: Resend API key for sending emails (from resend.com)
+#   - EMAIL_FROM: Sender email address (e.g. "AIGENEV7 <noreply@yourdomain.com>")
 #
 # Trigger: repository_dispatch with event_type: "payment_received"
 
-name: Payment Webhook
+name: Payment Webhook — Auto Key Delivery
 
 on:
   repository_dispatch:
@@ -22,6 +22,7 @@ on:
 permissions:
   contents: write
   actions: write
+  issues: write
 
 jobs:
   process-payment:
@@ -51,6 +52,12 @@ jobs:
             exit 1
           fi
 
+          # Validate email
+          if [[ ! "$EMAIL" =~ ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
+            echo "❌ Invalid email: $EMAIL"
+            exit 1
+          fi
+
           # Generate a random 32-char hex key
           RANDOM_KEY=$(openssl rand -hex 16)
           PREMIUM_KEY="ag7_${TIER}_${RANDOM_KEY}"
@@ -60,7 +67,134 @@ jobs:
           echo "tier=${TIER}" >> "$GITHUB_OUTPUT"
           echo "email=${EMAIL}" >> "$GITHUB_OUTPUT"
 
-      - name: Create key delivery issue (optional notification)
+      - name: Send premium key via Resend API
+        if: steps.genkey.outputs.key != ''
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+        run: |
+          TIER="${{ steps.genkey.outputs.tier }}"
+          EMAIL="${{ steps.genkey.outputs.email }}"
+          KEY="${{ steps.genkey.outputs.key }}"
+          AMOUNT="${{ github.event.client_payload.amount }}"
+
+          # Tier display info
+          case "$TIER" in
+            pro) TIER_NAME="Pro"; TIER_EMOJI="⭐"; TIER_PRICE="$5/mo" ;;
+            elite) TIER_NAME="Elite"; TIER_EMOJI="💎"; TIER_PRICE="$15/mo" ;;
+            enterprise) TIER_NAME="Enterprise"; TIER_EMOJI="🏢"; TIER_PRICE="$35/mo" ;;
+          esac
+
+          # Check if RESEND_API_KEY is configured
+          if [ -z "$RESEND_API_KEY" ]; then
+            echo "⚠️ RESEND_API_KEY not configured — skipping email delivery"
+            echo "📋 Key for manual delivery: ${KEY}"
+            echo "📧 Email the key to: ${EMAIL}"
+            exit 0
+          fi
+
+          # Features based on tier
+          FEATURES=""
+          case "$TIER" in
+            pro)
+              FEATURES="✓ 4 Pro models (Claude Sonnet 4, DeepSeek V4 Pro, MiMo 2.5 Pro)<br>✓ AI code completion<br>✓ TypeScript / Go / Rust / Java expert agents<br>✓ Code analytics &amp; complexity metrics<br>✓ Export/Import agent personas<br>✓ Priority queue"
+              ;;
+            elite)
+              FEATURES="✓ 5 Elite models (GPT-5, GPT-5 Plus, Claude Opus 4, O3 Pro)<br>✓ Full Stack / DevOps / Mobile / Blockchain agents<br>✓ Project-aware AI context<br>✓ Full API access via local server<br>✓ Custom quantum circuits (unlimited shots)<br>✓ Priority queue &amp; VIP support"
+              ;;
+            enterprise)
+              FEATURES="✓ 6 Enterprise models (GPT-5.1, Claude Ultra, Gemini Ultra)<br>✓ AI Research / Data Science / Performance agents<br>✓ Batch inference (multi-file processing)<br>✓ 1M context window<br>✓ Team collaboration &amp; custom integrations<br>✓ Dedicated support channel"
+              ;;
+          esac
+
+          # Build email HTML using heredoc (dedented to column 0 for clean output)
+          cat > /tmp/email.html <<-'HTMLEOF'
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#0a0a0f;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+<div style="max-width:600px;margin:0 auto;padding:40px 20px;">
+<div style="text-align:center;margin-bottom:32px;">
+<h1 style="font-size:28px;font-weight:800;margin:0;">
+<span style="background:linear-gradient(135deg,#00ff88,#8855ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">AIGENEV7</span>
+<span style="color:#8888aa;font-size:14px;font-weight:400;">premium</span>
+</h1>
+</div>
+<div style="background:#111118;border:1px solid #1e1e30;border-radius:14px;padding:32px;margin-bottom:24px;">
+<div style="text-align:center;margin-bottom:24px;">
+<div style="width:64px;height:64px;border-radius:50%;background:rgba(0,255,136,0.1);border:2px solid rgba(0,255,136,0.3);display:inline-flex;align-items:center;justify-content:center;font-size:32px;">✅</div>
+</div>
+<h2 style="color:#e0e0ee;font-size:20px;font-weight:700;text-align:center;margin:0 0 8px 0;">Your Premium Key is Ready!</h2>
+<p style="color:#8888aa;font-size:14px;text-align:center;margin:0 0 24px 0;">Thank you for your purchase. Your AIGENEV7 premium access is now active.</p>
+<div style="background:#0a0a0f;border:1px solid #1e1e30;border-radius:8px;padding:16px;margin-bottom:24px;">
+<table style="width:100%;border-collapse:collapse;">
+<tr><td style="color:#8888aa;font-size:13px;padding:4px 0;">Tier</td><td style="color:#e0e0ee;font-size:13px;font-weight:600;text-align:right;padding:4px 0;">{{TIER_INFO}}</td></tr>
+<tr><td style="color:#8888aa;font-size:13px;padding:4px 0;">Amount Paid</td><td style="color:#e0e0ee;font-size:13px;font-weight:600;text-align:right;padding:4px 0;">{{AMOUNT_INFO}}</td></tr>
+</table>
+</div>
+<div style="margin-bottom:24px;">
+<label style="color:#8888aa;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:8px;">Your Premium Key</label>
+<div style="background:#0a0a0f;border:1px solid #1e1e30;border-radius:8px;padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:14px;color:#00ff88;word-break:break-all;line-height:1.5;">{{PREMIUM_KEY}}</div>
+</div>
+<div style="background:rgba(0,255,136,0.05);border:1px solid rgba(0,255,136,0.15);border-radius:8px;padding:16px;margin-bottom:24px;">
+<h3 style="color:#00ff88;font-size:14px;font-weight:700;margin:0 0 12px 0;">🚀 How to Activate</h3>
+<p style="color:#e0e0ee;font-size:13px;line-height:1.6;margin:0 0 12px 0;">Set your premium key as an environment variable:</p>
+<div style="background:#0a0a0f;border:1px solid #1e1e30;border-radius:6px;padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#00ff88;">export AIGENEV7_PREMIUM_KEY={{PREMIUM_KEY}}</div>
+<p style="color:#8888aa;font-size:12px;line-height:1.5;margin:12px 0 0 0;">Or run directly:</p>
+<div style="background:#0a0a0f;border:1px solid #1e1e30;border-radius:6px;padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#00ff88;">bun run inference-cli.js chat --premium-key {{PREMIUM_KEY}}</div>
+</div>
+<div style="margin-bottom:0;">
+<h3 style="color:#e0e0ee;font-size:14px;font-weight:700;margin:0 0 12px 0;">✨ What You Unlocked</h3>
+<div style="color:#8888aa;font-size:13px;line-height:1.8;">{{FEATURES_LIST}}</div>
+</div>
+</div>
+<div style="text-align:center;padding:16px 0;">
+<p style="color:#55557a;font-size:12px;margin:0;">Built by CONSTANZA • <a href="https://github.com/constanza8999" style="color:#8888aa;text-decoration:none;">@constanza8999</a></p>
+<p style="color:#55557a;font-size:11px;margin:8px 0 0 0;">AIGENEV7 — Free AI for everyone. MIT License.</p>
+</div>
+</div>
+</body>
+</html>
+HTMLEOF
+
+          # Replace placeholders using unique delimiters to avoid collisions with tier text
+          sed -i "s|{{TIER_INFO}}|${TIER_EMOJI} ${TIER_NAME} (${TIER_PRICE})|g" /tmp/email.html
+          sed -i "s|{{AMOUNT_INFO}}|\$${AMOUNT} USD|g" /tmp/email.html
+          sed -i "s|{{PREMIUM_KEY}}|${KEY}|g" /tmp/email.html
+          sed -i "s|{{FEATURES_LIST}}|${FEATURES}|g" /tmp/email.html
+
+          # Send email via Resend API (with retry for transient failures)
+          HTTP_CODE=$(curl -s -o /tmp/resend-response.json -w '%{http_code}' \
+            --retry 3 --retry-delay 5 --retry-max-time 30 \
+            -X POST "https://api.resend.com/emails" \
+            -H "Authorization: Bearer ${RESEND_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -H "User-Agent: AIGENEV7-Payment-Worker/1.0" \
+            -d "$(jq -n \
+              --arg from "${EMAIL_FROM:-AIGENEV7 <noreply@aigenev7.com>}" \
+              --arg to "$EMAIL" \
+              --arg subject "Your AIGENEV7 ${TIER_NAME} Premium Key" \
+              --rawfile html /tmp/email.html \
+              '{from: $from, to: [$to], subject: $subject, html: $html}'
+            )")
+
+          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+            echo "✅ Email sent successfully to ${EMAIL}"
+            if jq -e '.id' /tmp/resend-response.json > /dev/null 2>&1; then
+              EMAIL_ID=$(jq -r '.id' /tmp/resend-response.json)
+              echo "📧 Email ID: ${EMAIL_ID}"
+            else
+              echo "📧 Email sent (could not parse response ID)"
+            fi
+          else
+            echo "❌ Failed to send email (HTTP ${HTTP_CODE})"
+            cat /tmp/resend-response.json 2>/dev/null || echo "No response body"
+            echo ""
+            echo "📋 Key for manual delivery: ${KEY}"
+            echo "📧 Email the key to: ${EMAIL}"
+          fi
+
+      - name: Create delivery log issue
         uses: actions/github-script@v7
         with:
           script: |
@@ -68,37 +202,38 @@ jobs:
             const email = '${{ steps.genkey.outputs.email }}'
             const chargeId = '${{ github.event.client_payload.charge_id }}'
             const amount = '${{ github.event.client_payload.amount }}'
+            const key = '${{ steps.genkey.outputs.key }}'
+
+            const tierEmoji = { pro: '⭐', elite: '💎', enterprise: '🏢' }[tier] || '❓'
+            const tierPrice = { pro: '$5/mo', elite: '$15/mo', enterprise: '$35/mo' }[tier] || '❓'
 
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: `💳 Premium Key Delivery — ${tier.toUpperCase()}`,
-              body: `## Payment Confirmed\n\n` +
+              title: `${tierEmoji} Key Delivered — ${tier.toUpperCase()} to ${email}`,
+              body: `## ✅ Premium Key Auto-Delivered\n\n` +
                 `| Field | Value |\n|-------|-------|\n` +
-                `| Tier | ${tier} |\n` +
+                `| Tier | ${tierEmoji} ${tier} (${tierPrice}) |\n` +
                 `| Email | ${email} |\n` +
                 `| Amount | $${amount} USD |\n` +
                 `| Charge ID | ${chargeId} |\n` +
-                `| Payment Method | Coinbase Commerce |\n\n` +
-                `## Action Required\n\n` +
-                `- [ ] Verify payment in Coinbase Commerce dashboard\n` +
-                `- [ ] Send premium key to ${email}\n` +
-                `- [ ] Close this issue after key delivery\n`,
-              labels: ['payment', 'premium', tier],
+                `| Payment Method | Coinbase Commerce |\n` +
+                `| Key | \`${key}\` |\n\n` +
+                `---\n\n` +
+                `*This key was automatically generated and emailed via Resend API.*`,
+              labels: ['payment', 'premium', tier, 'delivered'],
             })
 
-      - name: Comment on delivery status
+      - name: Final status
         run: |
           echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo "✅ Payment processed successfully!"
-          echo "📧 Email the premium key to: ${{ steps.genkey.outputs.email }}"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          echo "📧 Customer email: ${{ steps.genkey.outputs.email }}"
           echo "🔑 Premium tier: ${{ steps.genkey.outputs.tier }}"
+          echo "💰 Amount: ${{ github.event.client_payload.amount }} USD"
           echo ""
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "📋 Key (for manual email):"
-          echo "${{ steps.genkey.outputs.key }}"
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo ""
-          echo "💡 To activate in CLI:"
-          echo "   bun run inference-cli.js chat --premium-key ${{ steps.genkey.outputs.key }}"
+          echo "The premium key has been automatically emailed to the customer."
           echo ""

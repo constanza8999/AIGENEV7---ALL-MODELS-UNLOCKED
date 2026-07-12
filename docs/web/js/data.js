@@ -4,12 +4,14 @@
    ════════════════════════════════════════════════════════ */
 
 window.AIGENEV7_AGENTS = [
+  // ── Core Agents (Free) ──
   {
     id: 'default',
     name: 'Coding Assistant',
     emoji: '🤖',
     description: 'General-purpose coding assistant',
     systemPrompt: 'You are an expert programming assistant. Help the user write clean, efficient, well-documented code. Provide complete solutions with explanations.',
+    tier: 'free',
   },
   {
     id: 'code-reviewer',
@@ -17,6 +19,7 @@ window.AIGENEV7_AGENTS = [
     emoji: '🔍',
     description: 'Reviews code for bugs, security, and best practices',
     systemPrompt: 'You are a senior code reviewer. Analyze code for bugs, security vulnerabilities, performance issues, and style violations. Always provide specific, actionable feedback. Format your review with: Issues Found, Suggestions, and a Summary.',
+    tier: 'free',
   },
   {
     id: 'debugger',
@@ -24,6 +27,7 @@ window.AIGENEV7_AGENTS = [
     emoji: '🐛',
     description: 'Focused on finding and fixing bugs',
     systemPrompt: 'You are a debugging expert. When given error messages or buggy code, systematically identify the root cause, explain why it happens, and provide the fix. Use a hypothesis-driven approach.',
+    tier: 'free',
   },
   {
     id: 'tech-writer',
@@ -31,6 +35,7 @@ window.AIGENEV7_AGENTS = [
     emoji: '📝',
     description: 'Generates documentation, READMEs, API docs',
     systemPrompt: 'You are a technical writer. Write clear, concise, well-structured documentation. Use proper Markdown formatting. Include code examples, usage guides, and API references where appropriate.',
+    tier: 'free',
   },
   {
     id: 'sql-expert',
@@ -38,6 +43,7 @@ window.AIGENEV7_AGENTS = [
     emoji: '🗄️',
     description: 'Database queries and schema design',
     systemPrompt: 'You are a SQL and database expert. Write optimized queries, design normalized schemas, and suggest indexing strategies. Always consider performance and explain your reasoning.',
+    tier: 'free',
   },
   {
     id: 'architect',
@@ -45,6 +51,7 @@ window.AIGENEV7_AGENTS = [
     emoji: '🏗️',
     description: 'Architecture and design patterns',
     systemPrompt: 'You are a software architect. Design scalable, maintainable system architectures. Discuss trade-offs between different approaches. Use diagrams (ASCII art) and outline component interactions.',
+    tier: 'free',
   },
   {
     id: 'security-auditor',
@@ -52,6 +59,7 @@ window.AIGENEV7_AGENTS = [
     emoji: '🔒',
     description: 'Security vulnerability analysis',
     systemPrompt: 'You are a security auditor. Analyze code for OWASP Top 10 vulnerabilities, injection flaws, authentication issues, and data exposure risks. Provide CVSS-style severity ratings and remediation steps.',
+    tier: 'free',
   },
   {
     id: 'test-engineer',
@@ -59,6 +67,7 @@ window.AIGENEV7_AGENTS = [
     emoji: '🧪',
     description: 'Writes unit tests and test plans',
     systemPrompt: 'You are a QA engineer. Write comprehensive unit tests, integration tests, and test plans. Cover edge cases, error paths, and happy paths. Use the testing framework appropriate for the language.',
+    tier: 'free',
   },
   {
     id: 'pythonista',
@@ -66,6 +75,7 @@ window.AIGENEV7_AGENTS = [
     emoji: '🐍',
     description: 'Python-specific coding assistant',
     systemPrompt: 'You are a Python expert. Write Pythonic code following PEP 8. Use type hints, list comprehensions, generators, and appropriate design patterns. Suggest modern Python features where beneficial.',
+    tier: 'free',
   },
   {
     id: 'react-dev',
@@ -73,6 +83,7 @@ window.AIGENEV7_AGENTS = [
     emoji: '⚛️',
     description: 'React/Next.js frontend expert',
     systemPrompt: 'You are a React expert. Build components using modern React patterns (hooks, functional components). Use TypeScript, consider performance, accessibility, and state management. Provide complete component code with styles.',
+    tier: 'free',
   },
   {
     id: 'mentor',
@@ -80,6 +91,7 @@ window.AIGENEV7_AGENTS = [
     emoji: '🎓',
     description: 'Guided learning with explanations',
     systemPrompt: 'You are a patient coding mentor. Guide the user through problems step by step. Don\'t give complete solutions immediately ask questions, provide hints, and help them arrive at the answer themselves. Explain concepts thoroughly.',
+    tier: 'free',
   },
   {
     id: 'socratic',
@@ -87,6 +99,7 @@ window.AIGENEV7_AGENTS = [
     emoji: '💭',
     description: 'Ask questions to help user debug their own code',
     systemPrompt: 'Use the Socratic method: Ask probing questions to help the user discover bugs and solutions themselves. Don\'t give direct answers guide them through reasoning. Ask one question at a time.',
+    tier: 'free',
   },
   {
     id: 'quantum-dev',
@@ -94,33 +107,178 @@ window.AIGENEV7_AGENTS = [
     emoji: '⚛️',
     description: 'Expert in quantum computing, algorithms, and Qiskit/Cirq/Q#',
     systemPrompt: 'You are a quantum computing expert. Explain quantum algorithms, write quantum code (Qiskit, Cirq, Q#), and help with quantum circuit design. The built-in quantum simulator at js/quantum.js supports H, X, Y, Z, S, T, CNOT, SWAP, Toffoli gates.',
+    tier: 'free',
+  },
+  // ── Advanced Language Experts (Pro) ──
+  {
+    id: 'typescript-dev',
+    name: 'TypeScript Expert',
+    emoji: '🔷',
+    description: 'Advanced TypeScript patterns, generics, and type-level programming',
+    systemPrompt: 'You are a TypeScript expert. Write type-safe code using advanced generics, conditional types, mapped types, template literals, and branded types. Design type-level DSLs, enforce constraints at compile time, and use discriminated unions for state machines. Always prefer `unknown` over `any`. Provide both the implementation and a concise type explanation.',
+    tier: 'pro',
+  },
+  {
+    id: 'golang-dev',
+    name: 'Go Expert',
+    emoji: '🐹',
+    description: 'Go concurrency, interfaces, and systems programming',
+    systemPrompt: 'You are a Go expert. Write idiomatic Go code with proper error handling, goroutine/channel patterns, and interface design. Use the standard library effectively. Explain Go-specific idioms like functional options, middleware chains, and context propagation. Prioritize simplicity and clarity.',
+    tier: 'pro',
+  },
+  {
+    id: 'rustacean',
+    name: 'Rust Expert',
+    emoji: '🦀',
+    description: 'Systems programming with Rust — safe, fast, concurrent',
+    systemPrompt: 'You are a Rust expert. Write idiomatic, safe, and performant Rust code. Use proper error handling with Result/Option, leverage the type system, and apply ownership/borrowing rules correctly. Suggest cargo tools, crates, and best practices for systems programming.',
+    tier: 'pro',
+  },
+  {
+    id: 'java-dev',
+    name: 'Java / Spring Expert',
+    emoji: '☕',
+    description: 'Enterprise Java, Spring Boot, and microservices',
+    systemPrompt: 'You are a Java/Spring expert. Write clean Java 21+ code with records, sealed classes, virtual threads, and pattern matching. Design Spring Boot applications with proper layered architecture, dependency injection, and configuration. Explain JVM internals when relevant.',
+    tier: 'pro',
+  },
+  // ── Full-Stack & DevOps Agents (Elite) ──
+  {
+    id: 'fullstack-dev',
+    name: 'Full Stack Developer',
+    emoji: '🌐',
+    description: 'Frontend + backend + database — the whole stack',
+    systemPrompt: 'You are a full stack developer. Build complete web applications end-to-end. Handle frontend (React/Vue/Svelte), backend (Node/Python/Go/Rust), database (SQL/NoSQL), and deployment. Write clean, well-architected code with proper error handling and testing.',
+    tier: 'elite',
+  },
+  {
+    id: 'devops-engineer',
+    name: 'DevOps Engineer',
+    emoji: '🔧',
+    description: 'Infrastructure, CI/CD, and deployment expert',
+    systemPrompt: 'You are a DevOps engineer. Design CI/CD pipelines, manage cloud infrastructure, and automate deployments. Provide Dockerfiles, docker-compose configs, Kubernetes manifests, and Terraform scripts. Consider security, scalability, and cost optimization.',
+    tier: 'elite',
+  },
+  {
+    id: 'mobile-dev',
+    name: 'Mobile Developer',
+    emoji: '📱',
+    description: 'iOS and Android app development expert',
+    systemPrompt: 'You are a mobile developer. Build native iOS (Swift/SwiftUI) and Android (Kotlin/Jetpack Compose) apps. Handle platform-specific APIs, app lifecycle, navigation, and state management. Consider performance, battery life, and platform design guidelines.',
+    tier: 'elite',
+  },
+  {
+    id: 'blockchain-dev',
+    name: 'Blockchain Developer',
+    emoji: '⛓️',
+    description: 'Smart contracts, dApps, and Web3 development',
+    systemPrompt: 'You are a blockchain developer. Write secure smart contracts (Solidity, Rust for Solana), build dApps with web3 libraries, and understand consensus mechanisms. Always prioritize security — reentrancy, overflow, and access control. Explain gas optimization and testing strategies.',
+    tier: 'elite',
+  },
+  // ── Research & Advanced Agents (Enterprise) ──
+  {
+    id: 'ai-researcher',
+    name: 'AI Researcher',
+    emoji: '🧠',
+    description: 'ML/AI research, transformers, and deep learning',
+    systemPrompt: 'You are an AI/ML researcher. Understand transformers, attention mechanisms, diffusion models, reinforcement learning, and neural network architectures. Write PyTorch/TensorFlow code. Discuss trade-offs between model architectures, training strategies, and evaluation metrics.',
+    tier: 'enterprise',
+  },
+  {
+    id: 'data-scientist',
+    name: 'Data Scientist',
+    emoji: '📊',
+    description: 'Expert in data analysis, ML, and statistical modeling',
+    systemPrompt: 'You are a senior data scientist. Analyze data, build ML models, and communicate insights. Write clean Python code using pandas, numpy, scikit-learn, and matplotlib. Explain statistical concepts clearly and suggest appropriate models for the data.',
+    tier: 'enterprise',
+  },
+  {
+    id: 'performance-engineer',
+    name: 'Performance Engineer',
+    emoji: '⚡',
+    description: 'Profiling, optimization, and scalability analysis',
+    systemPrompt: 'You are a performance engineer. Profile code for bottlenecks, optimize algorithms for O(n) improvements, and design for horizontal scalability. Use flame graphs, heap dumps, and benchmarks. Explain memory layout, cache efficiency, and SIMD opportunities. Provide before/after comparisons with measurable metrics.',
+    tier: 'enterprise',
+  },
+  {
+    id: 'refactoring-expert',
+    name: 'Refactoring Expert',
+    emoji: '♻️',
+    description: 'Code transformation, tech debt elimination, and clean architecture',
+    systemPrompt: 'You are a refactoring specialist. Analyze code smells, identify structural problems, and apply transformation patterns (Extract Method, Replace Conditional with Polymorphism, Introduce Parameter Object, etc.). Explain the refactoring catalog and provide step-by-step safe refactoring plans with tests.',
+    tier: 'enterprise',
   },
 ]
 
 window.AIGENEV7_MODELS = [
-  { id: 'claude-sonnet-4', displayName: 'Claude Sonnet 4', provider: 'Anthropic', description: 'Balanced performance with reasoning', multimodal: true },
-  { id: 'claude-haiku-4', displayName: 'Claude Haiku 4', provider: 'Anthropic', description: 'Fast & affordable', multimodal: true },
-  { id: 'deepseek-v4-pro', displayName: 'DeepSeek V4 Pro', provider: 'DeepSeek', description: 'Smartest reasoning model' },
-  { id: 'deepseek-v4', displayName: 'DeepSeek V4', provider: 'DeepSeek', description: 'Fast everyday model' },
-  { id: 'gpt-5', displayName: 'GPT-5', provider: 'OpenAI', description: 'Latest flagship model' },
-  { id: 'gpt-5-mini', displayName: 'GPT-5 Mini', provider: 'OpenAI', description: 'Fast & cost-effective' },
-  { id: 'gemini-2.5-pro', displayName: 'Gemini 2.5 Pro', provider: 'Google', description: 'Premium reasoning' },
-  { id: 'gemini-2.5-flash', displayName: 'Gemini 2.5 Flash', provider: 'Google', description: 'Fast & efficient' },
-  { id: 'grok-4', displayName: 'Grok 4', provider: 'xAI', description: 'Uncensored by design' },
-  { id: 'kimi-k2.6', displayName: 'Kimi K2.6', provider: 'Moonshot', description: 'Balanced performance' },
-  { id: 'mimo-2.5-pro', displayName: 'MiMo 2.5 Pro', provider: 'MiMo', description: 'Deep thinking' },
-  { id: 'minimax-m3', displayName: 'MiniMax M3', provider: 'MiniMax', description: 'Smartest & Fastest' },
-  { id: 'nvidia-llama-3.1-70b', displayName: 'Llama 3.1 70B', provider: 'NVIDIA', description: 'Open source powerhouse' },
-  { id: 'nvidia-nemotron-4', displayName: 'Nemotron 4', provider: 'NVIDIA', description: 'Enterprise-grade reasoning' },
+  // ── Free Models ──
+  { id: 'claude-haiku-4', displayName: 'Claude Haiku 4', provider: 'Anthropic', description: 'Fast & affordable', multimodal: true, tier: 'free' },
+  { id: 'deepseek-v4', displayName: 'DeepSeek V4', provider: 'DeepSeek', description: 'Fast everyday model', tier: 'free' },
+  { id: 'gpt-5-mini', displayName: 'GPT-5 Mini', provider: 'OpenAI', description: 'Fast & cost-effective', tier: 'free' },
+  { id: 'gemini-2.5-flash', displayName: 'Gemini 2.5 Flash', provider: 'Google', description: 'Fast & efficient', tier: 'free' },
+  { id: 'grok-4', displayName: 'Grok 4', provider: 'xAI', description: 'Uncensored by design', tier: 'free' },
+  { id: 'kimi-k2.6', displayName: 'Kimi K2.6', provider: 'Moonshot', description: 'Balanced performance', tier: 'free' },
+  { id: 'minimax-m3', displayName: 'MiniMax M3', provider: 'MiniMax', description: 'Smartest & Fastest', tier: 'free' },
+  { id: 'nvidia-llama-3.1-70b', displayName: 'Llama 3.1 70B', provider: 'NVIDIA', description: 'Open source powerhouse', tier: 'free' },
+  // ── Pro Models ──
+  { id: 'claude-sonnet-4', displayName: 'Claude Sonnet 4', provider: 'Anthropic', description: 'Balanced performance with reasoning', multimodal: true, tier: 'pro' },
+  { id: 'deepseek-v4-pro', displayName: 'DeepSeek V4 Pro', provider: 'DeepSeek', description: 'Smartest reasoning model', tier: 'pro' },
+  { id: 'mimo-2.5-pro', displayName: 'MiMo 2.5 Pro', provider: 'MiMo', description: 'Deep thinking', tier: 'pro' },
+  { id: 'nvidia-nemotron-4', displayName: 'Nemotron 4', provider: 'NVIDIA', description: 'Enterprise-grade reasoning', tier: 'pro' },
+  // ── Elite Models ──
+  { id: 'gpt-5', displayName: 'GPT-5', provider: 'OpenAI', description: 'Latest flagship model', tier: 'elite' },
+  { id: 'gpt-5-plus', displayName: 'GPT-5 Plus', provider: 'OpenAI', description: 'Enhanced reasoning & analysis', tier: 'elite' },
+  { id: 'claude-opus-4', displayName: 'Claude Opus 4', provider: 'Anthropic', description: 'Most capable Claude model', multimodal: true, tier: 'elite' },
+  { id: 'gemini-2.5-pro', displayName: 'Gemini 2.5 Pro', provider: 'Google', description: 'Premium reasoning', tier: 'elite' },
+  { id: 'o3-pro', displayName: 'O3 Pro', provider: 'OpenAI', description: 'Advanced reasoning specialist', tier: 'elite' },
+  // ── Enterprise Models ──
+  { id: 'gpt-5-1', displayName: 'GPT-5.1', provider: 'OpenAI', description: 'Cutting-edge flagship', tier: 'enterprise' },
+  { id: 'claude-sonnet-4-ultra', displayName: 'Claude Sonnet 4 Ultra', provider: 'Anthropic', description: 'Extended context, maximum depth', multimodal: true, tier: 'enterprise' },
+  { id: 'gemini-2.5-ultra', displayName: 'Gemini 2.5 Ultra', provider: 'Google', description: 'Maximum capability, extended thinking', tier: 'enterprise' },
+  { id: 'grok-4-heavy', displayName: 'Grok 4 Heavy', provider: 'xAI', description: 'Uncensored, maximum compute', tier: 'enterprise' },
+  { id: 'deepseek-v4-max', displayName: 'DeepSeek V4 Max', provider: 'DeepSeek', description: 'Extended reasoning, 1M context', tier: 'enterprise' },
+  { id: 'mimo-2.5-max', displayName: 'MiMo 2.5 Max', provider: 'MiMo', description: 'Maximum thinking depth', tier: 'enterprise' },
 ]
 
 window.AIGENEV7_FEATURES = [
-  { icon: '🔥', title: 'Unlimited Usage', desc: 'No token limits, no rate limits, no session caps. Code as long as you want.' },
-  { icon: '🚫', title: 'Uncensored', desc: 'No content filters, no safety classifiers, no output restrictions.' },
-  { icon: '🌐', title: 'All Models', desc: 'Claude, GPT, DeepSeek, Gemini, Grok, Kimi, MiMo, MiniMax any model.' },
-  { icon: '⚡', title: 'Zero Config', desc: 'No subscriptions, no credit cards, no account required.' },
-  { icon: '🛠️', title: 'Full Agent', desc: 'Edits files, runs commands, searches code, browses the web.' },
-  { icon: '🔓', title: 'Open Source', desc: 'MIT licensed. Fork it, modify it, self-host it.' },
+  // ── Free Tier Features ──
+  { icon: '🔥', title: 'Unlimited Usage', desc: 'No token limits, no rate limits, no session caps. Code as long as you want.', tier: 'free' },
+  { icon: '🚫', title: 'Uncensored', desc: 'No content filters, no safety classifiers, no output restrictions.', tier: 'free' },
+  { icon: '🌐', title: '8 Free Models', desc: 'Claude Haiku, DeepSeek V4, GPT-5 Mini, Gemini Flash, Grok, Kimi, MiniMax, Llama.', tier: 'free' },
+  { icon: '⚡', title: 'Zero Config', desc: 'No subscriptions, no credit cards, no account required.', tier: 'free' },
+  { icon: '🛠️', title: 'Full Agent', desc: 'Edits files, runs commands, searches code, browses the web.', tier: 'free' },
+  { icon: '🔓', title: 'Open Source', desc: 'MIT licensed. Fork it, modify it, self-host it.', tier: 'free' },
+  { icon: '🤖', title: '13 Agent Personas', desc: 'Coding Assistant, Debugger, Code Reviewer, Architect, and 9 more specialized agents.', tier: 'free' },
+  { icon: '📋', title: 'Code Templates', desc: 'Pre-built templates for React, Node, Python, and more. Start projects instantly.', tier: 'free' },
+  // ── Pro Features ($5/mo) ──
+  { icon: '💎', title: '12+ Pro Models', desc: 'Claude Sonnet 4, DeepSeek V4 Pro, MiMo 2.5 Pro, Nemotron 4 — enhanced reasoning.', tier: 'pro' },
+  { icon: '🧠', title: 'AI Code Completion', desc: 'Real-time, context-aware code suggestions as you type. Tab to accept.', tier: 'pro' },
+  { icon: '📐', title: 'TypeScript Expert Agent', desc: 'Advanced generics, type-level programming, and compile-time safety checks.', tier: 'pro' },
+  { icon: '🐹', title: 'Go Expert Agent', desc: 'Idiomatic Go with concurrency patterns, interfaces, and systems programming.', tier: 'pro' },
+  { icon: '🦀', title: 'Rust Expert Agent', desc: 'Safe, fast systems code with ownership, borrowing, and zero-cost abstractions.', tier: 'pro' },
+  { icon: '☕', title: 'Java/Spring Agent', desc: 'Enterprise Java 21+, Spring Boot microservices, and JVM optimization.', tier: 'pro' },
+  { icon: '📊', title: 'Code Analytics', desc: 'Complexity metrics, dependency graphs, and code health scores for your project.', tier: 'pro' },
+  { icon: '🔄', title: 'Export/Import Agents', desc: 'Save and share your agent personas as JSON files. Build custom agent libraries.', tier: 'pro' },
+  // ── Elite Features ($15/mo) ──
+  { icon: '🚀', title: '5 Elite Models', desc: 'GPT-5, GPT-5 Plus, Claude Opus 4, O3 Pro, Gemini 2.5 Pro — maximum capability.', tier: 'elite' },
+  { icon: '🌐', title: 'Full Stack Agent', desc: 'End-to-end web dev: React/Vue frontend, Node/Python/Go backend, databases.', tier: 'elite' },
+  { icon: '🔧', title: 'DevOps Agent', desc: 'CI/CD pipelines, Docker, Kubernetes, Terraform, and cloud infrastructure.', tier: 'elite' },
+  { icon: '📱', title: 'Mobile Dev Agent', desc: 'iOS (Swift/SwiftUI) and Android (Kotlin/Compose) app development.', tier: 'elite' },
+  { icon: '⛓️', title: 'Blockchain Agent', desc: 'Solidity smart contracts, Solana programs, dApps, and Web3 development.', tier: 'elite' },
+  { icon: '🎯', title: 'Project-Aware Context', desc: 'AI understands your full codebase structure, dependencies, and patterns.', tier: 'elite' },
+  { icon: '🔗', title: 'Full API Access', desc: 'Programmatic access via local server. Integrate AI into your workflows.', tier: 'elite' },
+  { icon: '🧪', title: 'Custom Quantum Circuits', desc: 'Unlimited shots, advanced gate sets, and real quantum algorithm development.', tier: 'elite' },
+  { icon: '⚡', title: 'Priority Queue', desc: 'Skip the line. Your requests are processed first with dedicated resources.', tier: 'elite' },
+  // ── Enterprise Features ($35/mo) ──
+  { icon: '👑', title: '6 Enterprise Models', desc: 'GPT-5.1, Claude Sonnet 4 Ultra, Gemini 2.5 Ultra, Grok 4 Heavy, DeepSeek V4 Max, MiMo 2.5 Max.', tier: 'enterprise' },
+  { icon: '🧠', title: 'AI Research Agent', desc: 'Transformers, diffusion models, RL, neural architectures — cutting-edge ML.', tier: 'enterprise' },
+  { icon: '📊', title: 'Data Science Agent', desc: 'ML pipelines, statistical analysis, pandas/numpy/sklearn expert guidance.', tier: 'enterprise' },
+  { icon: '⚡', title: 'Performance Engineer', desc: 'Profiling, bottleneck analysis, cache optimization, and scalability design.', tier: 'enterprise' },
+  { icon: '♻️', title: 'Refactoring Expert', desc: 'Code smell detection, design pattern application, and safe transformation plans.', tier: 'enterprise' },
+  { icon: '📦', title: 'Batch Inference', desc: 'Process entire codebases in one go. Multi-file analysis and bulk refactoring.', tier: 'enterprise' },
+  { icon: '🔗', title: '1M Context Window', desc: 'Analyze massive projects without losing context. Full codebase awareness.', tier: 'enterprise' },
+  { icon: '🤝', title: 'Team Collaboration', desc: 'Shared agent personas, team workspaces, and collaborative code reviews.', tier: 'enterprise' },
+  { icon: '🎓', title: 'Custom Integrations', desc: 'Webhook triggers, CI/CD hooks, IDE plugins, and custom agent pipelines.', tier: 'enterprise' },
 ]
 
 window.AIGENEV7_SUBTITLES = [
@@ -521,13 +679,12 @@ window.AIGENEV7_PREMIUM_TIERS = [
     price: '$0',
     description: 'Full-featured CLI with all core capabilities.',
     features: [
-      'All 30+ models (standard access)',
+      '8 free AI models (Haiku, DeepSeek V4, GPT-5 Mini, etc.)',
+      '13 agent personas (Coding, Debug, Review, Architect, etc.)',
       'Unlimited chat & prompting',
       'Agent system (create/edit/delete)',
-      'Console export of agents',
-      'Inline JSON agent import',
+      'Code templates for React, Node, Python',
       'Quantum circuit demos',
-      'All 16 agent personas',
       'Unlimited token usage',
     ],
     cta: 'Start Free',
@@ -540,11 +697,14 @@ window.AIGENEV7_PREMIUM_TIERS = [
     color: 'var(--accent)',
     price: '$5/mo',
     amount: 5,
-    description: 'Essential premium features for casual users.',
+    description: 'Enhanced models and language-specific experts.',
     features: [
       'Everything in Free',
-      'Export agents to JSON file',
-      'Import agents from JSON file',
+      '4 Pro models (Claude Sonnet 4, DeepSeek V4 Pro, MiMo 2.5 Pro)',
+      'AI code completion (context-aware suggestions)',
+      'TypeScript / Go / Rust / Java expert agents',
+      'Code analytics & complexity metrics',
+      'Export/Import agent personas (JSON)',
       'Priority queue',
       'Email support',
     ],
@@ -559,15 +719,17 @@ window.AIGENEV7_PREMIUM_TIERS = [
     color: 'var(--purple)',
     price: '$15/mo',
     amount: 15,
-    description: 'Advanced features for serious developers.',
+    description: 'Premium models, full-stack agents, and API access.',
     badge: 'Most Popular',
     features: [
       'Everything in Pro',
-      'Custom quantum circuits (unlimited shots)',
-      'Premium model access (GPT-4.1, Claude Opus 4, O3 Pro)',
+      '5 Elite models (GPT-5, GPT-5 Plus, Claude Opus 4, O3 Pro)',
+      'Full Stack / DevOps / Mobile / Blockchain agents',
+      'Project-aware AI context (full codebase understanding)',
       'Full API access via local server',
-      'VIP support',
+      'Custom quantum circuits (unlimited shots)',
       'Early access to new models',
+      'VIP support',
     ],
     cta: 'Get Elite',
     ctaLink: '#payment',
@@ -580,14 +742,17 @@ window.AIGENEV7_PREMIUM_TIERS = [
     color: 'var(--red)',
     price: '$35/mo',
     amount: 35,
-    description: 'Maximum power for teams and power users.',
+    description: 'Maximum AI power with research agents and team features.',
     badge: 'Best Value',
     features: [
       'Everything in Elite',
+      '6 Enterprise models (GPT-5.1, Claude Ultra, Gemini Ultra, etc.)',
+      'AI Research / Data Science / Performance / Refactoring agents',
       'Batch inference (multi-file processing)',
+      '1M context window for massive projects',
+      'Team collaboration & shared workspaces',
+      'Custom integrations (webhooks, CI/CD, IDE plugins)',
       'Dedicated support channel',
-      'Custom feature requests',
-      'Project governance',
       'Name in release notes',
       'Direct line to maintainer',
     ],
@@ -601,6 +766,7 @@ window.AIGENEV7_PREMIUM_TIERS = [
 // Shown on the site so customers know how to pay.
 
 window.AIGENEV7_COINCOMMERCE_STORE_ID = '' // Set your Coinbase Commerce Store ID here
+window.AIGENEV7_PAYMENT_WORKER_URL = '' // Set your Cloudflare Worker URL here (e.g. https://aigenev7-payment-worker.your-subdomain.workers.dev)
 
 window.AIGENEV7_PAYMENT_METHODS = [
   {
@@ -623,9 +789,9 @@ window.AIGENEV7_PAYMENT_METHODS = [
     id: 'minipay',
     name: 'MiniPay',
     emoji: '📱',
-    detail: 'MiniPay by Celo — mobile-first stablecoin payments',
+    detail: '+34 692 138 394 — MiniPay by Celo',
     url: null,
-    description: 'Send cUSD/cEUR via MiniPay. Fast and low-fee.',
+    description: 'Send cUSD/cEUR via MiniPay to +34692138394. Fast and low-fee.',
   },
   {
     id: 'bank',

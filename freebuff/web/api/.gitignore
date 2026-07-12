@@ -1,0 +1,5 @@
+# Local dev secrets
+.dev.vars
+
+# Wrangler state
+.wrangler/

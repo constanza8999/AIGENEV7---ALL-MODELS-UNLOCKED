@@ -1,0 +1,31 @@
+# ──────────────────────────────────────────────
+# AIGENEV7 Payment Worker — Cloudflare Workers
+# ──────────────────────────────────────────────
+# Deploy with: npx wrangler deploy
+# Local dev:   npx wrangler dev
+
+name = "aigenev7-payment-worker"
+main = "worker.js"
+compatibility_date = "2024-12-01"
+
+# ── Custom domain (set after deploying) ──
+# routes = [
+#   { pattern = "payment.aigenev7.com/*", zone_name = "aigenev7.com" }
+# ]
+
+# ── Environment variables (non-secret) ──
+[vars]
+GITHUB_REPO = "constanza8999/AIGENEV7---ALL-MODELS-UNLOCKED"
+
+# ── Production environment secrets ──
+# Set with: npx wrangler secret put COINBASE_COMMERCE_API_KEY
+#           npx wrangler secret put GITHUB_TOKEN
+#           npx wrangler secret put WEBHOOK_SECRET
+[env.production]
+name = "aigenev7-payment-worker-prod"
+vars = { GITHUB_REPO = "constanza8999/AIGENEV7---ALL-MODELS-UNLOCKED" }
+
+# ── Staging environment ──
+[env.staging]
+name = "aigenev7-payment-worker-staging"
+vars = { GITHUB_REPO = "constanza8999/AIGENEV7---ALL-MODELS-UNLOCKED" }

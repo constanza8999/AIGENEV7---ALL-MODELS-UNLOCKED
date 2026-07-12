@@ -1,0 +1,16 @@
+{
+  "name": "aigenev7-payment-worker",
+  "version": "1.0.0",
+  "description": "AIGENEV7 Payment Worker — handles Coinbase Commerce checkout and webhooks",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "deploy:staging": "wrangler deploy --env staging",
+    "tail": "wrangler tail",
+    "tail:staging": "wrangler tail --env staging"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}

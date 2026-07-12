@@ -18,6 +18,28 @@
 <!-- ── Toasts ── -->
 <div class="toast" id="toast">✓ Copied to clipboard</div>
 
+<!-- ── Email Collection Modal ── -->
+<div class="email-modal" id="emailModal">
+  <div class="email-modal-inner">
+    <div class="email-modal-header">
+      <div class="email-modal-icon">📧</div>
+      <h3>Enter Your Email</h3>
+      <p>We'll send your premium key to this address after payment.</p>
+    </div>
+    <form class="email-modal-form" id="emailModalForm" novalidate>
+      <div class="email-input-group">
+        <input type="email" id="emailModalInput" class="email-input" placeholder="you@example.com" autocomplete="email" inputmode="email" required>
+        <div class="email-error" id="emailModalError"></div>
+      </div>
+      <div class="email-modal-tier" id="emailModalTier"></div>
+      <div class="email-modal-actions">
+        <button type="button" class="email-modal-cancel" id="emailModalCancel">Cancel</button>
+        <button type="submit" class="email-modal-submit" id="emailModalSubmit">Continue to Payment →</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <!-- ── Crypto Checkout Modal ── -->
 <div class="crypto-modal" id="cryptoModal">
   <div class="crypto-modal-inner" id="cryptoModalContent"></div>
@@ -405,19 +427,54 @@
 (function() {
   'use strict'
 
-  // Coinbase Commerce hosted checkout
   var COINBASE_STORE_ID = window.AIGENEV7_COINCOMMERCE_STORE_ID || ''
   var WORKER_URL = window.AIGENEV7_PAYMENT_WORKER_URL || ''
+  var pendingCheckout = null
 
-  window.openCryptoCheckout = function(tier, amount, tierName) {
-    if (!COINBASE_STORE_ID && !WORKER_URL) {
-      showToastMsg('Crypto checkout is being configured. Please use PayPal for now.', 'info')
-      return
-    }
+  function validateEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+  }
 
-    // Try the Cloudflare Worker to create a Coinbase Commerce charge
-    var email = prompt('Enter your email to receive your premium key after payment:')
-    if (!email) return
+  function showEmailModal(tier, amount, tierName) {
+    var emailModal = document.getElementById('emailModal')
+    var emailInput = document.getElementById('emailModalInput')
+    var emailError = document.getElementById('emailModalError')
+    var emailTier = document.getElementById('emailModalTier')
+    var tierEmoji = { pro: '⭐', elite: '💎', enterprise: '🏢' }[tier] || '❓'
+    emailTier.innerHTML = tierEmoji + ' <strong>' + tierName + '</strong> — <span style="color:var(--accent)">$' + amount + '/mo</span>'
+    emailInput.value = ''
+    emailError.textContent = ''
+    emailInput.classList.remove('email-input-error')
+    emailModal.classList.add('show')
+    document.body.style.overflow = 'hidden'
+    setTimeout(function() { emailInput.focus() }, 100)
+    pendingCheckout = { tier: tier, amount: amount, tierName: tierName }
+  }
+
+  function hideEmailModal() {
+    document.getElementById('emailModal').classList.remove('show')
+    document.body.style.overflow = ''
+    pendingCheckout = null
+  }
+
+  function showToastMsg(msg) {
+    var t = document.getElementById('toast')
+    if (!t) return
+    t.textContent = msg
+    t.classList.remove('show')
+    void t.offsetWidth
+    t.classList.add('show')
+    setTimeout(function() { t.classList.remove('show') }, 3000)
+  }
+  if (!window.showToast) window.showToast = showToastMsg
+
+  function processCheckout(email) {
+    var data = pendingCheckout
+    if (!data) return
+    var tier = data.tier, amount = data.amount, tierName = data.tierName
+    pendingCheckout = null
+    document.getElementById('emailModal').classList.remove('show')
+    document.body.style.overflow = ''
 
     var modal = document.getElementById('cryptoModal')
     var modalContent = document.getElementById('cryptoModalContent')
@@ -425,7 +482,6 @@
     modal.style.display = 'flex'
     document.body.style.overflow = 'hidden'
 
-    // If no worker configured, show manual payment info
     if (!WORKER_URL || WORKER_URL.indexOf('your-subdomain') !== -1) {
       modalContent.innerHTML = '<div class="crypto-info">'
         + '<h3>₿ Crypto Payment</h3>'
@@ -444,21 +500,12 @@
     fetch(WORKER_URL + '/api/create-charge', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        tier: tier,
-        amount: amount,
-        email: email,
-        currency: 'USD',
-        name: 'AIGENEV7 ' + tierName + ' Subscription'
-      })
+      body: JSON.stringify({ tier: tier, amount: amount, email: email, currency: 'USD', name: 'AIGENEV7 ' + tierName + ' Subscription' })
     })
     .then(function(r) { return r.json() })
-    .then(function(data) {
-      if (data.hosted_url) {
-        window.location.href = data.hosted_url
-      } else {
-        throw new Error(data.error || 'No checkout URL')
-      }
+    .then(function(resp) {
+      if (resp.hosted_url) { window.location.href = resp.hosted_url }
+      else { throw new Error(resp.error || 'No checkout URL') }
     })
     .catch(function(err) {
       modalContent.innerHTML = '<div class="crypto-info">'
@@ -472,28 +519,73 @@
     })
   }
 
-  function showToastMsg(msg) {
-    var t = document.getElementById('toast')
-    if (!t) return
-    t.textContent = msg
-    t.classList.remove('show')
-    void t.offsetWidth
-    t.classList.add('show')
-    setTimeout(function() { t.classList.remove('show') }, 3000)
+  // Public entry point
+  window.openCryptoCheckout = function(tier, amount, tierName) {
+    if (!COINBASE_STORE_ID && !WORKER_URL) {
+      showToastMsg('Crypto checkout is being configured. Please use PayPal for now.', 'info')
+      return
+    }
+    showEmailModal(tier, amount, tierName)
   }
 
-  // Also expose globally so keygen can use it
-  if (!window.showToast) window.showToast = showToastMsg
-
-  // Close modal on overlay click
+  // Close crypto modal on overlay click
   document.addEventListener('click', function(e) {
     if (e.target.id === 'cryptoModal') {
       e.target.style.display = 'none'
       document.body.style.overflow = ''
     }
   })
-})()
-</script>
+
+  // Email modal event listeners
+  var emailForm = document.getElementById('emailModalForm')
+  var emailCancel = document.getElementById('emailModalCancel')
+  var emailInput = document.getElementById('emailModalInput')
+  var emailError = document.getElementById('emailModalError')
+
+  if (emailForm) {
+    emailForm.addEventListener('submit', function(e) {
+      e.preventDefault()
+      var email = emailInput.value.trim()
+      if (!email) {
+        emailError.textContent = 'Email is required'
+        emailInput.classList.add('email-input-error')
+        emailInput.focus()
+        return
+      }
+      if (!validateEmail(email)) {
+        emailError.textContent = 'Please enter a valid email address'
+        emailInput.classList.add('email-input-error')
+        emailInput.focus()
+        return
+      }
+      emailError.textContent = ''
+      emailInput.classList.remove('email-input-error')
+      processCheckout(email)
+    })
+  }
+  if (emailCancel) emailCancel.addEventListener('click', hideEmailModal)
+  if (emailInput) {
+    emailInput.addEventListener('input', function() {
+      if (emailError.textContent) {
+        emailError.textContent = ''
+        emailInput.classList.remove('email-input-error')
+      }
+    })
+  }
+
+  // Close email modal on overlay click
+  document.addEventListener('click', function(e) {
+    if (e.target.id === 'emailModal') hideEmailModal()
+  })
+
+  // Close email modal on Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      var em = document.getElementById('emailModal')
+      if (em && em.classList.contains('show')) hideEmailModal()
+    }
+  })
+})()</script>
 
 <!-- ── Payment Methods Renderer ── -->
 <script>
