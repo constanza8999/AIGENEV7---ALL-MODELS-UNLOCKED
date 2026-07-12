@@ -1,0 +1,95 @@
+# 📚 Sync Wiki Content to GitHub Wiki
+#
+# Automatically syncs markdown files from freebuff/wiki/ to the
+# GitHub Wiki repository whenever changes are pushed to main.
+#
+# Required setup (one-time):
+#   1. Initialize the wiki on GitHub (create the first page manually)
+#   2. Create a PAT (Personal Access Token) with 'repo' scope
+#   3. Add it as a repository secret named WIKI_PAT
+#      (Settings → Secrets and variables → Actions → New repository secret)
+#
+# How it works:
+#   - Detects changes in freebuff/wiki/*.md
+#   - Clones the wiki repo using the PAT
+#   - Copies updated markdown files
+#   - Commits and pushes to the wiki
+
+name: Sync Wiki
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'freebuff/wiki/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Only one sync at a time
+concurrency:
+  group: wiki-sync
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Sync wiki content
+        env:
+          WIKI_PAT: ${{ secrets.WIKI_PAT }}
+        run: |
+          # Configure git
+          git config user.name "AIGENEV7 Wiki Bot"
+          git config user.email "aigenev7-wiki[bot]@users.noreply.github.com"
+
+          # Determine auth token (use WIKI_PAT secret or fall back to GITHUB_TOKEN)
+          if [ -n "$WIKI_PAT" ]; then
+            AUTH_TOKEN="$WIKI_PAT"
+          else
+            AUTH_TOKEN="${{ github.token }}"
+          fi
+
+          REPO_OWNER="${{ github.repository_owner }}"
+          REPO_NAME="${{ github.event.repository.name }}"
+          WIKI_URL="https://${AUTH_TOKEN}@github.com/${REPO_OWNER}/${REPO_NAME}.wiki.git"
+
+          echo "📦 Cloning wiki repository..."
+          git clone "$WIKI_URL" /tmp/wiki-repo || {
+            echo "❌ Failed to clone wiki. Make sure the wiki is initialized."
+            echo "   Go to: https://github.com/${REPO_OWNER}/${REPO_NAME}/wiki"
+            echo "   Click 'Create the first page' to initialize it."
+            exit 1
+          }
+
+          cd /tmp/wiki-repo
+
+          echo "📋 Copying wiki pages..."
+          # Remove old .md files (except .git)
+          find . -maxdepth 1 -name "*.md" -not -name ".*" -delete
+
+          # Copy all wiki pages
+          cp "${{ github.workspace }}/freebuff/wiki/"*.md ./
+
+          echo "📝 Staging and committing..."
+          git add -A
+
+          # Check if there are changes to commit
+          if git diff --cached --quiet; then
+            echo "✅ Wiki is already up to date. Nothing to commit."
+            exit 0
+          fi
+
+          git commit -m "📚 Auto-sync wiki from main (commit ${GITHUB_SHA::7})"
+
+          echo "🚀 Pushing to wiki..."
+          git push origin master
+
+          echo ""
+          echo "✅ Wiki synced successfully!"
+          echo "   Pages updated:"
+          ls -1 *.md | sed 's/^/   📄 /'
