@@ -134,3 +134,134 @@ export function deleteSnippet(idOrName) {
 export function searchSnippets(query) {
   return listSnippets({ search: query })
 }
+
+// ── Export / Import ──────────────────────────────────────────────────────
+
+/**
+ * Export a snippet to a portable JSON string.
+ * @param {string} idOrName
+ * @returns {{ snippet: object, json: string }}
+ */
+export function exportSnippet(idOrName) {
+  const snippet = getSnippet(idOrName)
+  if (!snippet) throw new Error(`Snippet "${idOrName}" not found`)
+  const portable = {
+    id: snippet.id,
+    name: snippet.name,
+    code: snippet.code,
+    language: snippet.language,
+    description: snippet.description,
+    tags: snippet.tags,
+  }
+  return {
+    snippet: portable,
+    json: JSON.stringify(portable, null, 2),
+  }
+}
+
+/**
+ * Export a snippet to a JSON file.
+ * @param {string} idOrName
+ * @param {string} filePath - File path (defaults to snippet-<name>.json)
+ * @returns {string} The path written to
+ */
+export function exportSnippetToFile(idOrName, filePath) {
+  const { snippet, json } = exportSnippet(idOrName)
+  if (!filePath) {
+    const sanitizedName = snippet.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+    filePath = resolve(process.cwd(), `snippet-${sanitizedName}.json`)
+  }
+  writeFileSync(filePath, json, 'utf8')
+  return filePath
+}
+
+/**
+ * Import a snippet from a JSON string or object.
+ * Creates or updates the snippet.
+ * @param {string|object} input
+ * @returns {object} The imported snippet
+ */
+export function importSnippet(input) {
+  let data
+  if (typeof input === 'string') {
+    try {
+      data = JSON.parse(input)
+    } catch {
+      throw new Error('Invalid JSON. Use format: {"name":"...","code":"..."}')
+    }
+  } else if (typeof input === 'object' && input !== null) {
+    data = input
+  } else {
+    throw new Error('Invalid input: expected JSON string or object')
+  }
+
+  if (!data.name || !data.code) {
+    throw new Error('Snippet must have at least "name" and "code" fields')
+  }
+
+  return saveSnippet(
+    data.name,
+    data.code,
+    data.language || '',
+    data.description || `Imported snippet: ${data.name}`,
+    data.tags || [],
+  )
+}
+
+/**
+ * Import a snippet from a JSON file.
+ * @param {string} filePath
+ * @returns {object} The imported snippet
+ */
+export function importSnippetFromFile(filePath) {
+  const resolvedPath = resolve(process.cwd(), filePath)
+  if (!existsSync(resolvedPath)) {
+    throw new Error(`File not found: ${filePath}`)
+  }
+  const raw = readFileSync(resolvedPath, 'utf8')
+  return importSnippet(raw)
+}
+
+/**
+ * Export all snippets to a single JSON file.
+ * @param {string} filePath
+ * @returns {string} The path written to
+ */
+export function exportAllSnippets(filePath) {
+  const snippets = loadSnippets()
+  if (!filePath) {
+    filePath = resolve(process.cwd(), 'snippets-export.json')
+  }
+  writeFileSync(filePath, JSON.stringify(snippets, null, 2), 'utf8')
+  return filePath
+}
+
+/**
+ * Import multiple snippets from a JSON array file.
+ * @param {string} filePath
+ * @returns {number} Number of snippets imported
+ */
+export function importAllSnippets(filePath) {
+  const resolvedPath = resolve(process.cwd(), filePath)
+  if (!existsSync(resolvedPath)) {
+    throw new Error(`File not found: ${filePath}`)
+  }
+  const raw = readFileSync(resolvedPath, 'utf8')
+  let data
+  try {
+    data = JSON.parse(raw)
+  } catch {
+    throw new Error('Invalid JSON in file')
+  }
+  if (!Array.isArray(data)) {
+    throw new Error('Expected a JSON array of snippets')
+  }
+  let count = 0
+  for (const item of data) {
+    if (item.name && item.code) {
+      importSnippet(item)
+      count++
+    }
+  }
+  return count
+}

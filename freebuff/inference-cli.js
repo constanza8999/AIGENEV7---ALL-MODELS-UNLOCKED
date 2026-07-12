@@ -41,7 +41,8 @@ import {
 import { runAutoAgent } from './auto-agent.js'
 import { MODELS } from './models.js'
 import { checkPremium, hasFeature, getUpgradePrompt, getTokenBalance, formatTokens } from './premium.js'
-import { saveSnippet, getSnippet, listSnippets, deleteSnippet } from './snippets.js'
+import { saveSnippet, getSnippet, listSnippets, deleteSnippet, exportSnippet, exportSnippetToFile, importSnippet, importSnippetFromFile, exportAllSnippets, importAllSnippets } from './snippets.js'
+import { saveConversation, loadConversation, listConversations, deleteConversation, exportConversationToFile, importConversation, getConversationSummaries } from './conversations.js'
 import { runDebugLoop } from './debug-agent.js'
 import { getDefensiveAgents, getOffensiveAgents, getFrameworkSummary } from './defensive-offensive.js'
 
@@ -322,6 +323,7 @@ async function chatMode() {
     '/quantum', '/pay', '/keygen', '/menu',
     '/auto', '/auto-stop', '/auto-status',
     '/save', '/snippet', '/search', '/context', '/debug', '/balance',
+    '/history', '/recommend',
   ]
 
   function completer(line) {
@@ -364,6 +366,10 @@ async function chatMode() {
 
   const messages = []
   const contextFiles = []
+
+  // ── Auto agent status tracking ──
+  let autoAgentActive = false
+  let autoAgentIteration = 0
 
   // ── Build messages with agent system prompt + context files ──
   function buildMessages(userContent) {
@@ -440,6 +446,22 @@ async function chatMode() {
         console.log('  /snippet list           List all snippets')
         console.log('  /snippet delete <name>  Delete a snippet')
         console.log('  /snippet search <q>     Search snippets by text')
+        console.log('  /snippet export <name>  Export snippet as JSON')
+        console.log('  /snippet import <json>  Import snippet from JSON')
+        console.log('  /snippet export-all [f] Export all snippets to file')
+        console.log('  /snippet import-all <f> Import snippets from file')
+        console.log('  ── Conversations ──')
+        console.log('  /history                List saved conversations')
+        console.log('  /history save <name>    Save current conversation')
+        console.log('  /history load <name>    Load a conversation')
+        console.log('  /history delete <name>  Delete a conversation')
+        console.log('  /history search <q>     Search conversations')
+        console.log('  /history export <name>  Export conversation to file')
+        console.log('  /history import from <f> Import conversation from file')
+        console.log('  ── Model Recommendations ──')
+        console.log('  /recommend [task]       Recommend best model for a task')
+        console.log('                           Tasks: coding, reasoning, creative,')
+        console.log('                           fast, multimodal, local, budget, uncensored')
         console.log('  ── Code Search ──')
         console.log('  /search <query>         Search code in project directory')
         console.log('  ── Context ──')
@@ -1064,11 +1086,14 @@ async function chatMode() {
             console.log('  ' + d('CWD:') + ' ' + process.cwd())
             console.log()
 
+            autoAgentActive = true
+            autoAgentIteration = 0
             const result = await runAutoAgent({
               prompt: autoPrompt,
               model: currentModel,
               cwd: process.cwd(),
               onStatus: (status) => {
+                autoAgentIteration++
                 console.log('  ' + g('▸') + ' ' + status)
               },
               onChunk: (chunk) => {
@@ -1099,6 +1124,8 @@ async function chatMode() {
             console.log()
             console.log('  ✗ Auto Agent error: ' + err.message)
             console.log()
+          } finally {
+            autoAgentActive = false
           }
           askQuestion()
         })()
@@ -1107,9 +1134,22 @@ async function chatMode() {
 
       // ── Auto agent status ──
       if (trimmed === '/auto-status') {
-        console.log('  Auto agent status tracking coming soon.')
-        console.log('  Currently the auto agent runs synchronously in your chat session.')
-        console.log('  Run /auto <prompt> to start a new task.')
+        const activeStatus = autoAgentActive ? g('ACTIVE') + ' (' + (autoAgentIteration || 0) + ' iterations)' : d('idle')
+        console.log('  ' + c('┄').repeat(46))
+        console.log('  ' + b('🤖 Auto Agent Status'))
+        console.log('  ' + c('┄').repeat(46))
+        console.log('  Status:      ' + activeStatus)
+        console.log('  Model:       ' + c(currentModel))
+        console.log('  CWD:         ' + d(process.cwd()))
+        console.log('  Max iters:   15')
+        console.log()
+        if (autoAgentActive) {
+          console.log('  ' + y('⚠ Auto agent is currently running.'))
+          console.log('  ' + d('Use /auto-stop to request stop (finishes current iteration).'))
+        } else {
+          console.log('  ' + d('Run /auto <prompt> to start a new task.'))
+        }
+        console.log()
         askQuestion()
         return
       }
@@ -1296,6 +1336,86 @@ async function chatMode() {
             console.log(`  • ${b(s.name)}: ${d(preview)}`)
           }
           console.log()
+        }
+        askQuestion()
+        return
+      }
+
+      // ── /snippet export ──
+      if (trimmed.startsWith('/snippet export-all')) {
+        const filePath = trimmed.slice(20).trim() || ''
+        try {
+          const written = exportAllSnippets(filePath || undefined)
+          console.log(`  ✓ All snippets exported to ${written}`)
+        } catch (err) {
+          console.log(`  ✗ ${err.message}`)
+        }
+        askQuestion()
+        return
+      }
+
+      if (trimmed.startsWith('/snippet export ')) {
+        const rest = trimmed.slice(16).trim()
+        const toIdx = rest.indexOf(' to ')
+        if (toIdx !== -1) {
+          const idOrName = rest.slice(0, toIdx).trim()
+          const filePath = rest.slice(toIdx + 4).trim()
+          try {
+            const written = exportSnippetToFile(idOrName, filePath)
+            console.log(`  ✓ Exported to: ${written}`)
+          } catch (err) {
+            console.log(`  ✗ ${err.message}`)
+          }
+        } else {
+          try {
+            const { snippet, json } = exportSnippet(rest)
+            console.log(`\n  🧩 ${snippet.name}`)
+            console.log(`  ─${'─'.repeat(50)}`)
+            console.log(json)
+            console.log(`  ─${'─'.repeat(50)}`)
+          } catch (err) {
+            console.log(`  ✗ ${err.message}`)
+          }
+        }
+        askQuestion()
+        return
+      }
+
+      // ── /snippet import ──
+      if (trimmed.startsWith('/snippet import-all ')) {
+        const filePath = trimmed.slice(21).trim()
+        if (!filePath) {
+          console.log('  ✗ Usage: /snippet import-all <file>')
+          askQuestion()
+          return
+        }
+        try {
+          const count = importAllSnippets(filePath)
+          console.log(`  ✓ Imported ${count} snippet(s) from ${filePath}`)
+        } catch (err) {
+          console.log(`  ✗ ${err.message}`)
+        }
+        askQuestion()
+        return
+      }
+
+      if (trimmed.startsWith('/snippet import ')) {
+        const rest = trimmed.slice(16).trim()
+        if (rest.startsWith('from ')) {
+          const filePath = rest.slice(5).trim()
+          try {
+            const snippet = importSnippetFromFile(filePath)
+            console.log(`  ✓ Imported: ${snippet.name}`)
+          } catch (err) {
+            console.log(`  ✗ ${err.message}`)
+          }
+        } else {
+          try {
+            const snippet = importSnippet(rest)
+            console.log(`  ✓ Imported: ${snippet.name}`)
+          } catch (err) {
+            console.log(`  ✗ ${err.message}`)
+          }
         }
         askQuestion()
         return
@@ -1535,6 +1655,238 @@ async function chatMode() {
           }
           askQuestion()
         })()
+        return
+      }
+
+      // ── /history — Conversation persistence ──
+      if (trimmed === '/history') {
+        const convs = getConversationSummaries()
+        if (convs.length === 0) {
+          console.log('  No saved conversations. Use /history save <name> to save one.')
+        } else {
+          console.log('\n  📜 Saved Conversations')
+          console.log('  ────────────────────────────────────────────')
+          for (let ci = 0; ci < convs.length; ci++) {
+            const cv = convs[ci]
+            const date = new Date(cv.updatedAt).toLocaleDateString()
+            const agentTag = cv.agentName ? ' ' + cv.agentName : ''
+            console.log('  [' + g(String(ci + 1).padStart(2)) + '] ' + b(cv.name.padEnd(20)) + ' ' + d(String(cv.messageCount) + ' msgs') + ' ' + d(date) + d(agentTag))
+          }
+          console.log()
+          console.log('  ' + d('Usage: /history save <name>   Save current conversation'))
+          console.log('  ' + d('       /history load <name>   Load and resume a conversation'))
+          console.log('  ' + d('       /history delete <name> Delete a conversation'))
+          console.log('  ' + d('       /history search <q>    Search conversations'))
+        }
+        console.log()
+        askQuestion()
+        return
+      }
+
+      if (trimmed.startsWith('/history save')) {
+        const name = trimmed.slice(13).trim()
+        if (!name) {
+          console.log('  ✗ Usage: /history save <name>')
+          askQuestion()
+          return
+        }
+        if (messages.length === 0) {
+          console.log('  ✗ No messages to save. Start a conversation first.')
+          askQuestion()
+          return
+        }
+        try {
+          const conv = saveConversation(name, messages, {
+            model: currentModel,
+            agent: currentAgent.id,
+            agentName: currentAgent.emoji + ' ' + currentAgent.name,
+          })
+          console.log(`  ✓ Conversation "${conv.name}" saved (${conv.messageCount} messages)`)
+        } catch (err) {
+          console.log(`  ✗ ${err.message}`)
+        }
+        askQuestion()
+        return
+      }
+
+      if (trimmed.startsWith('/history load')) {
+        const name = trimmed.slice(13).trim()
+        if (!name) {
+          console.log('  ✗ Usage: /history load <name>')
+          askQuestion()
+          return
+        }
+        const conv = loadConversation(name)
+        if (!conv) {
+          console.log(`  ✗ Conversation "${name}" not found. Use /history to list saved conversations.`)
+          askQuestion()
+          return
+        }
+        // Clear current messages and load saved ones
+        messages.length = 0
+        for (const msg of conv.messages) {
+          messages.push(msg)
+        }
+        // Restore model and agent if available
+        if (conv.model) {
+          const restoredModel = MODELS.find((m) => m.id === conv.model)
+          if (restoredModel) {
+            currentModel = conv.model
+            console.log(`  ✓ Restored model: ${restoredModel.displayName}`)
+          }
+        }
+        if (conv.agent) {
+          const restoredAgent = getAgent(conv.agent)
+          if (restoredAgent) {
+            currentAgent = restoredAgent
+            console.log(`  ✓ Restored agent: ${currentAgent.emoji} ${currentAgent.name}`)
+          }
+        }
+        console.log(`  ✓ Loaded conversation "${conv.name}" (${conv.messageCount} messages)`)
+        console.log('  ' + d('Last message:') + ' ' + d(messages.length > 0 ? messages[messages.length - 1].content.substring(0, 80) + '...' : '(empty)'))
+        console.log()
+        askQuestion()
+        return
+      }
+
+      if (trimmed.startsWith('/history delete')) {
+        const name = trimmed.slice(15).trim()
+        if (!name) {
+          console.log('  ✗ Usage: /history delete <name>')
+          askQuestion()
+          return
+        }
+        const deleted = deleteConversation(name)
+        if (deleted) {
+          console.log(`  ✓ Conversation "${name}" deleted`)
+        } else {
+          console.log(`  ✗ Conversation "${name}" not found`)
+        }
+        askQuestion()
+        return
+      }
+
+      if (trimmed.startsWith('/history search ')) {
+        const query = trimmed.slice(16).trim()
+        if (!query) {
+          console.log('  ✗ Usage: /history search <query>')
+          askQuestion()
+          return
+        }
+        const results = listConversations({ search: query })
+        if (results.length === 0) {
+          console.log(`  No conversations matching "${query}".`)
+        } else {
+          console.log(`\n  🔍 Conversations matching "${query}":`)
+          for (const cv of results) {
+            const date = new Date(cv.updatedAt).toLocaleDateString()
+            const preview = cv.messages.length > 0 ? cv.messages[0].content.replace(/\n/g, ' ').substring(0, 60) : ''
+            console.log(`  • ${b(cv.name)} (${cv.messageCount} msgs, ${date}): ${d(preview)}`)
+          }
+          console.log()
+        }
+        askQuestion()
+        return
+      }
+
+      // ── /history export <name> [to <file>] ──
+      if (trimmed.startsWith('/history export ')) {
+        const rest = trimmed.slice(16).trim()
+        const toIdx = rest.indexOf(' to ')
+        if (toIdx !== -1) {
+          const idOrName = rest.slice(0, toIdx).trim()
+          const filePath = rest.slice(toIdx + 4).trim()
+          try {
+            const written = exportConversationToFile(idOrName, filePath)
+            console.log(`  ✓ Exported to: ${written}`)
+          } catch (err) {
+            console.log(`  ✗ ${err.message}`)
+          }
+        } else {
+          try {
+            const written = exportConversationToFile(rest)
+            console.log(`  ✓ Exported to: ${written}`)
+          } catch (err) {
+            console.log(`  ✗ ${err.message}`)
+          }
+        }
+        askQuestion()
+        return
+      }
+
+      // ── /history import from <file> ──
+      if (trimmed.startsWith('/history import ')) {
+        const rest = trimmed.slice(16).trim()
+        if (rest.startsWith('from ')) {
+          const filePath = rest.slice(5).trim()
+          try {
+            const conv = importConversation(readFileSync(resolve(process.cwd(), filePath), 'utf8'))
+            console.log(`  ✓ Imported: ${conv.name} (${conv.messageCount} messages)`)
+          } catch (err) {
+            console.log(`  ✗ ${err.message}`)
+          }
+        } else {
+          try {
+            const conv = importConversation(rest)
+            console.log(`  ✓ Imported: ${conv.name} (${conv.messageCount} messages)`)
+          } catch (err) {
+            console.log(`  ✗ ${err.message}`)
+          }
+        }
+        askQuestion()
+        return
+      }
+
+      // ── /recommend — Model recommendation ──
+      if (trimmed === '/recommend') {
+        const { listTaskCategories } = await import('./models.js')
+        const categories = listTaskCategories()
+        console.log('\n  🎯 Model Recommendations')
+        console.log('  ────────────────────────────────────────────')
+        console.log('  Available task categories:')
+        for (const cat of categories) {
+          console.log('    ' + y(cat.id.padEnd(14)) + ' ' + d(cat.description))
+        }
+        console.log()
+        console.log('  Usage: /recommend <task>  e.g., /recommend coding')
+        console.log()
+        askQuestion()
+        return
+      }
+
+      if (trimmed.startsWith('/recommend ')) {
+        const task = trimmed.slice(11).trim().toLowerCase()
+        if (!task) {
+          console.log('  ✗ Usage: /recommend <task>')
+          console.log('  Tasks: coding, reasoning, creative, fast, multimodal, local, budget, uncensored')
+          askQuestion()
+          return
+        }
+        try {
+          const { recommendModel } = await import('./models.js')
+          const rec = recommendModel(task)
+          console.log('\n  🎯 Recommended Model')
+          console.log('  ────────────────────────────────────────────')
+          console.log('  Task:       ' + y(task))
+          console.log('  ' + d(rec.description))
+          console.log()
+          console.log('  ' + b('Best available:') + ' ' + c(rec.model.displayName) + ' (' + rec.model.id + ')')
+          console.log('  ' + d('Provider: ') + d(rec.model.provider))
+          console.log('  ' + d('Description: ') + d(rec.model.description))
+          if (rec.alternatives.length > 0) {
+            console.log()
+            console.log('  ' + d('Alternatives (no API key configured):'))
+            for (const alt of rec.alternatives.slice(0, 5)) {
+              console.log('    ' + d('• ' + alt.displayName + ' (' + alt.id + ') — ' + alt.provider))
+            }
+          }
+          console.log()
+          console.log('  ' + d('Switch with:') + ' ' + y('/model ' + rec.model.id))
+          console.log()
+        } catch (err) {
+          console.log(`  ✗ ${err.message}`)
+        }
+        askQuestion()
         return
       }
 

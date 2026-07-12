@@ -836,6 +836,133 @@ export function getModel(id) {
   return MODELS.find((m) => m.id === id)
 }
 
+// ── Model Recommendation System ────────────────────────────────────────
+
+/**
+ * Task categories for model recommendations.
+ * Each maps a use-case to the best model attributes.
+ */
+const TASK_PROFILES = {
+  coding: {
+    description: 'General-purpose coding, debugging, and code generation',
+    preferredProviders: ['deepseek', 'anthropic', 'openai', 'openrouter'],
+    preferredIds: ['deepseek-v4-pro', 'claude-sonnet-4', 'gpt-4.1', 'fable-5', 'deepseek-coder', 'deepseek-v4-flash'],
+    traits: ['reasoning', 'code', 'fast'],
+  },
+  reasoning: {
+    description: 'Complex reasoning, analysis, and multi-step problem solving',
+    preferredProviders: ['openai', 'anthropic', 'google', 'deepseek'],
+    preferredIds: ['o3', 'o3-pro', 'claude-opus-4', 'fable-5', 'gemini-2.5-pro', 'deepseek-reasoner', 'gpt-5'],
+    traits: ['reasoning', 'intelligence'],
+  },
+  creative: {
+    description: 'Creative writing, brainstorming, and content generation',
+    preferredProviders: ['anthropic', 'openai', 'google', 'xai'],
+    preferredIds: ['claude-sonnet-4.5', 'gpt-4o', 'gemini-2.5-pro', 'grok-4', 'fable-5'],
+    traits: ['creative', 'multimodal'],
+  },
+  fast: {
+    description: 'Quick responses for simple tasks — speed over depth',
+    preferredProviders: ['deepseek', 'openai', 'google', 'anthropic', 'minimax'],
+    preferredIds: ['deepseek-v4-flash', 'gpt-4o-mini', 'gemini-2.5-flash', 'claude-haiku-3.5', 'minimax-m3', 'gpt-4o-mini'],
+    traits: ['fast', 'affordable'],
+  },
+  multimodal: {
+    description: 'Image understanding and vision-language tasks',
+    preferredProviders: ['openai', 'google', 'anthropic', 'xai'],
+    preferredIds: ['gpt-4o', 'gemini-2.5-pro', 'claude-sonnet-4', 'grok-4', 'fable-5'],
+    traits: ['multimodal'],
+  },
+  local: {
+    description: 'Run locally with Ollama — free, private, no API calls',
+    preferredProviders: ['ollama'],
+    preferredIds: ['llama3.3', 'llama4-maverick', 'qwen2.5-coder-32b', 'mistral-large', 'codellama-34b'],
+    traits: ['local', 'free', 'private'],
+  },
+  budget: {
+    description: 'Most affordable option — minimize cost',
+    preferredProviders: ['deepseek', 'google', 'openai', 'minimax'],
+    preferredIds: ['deepseek-chat', 'gemini-2.5-flash', 'gpt-4o-mini', 'minimax-m2.7', 'gpt-3.5-turbo'],
+    traits: ['affordable'],
+  },
+  uncensored: {
+    description: 'Maximum freedom — no content filters or restrictions',
+    preferredProviders: ['xai', 'deepseek', 'ollama'],
+    preferredIds: ['grok-4', 'grok-3', 'deepseek-v4-pro', 'llama3.3', 'deepseek-chat'],
+    traits: ['uncensored'],
+  },
+}
+
+/**
+ * Recommend the best available model for a given task.
+ * Checks provider availability and returns the first matching model
+ * that has an API key configured.
+ *
+ * @param {string} task - Task category: 'coding', 'reasoning', 'creative',
+ *                        'fast', 'multimodal', 'local', 'budget', 'uncensored'
+ * @returns {{ model: object, task: string, description: string, alternatives: Array }}
+ */
+export function recommendModel(task = 'coding') {
+  const profile = TASK_PROFILES[task.toLowerCase()]
+  if (!profile) {
+    throw new Error(
+      `Unknown task: "${task}". Available: ${Object.keys(TASK_PROFILES).join(', ')}`
+    )
+  }
+
+  // Try preferred IDs first (most specific match)
+  const alternatives = []
+  for (const preferredId of profile.preferredIds) {
+    const model = getModel(preferredId)
+    if (model) {
+      if (isProviderAvailable(model.provider) || model.provider === 'ollama') {
+        return {
+          model,
+          task,
+          description: profile.description,
+          alternatives: alternatives.slice(0, 5),
+        }
+      }
+      alternatives.push(model)
+    }
+  }
+
+  // Fallback: any available model from preferred providers
+  for (const provider of profile.preferredProviders) {
+    if (isProviderAvailable(provider) || provider === 'ollama') {
+      const providerModels = MODELS.filter((m) => m.provider === provider)
+      if (providerModels.length > 0) {
+        return {
+          model: providerModels[0],
+          task,
+          description: profile.description,
+          alternatives: alternatives.slice(0, 5),
+        }
+      }
+    }
+  }
+
+  // Last resort: auto-detect any available model
+  const detected = detectBestModel()
+  return {
+    model: detected,
+    task,
+    description: profile.description,
+    alternatives: alternatives.slice(0, 5),
+  }
+}
+
+/**
+ * List all available task categories for recommendations.
+ * @returns {Array<{ id, description }>}
+ */
+export function listTaskCategories() {
+  return Object.entries(TASK_PROFILES).map(([id, profile]) => ({
+    id,
+    description: profile.description,
+  }))
+}
+
 /**
  * List all models grouped by provider.
  * @returns {object} { providerName: [models] }

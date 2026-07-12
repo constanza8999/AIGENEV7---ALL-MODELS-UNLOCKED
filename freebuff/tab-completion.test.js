@@ -23,6 +23,7 @@ const COMMANDS_LIST = [
   '/quantum', '/pay', '/keygen', '/menu',
   '/auto', '/auto-stop', '/auto-status',
   '/save', '/snippet', '/search', '/context', '/debug', '/balance',
+  '/history', '/recommend',
 ]
 
 function completer(line) {
@@ -37,7 +38,7 @@ describe('CLI Tab Completion', () => {
     const [suggestions, line] = completer('/')
     // Should show all 35 commands in the list
     expect(suggestions).toEqual(COMMANDS_LIST)
-    expect(suggestions.length).toBe(35)
+    expect(suggestions.length).toBe(37)
     expect(line).toBe('/')
   })
 
@@ -64,10 +65,10 @@ describe('CLI Tab Completion', () => {
     expect(suggestions.length).toBe(3)
   })
 
-  it('filters by prefix /h → /help and /h', () => {
+  it('filters by prefix /h → /help, /h, and /history', () => {
     const [suggestions, line] = completer('/h')
-    expect(suggestions).toEqual(['/help', '/h'])
-    expect(suggestions.length).toBe(2)
+    expect(suggestions).toEqual(['/help', '/h', '/history'])
+    expect(suggestions.length).toBe(3)
   })
 
   it('filters by prefix /q → quit, quantum commands', () => {
@@ -92,7 +93,7 @@ describe('CLI Tab Completion', () => {
     const [suggestions, line] = completer('/x')
     // No match → shows ALL commands
     expect(suggestions).toEqual(COMMANDS_LIST)
-    expect(suggestions.length).toBe(35)
+    expect(suggestions.length).toBe(37)
   })
 
   it('returns empty array for non-slash input', () => {
@@ -111,6 +112,7 @@ describe('CLI Tab Completion', () => {
     const [suggestions, line] = completer('/s')
     expect(suggestions).toEqual(['/save', '/snippet', '/search'])
     expect(suggestions.length).toBe(3)
+    // Note: /history and /recommend don't start with /s so they're not in /s filter
   })
 
   it('filters by /d → /defensive and /debug (insertion order)', () => {
@@ -190,6 +192,7 @@ describe('CLI Tab Completion', () => {
       '/quantum', '/pay', '/keygen', '/menu',
       '/auto', '/auto-stop', '/auto-status',
       '/save', '/snippet', '/search', '/context', '/debug', '/balance',
+      '/history', '/recommend',
     ]
     for (const cmd of helpCommands) {
       expect(COMMANDS_LIST).toContain(cmd)
