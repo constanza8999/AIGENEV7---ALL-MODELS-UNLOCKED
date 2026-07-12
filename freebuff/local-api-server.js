@@ -7,7 +7,7 @@
  * endpoints, proxying LLM calls through `inference.js` using locally
  * configured API keys.
  *
- * This enables the AIGENEV7 binary to work WITHOUT Google login or a
+ * This enables the AIGENEV7 binary to work WITHOUT any login or a
  * Codebuff backend — just set API keys in freebuff/.env and go.
  *
  * Usage:
@@ -318,37 +318,7 @@ const server = Bun.serve({
         }, { headers: corsHeaders })
       }
 
-      // ================================================================
-      // POST /api/auth/cli/code — Login Code Generation
-      // ================================================================
-      if (method === 'POST' && path === '/api/auth/cli/code') {
-        return Response.json({
-          loginUrl: `http://localhost:${PORT}/login`,
-          fingerprintHash: crypto.randomUUID(),
-          expiresAt: new Date(Date.now() + 300_000).toISOString(),
-        }, { headers: corsHeaders })
-      }
 
-      // ================================================================
-      // GET /api/auth/cli/status — Login Status Polling
-      // ================================================================
-      if (method === 'GET' && path.startsWith('/api/auth/cli/status')) {
-        return Response.json({
-          user: {
-            id: 'local-user',
-            name: 'Local User',
-            email: 'local@aigenev7.ai',
-            authToken: process.env.CODEBUFF_API_KEY || 'local-dev-key',
-          },
-        }, { headers: corsHeaders })
-      }
-
-      // ================================================================
-      // POST /api/auth/cli/logout — Logout
-      // ================================================================
-      if (method === 'POST' && path === '/api/auth/cli/logout') {
-        return Response.json({ success: true }, { headers: corsHeaders })
-      }
 
       // ================================================================
       // GET/POST /api/v1/freebuff/session — Freebuff Session
@@ -456,19 +426,7 @@ const server = Bun.serve({
         }, { headers: corsHeaders })
       }
 
-      // ================================================================
-      // POST /api/v1/freebuff/login — Local login endpoint
-      // ================================================================
-      if (method === 'POST' && path === '/api/v1/freebuff/login') {
-        return Response.json({
-          token: process.env.CODEBUFF_API_KEY || 'local-dev-key',
-          user: {
-            id: 'local-user',
-            name: 'Local User',
-            email: 'local@aigenev7.ai',
-          },
-        }, { headers: corsHeaders })
-      }
+
 
       // ================================================================
       // GET /health — Health check
