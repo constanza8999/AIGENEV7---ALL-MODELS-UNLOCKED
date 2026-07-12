@@ -8,7 +8,7 @@ rem ── Detect binary location ──
 set "BINARY="
 if exist "%~dp0aigenev7.exe" set "BINARY=%~dp0aigenev7.exe"
 if exist "%~dp0..\cli\bin\freebuff.exe" set "BINARY=%~dp0..\cli\bin\freebuff.exe"
-if exist "%~dp0..\freeai\dist\freeai.exe" set "BINARY=%~dp0..\freeai\dist\freeai.exe"
+if exist "%~dp0..\aigenev7\dist\aigenev7.exe" set "BINARY=%~dp0..\aigenev7\dist\aigenev7.exe"
 if exist "%~dp0bin\aigenev7.exe" set "BINARY=%~dp0bin\aigenev7.exe"
 
 rem ── Display header ──

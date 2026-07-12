@@ -1,9 +1,9 @@
 #!/usr/bin/env bun
 
 /**
- * FreeAI build wrapper.
+ * AIGENEV7 build wrapper.
  *
- * Builds the FreeAI binary using AIGENEV7 as the runtime engine, with
+ * Builds the AIGENEV7 binary using the AIGENEV7 engine, with
  * `FREEBUFF_MODE=true` set at compile time. Produces TWO artifacts, in
  * DIFFERENT directories (so the engine's distributable dir stays pristine):
  *
@@ -12,8 +12,8 @@
  *                                       this wrapper does not move it).
  *   2. <repoRoot>/dist/<exeName>      - a native executable produced via
  *                                       `bun build --compile`,
- *                                       i.e. codebuff-main/freeai/dist/freeai.exe
- *                                       (or freeai on non-Windows).
+ *                                       i.e. codebuff-main/aigenev7/dist/aigenev7.exe
+ *                                       (or aigenev7 on non-Windows).
  *
  *                                       NOTE: the exe is bundled but the
  *                                       AWS SDK v3, Orama, and Google auth
@@ -33,25 +33,25 @@
  *                                       Every other provider works. See
  *                                       `stubProblemImportsInBundle` below.
  *
- * The FreeAI binary is a rebranded AIGENEV7: same multi-provider CLI (OpenAI,
+ * The AIGENEV7 binary wraps the AIGENEV7 engine: same multi-provider CLI (OpenAI,
  * Gemini, DeepSeek, Ollama, 200+ models), but the CLI name, terminal title,
- * brand constants, and developer attribution switch to "FreeAI"/"freeai" with
+ * brand constants, and developer attribution use "AIGENEV7"/"aigenev7" with
  * "developed by CONSTANZA (José Jaime Juliá)" in --help.
  *
  * Usage:
- *   bun freeai/cli/build-freeai.ts [version]            # build only
- *   bun freeai/cli/build-freeai.ts [version] --no-exe   # skip the exe step
+ *   bun aigenev7/cli/build-aigenev7.ts [version]            # build only
+ *   bun aigenev7/cli/build-aigenev7.ts [version] --no-exe   # skip the exe step
  *
  * Env overrides:
  *   AIGENEV7_DIR    - path to the aigenev7 checkout (default: sibling at
  *                       the user's Desktop)
- *   FREEAI_TARGET     - bun compile target (default: auto-detected from
+ *   AIGENEV7_TARGET     - bun compile target (default: auto-detected from
  *                       process.platform/process.arch, e.g. bun-windows-x64)
- *   FREEAI_EXE_NAME   - output filename (default: freeai[.exe])
+ *   AIGENEV7_EXE_NAME   - output filename (default: aigenev7[.exe])
  *
  * The standalone exe is the deliverable for "build the whole app as an
  * installer-ready binary" workflows. The ESM is the deliverable for the npm
- * tarball (which the existing freeai/cli/release.ts workflow packages).
+ * tarball (which the existing aigenev7/cli/release.ts workflow packages).
  */
 
 import { spawnSync } from 'child_process'
@@ -59,13 +59,13 @@ import { existsSync, mkdirSync, readFileSync, rmdirSync, statSync, unlinkSync, w
 import { dirname, join, resolve } from 'path'
 import { fileURLToPath } from 'url'
 
-// Resolve the script's own location AND its parent (freeai/) as absolute
+// Resolve the script's own location AND its parent (aigenev7/) as absolute
 // paths. Using `join(__dirname, '..', '..')` earlier produced a relative
 // path that depended on the spawning process's cwd, which silently broke
-// `freeaiDistDir` (the new code) and the aigenev7 lookup (worked by
+// `aigenev7DistDir` (the new code) and the aigenev7 lookup (worked by
 // accident). `resolve()` makes both absolute and cwd-independent.
 const __dirname = resolve(dirname(fileURLToPath(import.meta.url)))
-const repoRoot = resolve(__dirname, '..') // freeai/ (parent of cli/)
+const repoRoot = resolve(__dirname, '..') // aigenev7/ (parent of cli/)
 
 const args = process.argv.slice(2)
 const skipExe = args.includes('--no-exe')
@@ -103,7 +103,7 @@ if (!existsSync(buildScript)) {
 // ---------------------------------------------------------------------------
 
 console.log(
-  `[1/2] Building FreeAI v${version} (engine: AIGENEV7 at ${aigenev7Dir})...`,
+  `[1/2] Building AIGENEV7 v${version} (engine: AIGENEV7 at ${aigenev7Dir})...`,
 )
 
 const buildResult = spawnSync('bun', ['run', 'scripts/build.ts'], {
@@ -116,7 +116,7 @@ const buildResult = spawnSync('bun', ['run', 'scripts/build.ts'], {
 })
 
 if (buildResult.status !== 0) {
-  console.error('FreeAI build failed')
+  console.error('AIGENEV7 build failed')
   process.exit(buildResult.status ?? 1)
 }
 
@@ -129,7 +129,7 @@ if (!existsSync(distFile)) {
   process.exit(1)
 }
 
-console.log(`✅ FreeAI v${version} ESM bundle built: ${distFile}`)
+console.log(`✅ AIGENEV7 v${version} ESM bundle built: ${distFile}`)
 
 // ---------------------------------------------------------------------------
 // 2b. Run `bun install` in the AIGENEV7 directory.
@@ -183,7 +183,7 @@ if (skipExe) {
 // TypeScript source would skip those plugins and is not what we want.
 
 function detectBunTarget(): string {
-  if (process.env.FREEAI_TARGET) return process.env.FREEAI_TARGET
+  if (process.env.AIGENEV7_TARGET) return process.env.AIGENEV7_TARGET
   const platform = process.platform
   const arch = process.arch
   const map: Record<string, Record<string, string>> = {
@@ -195,15 +195,15 @@ function detectBunTarget(): string {
   if (!t) {
     throw new Error(
       `Unsupported platform/arch: ${platform}-${arch}. ` +
-        `Set FREEAI_TARGET explicitly (e.g. bun-windows-x64, bun-linux-x64).`,
+        `Set AIGENEV7_TARGET explicitly (e.g. bun-windows-x64, bun-linux-x64).`,
     )
   }
   return t
 }
 
 function defaultExeName(): string {
-  if (process.env.FREEAI_EXE_NAME) return process.env.FREEAI_EXE_NAME
-  return process.platform === 'win32' ? 'freeai.exe' : 'freeai'
+  if (process.env.AIGENEV7_EXE_NAME) return process.env.AIGENEV7_EXE_NAME
+  return process.platform === 'win32' ? 'aigenev7.exe' : 'aigenev7'
 }
 
 /**
@@ -232,26 +232,26 @@ function defaultExeName(): string {
  * works normally. The original dist/cli.mjs is left intact for users
  * who want the un-stubbed .mjs.
  *
- * Why the stubbed file lives in the engine's dist/ tree (not freeai/):
+ * Why the stubbed file lives in the engine's dist/ tree (not aigenev7/):
  * `bun build --compile` walks up from the entry point looking for
  * `node_modules/`. If the entry is outside aigenev7's tree, the
  * resolver can't reach aigenev7's node_modules and fails to resolve
  * even the non-stubbed imports. So the stubbed bundle MUST be inside
  * the aigenev7 dir tree for resolution to work.
  *
- * The stubbed file is written to `<aigenev7Dir>/dist/.freeai-stub/`
+ * The stubbed file is written to `<aigenev7Dir>/dist/.aigenev7-stub/`
  * — a hidden subdir (the leading `.` keeps it out of casual `ls`; the
- * `freeai-stub` name makes the purpose explicit) that is cleaned up
+ * `aigenev7-stub` name makes the purpose explicit) that is cleaned up
  * after the build via the returned `cleanup` function (callers should
  * use `try { ... } finally { cleanup() }`).
  *
  * Returns `{ entryPath, cleanup }`. `entryPath` is ready to be passed
  * to `bun build --compile`. `cleanup` removes the stubbed file and
- * the .freeai-stub/ dir; safe to call on success or failure.
+ * the .aigenev7-stub/ dir; safe to call on success or failure.
  */
 function stubProblemImportsInBundle(): { entryPath: string; cleanup: () => void } {
   const originalDist = resolve(aigenev7Dir, 'dist', 'cli.mjs')
-  const stubDir = resolve(aigenev7Dir, 'dist', '.freeai-stub')
+  const stubDir = resolve(aigenev7Dir, 'dist', '.aigenev7-stub')
   const stubbedDist = join(stubDir, 'cli-stubbed.mjs')
   const source = readFileSync(originalDist, 'utf8')
 
@@ -266,7 +266,7 @@ function stubProblemImportsInBundle(): { entryPath: string; cleanup: () => void 
   let stubCount = 0
   const stubbed = source.replace(stubPattern, (_match, pkg) => {
     stubCount++
-    return `Promise.resolve({ /* ${pkg} stubbed in FreeAI exe — Bedrock/Vertex/Orama features disabled */ })`
+    return `Promise.resolve({ /* ${pkg} stubbed in AIGENEV7 exe — Bedrock/Vertex/Orama features disabled */ })`
   })
 
   if (stubCount === 0) {
@@ -313,7 +313,7 @@ function stubProblemImportsInBundle(): { entryPath: string; cleanup: () => void 
         rmdirSync(stubDir)
       } catch (err) {
         // ENOTEMPTY means the dir has leftover content (shouldn't
-        // happen, but be defensive). The .freeai-stub/ prefix keeps
+        // happen, but be defensive). The .aigenev7-stub/ prefix keeps
         // it out of any normal `ls` or git tracking, so leaving it
         // in place is harmless. Any other error (EPERM, EBUSY, etc.)
         // is worth surfacing.
@@ -334,16 +334,16 @@ function stubProblemImportsInBundle(): { entryPath: string; cleanup: () => void 
 const bunTarget = detectBunTarget()
 const exeName = defaultExeName()
 
-// Output path: <repoRoot>/dist/<exeName>, i.e. codebuff-main/freeai/dist/freeai.exe.
+// Output path: <repoRoot>/dist/<exeName>, i.e. codebuff-main/aigenev7/dist/aigenev7.exe.
 // We deliberately keep the AIGENEV7 dist/ directory's MAIN contents pristine
 // (the engine's distributable artifacts: dist/cli.mjs, dist/sdk.mjs). The
-// only FreeAI-owned file that lands in the engine's tree is the transient
-// stubbed bundle in `dist/.freeai-stub/` (hidden subdir; cleaned up after
+// only AIGENEV7-owned file that lands in the engine's tree is the transient
+// stubbed bundle in `dist/.aigenev7-stub/` (hidden subdir; cleaned up after
 // the build). See stubProblemImportsInBundle() for why it has to live there.
-const freeaiDistDir = resolve(repoRoot, 'dist')
-const exePath = join(freeaiDistDir, exeName)
+const aigenev7DistDir = resolve(repoRoot, 'dist')
+const exePath = join(aigenev7DistDir, exeName)
 
-mkdirSync(freeaiDistDir, { recursive: true })
+mkdirSync(aigenev7DistDir, { recursive: true })
 
 // Best-effort unlink of any previous build so re-runs are idempotent.
 // On Windows, bun --compile fails with EPERM if the target exe is locked.
@@ -357,11 +357,11 @@ try {
 }
 
 // Clean up any stale stubbed bundle from a previous failed run that
-// didn't get to its own cleanup step. Same for any orphan `cli-freeai.mjs`
+// didn't get to its own cleanup step. Same for any orphan `cli-aigenev7.mjs`
 // the old pre-rename code path might have left behind in the engine's dist/.
 for (const stale of [
-  resolve(aigenev7Dir, 'dist', '.freeai-stub', 'cli-stubbed.mjs'),
-  resolve(aigenev7Dir, 'dist', 'cli-freeai.mjs'),
+  resolve(aigenev7Dir, 'dist', '.aigenev7-stub', 'cli-stubbed.mjs'),
+  resolve(aigenev7Dir, 'dist', 'cli-aigenev7.mjs'),
 ]) {
   try {
     if (existsSync(stale)) {
@@ -374,7 +374,7 @@ for (const stale of [
 }
 
 console.log(
-  `\n[2/2] Compiling FreeAI v${version} to native exe (target: ${bunTarget})...`,
+  `\n[2/2] Compiling AIGENEV7 v${version} to native exe (target: ${bunTarget})...`,
 )
 
 const compileStart = Date.now()
@@ -385,7 +385,7 @@ const compileStart = Date.now()
 // --external alone doesn't suppress bun's static resolve check,
 // --no-bundle isn't valid with --compile, and pre-bundling with esbuild
 // would duplicate the build pipeline. The stubbed file is written to
-// <aigenev7Dir>/dist/.freeai-stub/ so bun's resolver can walk up and
+// <aigenev7Dir>/dist/.aigenev7-stub/ so bun's resolver can walk up and
 // find aigenev7/node_modules/ — the location is load-bearing for
 // resolution to work.
 const { entryPath: exeEntry, cleanup: stubCleanup } = stubProblemImportsInBundle()
@@ -400,8 +400,8 @@ try {
       `--target=${bunTarget}`,
       exeEntry,
       // Absolute outfile path: write the compiled exe into
-      // <repoRoot>/dist/ (codebuff-main/freeai/dist/) instead of the engine's
-      // own dist/. See the freeaiDistDir definition above for the rationale.
+      // <repoRoot>/dist/ (codebuff-main/aigenev7/dist/) instead of the engine's
+      // own dist/. See the aigenev7DistDir definition above for the rationale.
       `--outfile=${exePath}`,
     ],
     {
@@ -415,7 +415,7 @@ try {
 }
 
 if (compileResult.status !== 0) {
-  console.error('FreeAI exe compilation failed')
+  console.error('AIGENEV7 exe compilation failed')
   process.exit(compileResult.status ?? 1)
 }
 
@@ -430,17 +430,17 @@ const sizeMB = (statSync(exePath).size / 1024 / 1024).toFixed(1)
 const elapsedSec = ((Date.now() - compileStart) / 1000).toFixed(1)
 
 console.log(
-  `\n✅ FreeAI v${version} standalone exe built in ${elapsedSec}s (${sizeMB} MB)`,
+  `\n✅ AIGENEV7 v${version} standalone exe built in ${elapsedSec}s (${sizeMB} MB)`,
 )
 console.log(`   Binary:  ${exePath}`)
 console.log(`   Target:  ${bunTarget}`)
 console.log(
-  `   Brand:   FreeAI — developed by CONSTANZA (José Jaime Juliá)\n` +
-    `            (CLI: 'freeai', process.title: 'freeai', BRAND_NAME: 'FreeAI')`,
+  `   Brand:   AIGENEV7 — developed by CONSTANZA (José Jaime Juliá)\n` +
+    `            (CLI: 'aigenev7', process.title: 'aigenev7', BRAND_NAME: 'AIGENEV7')`,
 )
 console.log(
   `\nTry it: ${exePath} --version\n` +
     `         ${exePath} --help  | head -5\n` +
     `\nNext: package into the npm tarball via\n` +
-    `  bun freeai/cli/release/build.ts ${version}`,
+    `  bun aigenev7/cli/release/build.ts ${version}`,
 )

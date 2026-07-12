@@ -16,7 +16,7 @@ export const WEBSITE_URL = env.NEXT_PUBLIC_CODEBUFF_APP_URL
 //      treated as unset if empty/whitespace. Wins over the baked-in
 //      value on purpose: that's the whole point of the override.
 //   2. NEXT_PUBLIC_FREEBUFF_APP_URL — baked into the binary at build time
-//      (driven by freeai/cli/build.ts or the .env.freebuff it reads).
+//      (driven by aigenev7/cli/build.ts or the .env.freebuff it reads).
 //   3. Built-in default              — localhost:3002 in dev, freebuff.com in
 //      prod (FREEBUFF_WEB_URL_PROD).
 //

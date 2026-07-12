@@ -19,7 +19,7 @@ set "BINARY_SRC=%REPO_ROOT%\cli\bin\freebuff.exe"
 set "BINARY_DST=%PACKAGE_DIR%\aigenev7.exe"
 set "WASM_SRC=%REPO_ROOT%\cli\bin\tree-sitter.wasm"
 set "WASM_DST=%PACKAGE_DIR%\tree-sitter.wasm"
-set "BUILD_SCRIPT=%REPO_ROOT%\freeai\cli\build.ts"
+set "BUILD_SCRIPT=%REPO_ROOT%\aigenev7\cli\build.ts"
 
 rem ── Step 1: Build the binary ──
 echo  [1/4] Building AIGENEV7 binary...

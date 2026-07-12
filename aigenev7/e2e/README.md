@@ -77,7 +77,7 @@ describe('Agent Test', () => {
 ## Prerequisites
 
 - **tmux** must be installed: `brew install tmux` (macOS) or `sudo apt-get install tmux` (Ubuntu)
-- **Freebuff binary** must be built: `bun freebuff/cli/build.ts 0.0.0-dev`
+- **Freebuff binary** must be built: `bun aigenev7/cli/build.ts 0.0.0-dev`
 - **SDK built** (for agent tests): `cd sdk && bun run build`
 - **CODEBUFF_API_KEY** (for agent tests only): Set this environment variable
 
@@ -86,33 +86,33 @@ describe('Agent Test', () => {
 ### Build the binary first
 
 ```bash
-bun freebuff/cli/build.ts 0.0.0-dev
+bun aigenev7/cli/build.ts 0.0.0-dev
 ```
 
 ### Run all tests
 
 ```bash
-bun test freebuff/e2e/tests/
+bun test aigenev7/e2e/tests/
 ```
 
 ### Run a specific test
 
 ```bash
-bun test freebuff/e2e/tests/version.e2e.test.ts
-bun test freebuff/e2e/tests/startup.e2e.test.ts
-bun test freebuff/e2e/tests/help-command.e2e.test.ts
-bun test freebuff/e2e/tests/agent-startup.e2e.test.ts
+bun test aigenev7/e2e/tests/version.e2e.test.ts
+bun test aigenev7/e2e/tests/startup.e2e.test.ts
+bun test aigenev7/e2e/tests/help-command.e2e.test.ts
+bun test aigenev7/e2e/tests/agent-startup.e2e.test.ts
 ```
 
 ### Use a custom binary path
 
 ```bash
-FREEBUFF_BINARY=/path/to/freebuff bun test freebuff/e2e/tests/
+FREEBUFF_BINARY=/path/to/freebuff bun test aigenev7/e2e/tests/
 ```
 
 ## Adding New Tests
 
-1. Create a new file in `freebuff/e2e/tests/` with the naming convention `<feature>.e2e.test.ts`
+1. Create a new file in `aigenev7/e2e/tests/` with the naming convention `<feature>.e2e.test.ts`
 2. Add the test name to `.github/workflows/freebuff-e2e.yml` matrix:
 
 ```yaml
