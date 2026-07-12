@@ -19,17 +19,18 @@
 <div class="toast" id="toast">✓ Copied to clipboard</div>
 
 <!-- ── Email Collection Modal ── -->
-<div class="email-modal" id="emailModal">
+<div class="email-modal" id="emailModal" role="dialog" aria-modal="true" aria-labelledby="emailModalTitle" aria-describedby="emailModalDesc">
   <div class="email-modal-inner">
     <div class="email-modal-header">
-      <div class="email-modal-icon">📧</div>
-      <h3>Enter Your Email</h3>
-      <p>We'll send your premium key to this address after payment.</p>
+      <div class="email-modal-icon" aria-hidden="true">📧</div>
+      <h3 id="emailModalTitle">Enter Your Email</h3>
+      <p id="emailModalDesc">We'll send your premium key to this address after payment.</p>
     </div>
     <form class="email-modal-form" id="emailModalForm" novalidate>
       <div class="email-input-group">
-        <input type="email" id="emailModalInput" class="email-input" placeholder="you@example.com" autocomplete="email" inputmode="email" required>
-        <div class="email-error" id="emailModalError"></div>
+        <label for="emailModalInput" class="sr-only">Email address for premium key delivery</label>
+        <input type="email" id="emailModalInput" class="email-input" placeholder="you@example.com" autocomplete="email" inputmode="email" aria-required="true" aria-invalid="false" aria-describedby="emailModalError" required>
+        <div class="email-error" id="emailModalError" role="status" aria-live="polite"></div>
       </div>
       <div class="email-modal-tier" id="emailModalTier"></div>
       <div class="email-modal-actions">
@@ -78,13 +79,13 @@
   <div class="section-title">Choose Your Tier</div>
   <h2 class="section-heading">CLI <span>Premium Plans</span></h2>
   <p class="section-desc">Every tier includes unlimited chat, all models, and the full agent system. Upgrade to unlock advanced features.</p>
-  <div class="locked-overlay">
-    <div class="locked-blur">
+  <div class="locked-overlay" role="region" aria-labelledby="locked-tiers-label">
+    <div class="locked-blur" aria-describedby="locked-tiers-status">
       <div class="tiers-grid" id="tiersGrid"></div>
     </div>
-    <div class="locked-bar">
-      <div class="locked-bar-icon">🔒</div>
-      <div class="locked-bar-text">🔒 Payment Required</div>
+    <div class="locked-bar" id="locked-tiers-status" role="status">
+      <div class="locked-bar-icon" aria-hidden="true">🔒</div>
+      <div class="locked-bar-text" id="locked-tiers-label">🔒 Payment Required</div>
       <div class="locked-bar-subtext">Pay to unlock premium tier plans</div>
     </div>
   </div>
@@ -94,8 +95,8 @@
 <div class="section" id="activate">
   <div class="section-title">After Payment</div>
   <h2 class="section-heading">How to <span>Activate</span></h2>
-  <div class="locked-overlay">
-    <div class="locked-blur">
+  <div class="locked-overlay" role="region" aria-labelledby="locked-activate-label">
+    <div class="locked-blur" aria-describedby="locked-activate-status">
       <div class="steps">
         <div class="step">
           <div class="step-num">1</div>
@@ -119,9 +120,9 @@
         </div>
       </div>
     </div>
-    <div class="locked-bar">
-      <div class="locked-bar-icon">🔒</div>
-      <div class="locked-bar-text">🔒 Payment Required</div>
+    <div class="locked-bar" id="locked-activate-status" role="status">
+      <div class="locked-bar-icon" aria-hidden="true">🔒</div>
+      <div class="locked-bar-text" id="locked-activate-label">🔒 Payment Required</div>
       <div class="locked-bar-subtext">Pay to unlock activation instructions</div>
     </div>
   </div>
@@ -133,8 +134,8 @@
   <h2 class="section-heading">Generate Your <span>Premium Key</span></h2>
   <p class="section-desc">Select your tier and generate a key format. After payment, you'll receive your real key by email.</p>
 
-  <div class="keygen-box locked-overlay">
-    <div class="locked-blur">
+  <div class="keygen-box locked-overlay" role="region" aria-labelledby="locked-keygen-label">
+    <div class="locked-blur" aria-describedby="locked-keygen-status">
       <div class="keygen-controls">
         <label for="keygenTier">Tier:</label>
         <select id="keygenTier" class="keygen-select">
@@ -167,9 +168,9 @@
         Set it via <code>--premium-key</code> flag or <code>AIGENEV7_PREMIUM_KEY</code> env var.
       </div>
     </div>
-    <div class="locked-bar">
-      <div class="locked-bar-icon">🔒</div>
-      <div class="locked-bar-text">🔒 Payment Required</div>
+    <div class="locked-bar" id="locked-keygen-status" role="status">
+      <div class="locked-bar-icon" aria-hidden="true">🔒</div>
+      <div class="locked-bar-text" id="locked-keygen-label">🔒 Payment Required</div>
       <div class="locked-bar-subtext">Pay to unlock premium key generation</div>
     </div>
   </div>
@@ -188,36 +189,39 @@
   <div class="section-title">Reference</div>
   <h2 class="section-heading">Premium CLI <span>Commands</span></h2>
   <div class="cmd-ref">
-    <div class="cmd-row locked-row">
+    <div class="cmd-row locked-row" aria-describedby="cmd-locked-pro">
       <div class="cmd-name">/agent-export &lt;name&gt; to &lt;file&gt;<span class="cmd-lock">Locked</span></div>
       <div class="cmd-tier pro">Pro+</div>
       <div class="cmd-desc">Export an agent persona to a JSON file on disk</div>
     </div>
-    <div class="cmd-row locked-row">
+    <div class="cmd-row locked-row" aria-describedby="cmd-locked-pro">
       <div class="cmd-name">/agent-import from &lt;file&gt;<span class="cmd-lock">Locked</span></div>
       <div class="cmd-tier pro">Pro+</div>
       <div class="cmd-desc">Import an agent persona from a JSON file</div>
     </div>
-    <div class="cmd-row locked-row">
+    <div class="cmd-row locked-row" aria-describedby="cmd-locked-pro">
       <div class="cmd-name">/quantum run &lt;gates&gt;<span class="cmd-lock">Locked</span></div>
       <div class="cmd-tier pro">Pro+</div>
       <div class="cmd-desc">Run custom quantum circuits with unlimited shots</div>
     </div>
-    <div class="cmd-row locked-row">
+    <div class="cmd-row locked-row" aria-describedby="cmd-locked-elite">
       <div class="cmd-name">--model &lt;premium-model&gt;<span class="cmd-lock">Locked</span></div>
       <div class="cmd-tier elite">Elite+</div>
       <div class="cmd-desc">Use premium models: GPT-4.1, Claude Opus 4, O3 Pro, Grok 4, Fable 5</div>
     </div>
-    <div class="cmd-row locked-row">
+    <div class="cmd-row locked-row" aria-describedby="cmd-locked-elite">
       <div class="cmd-name">Full API access<span class="cmd-lock">Locked</span></div>
       <div class="cmd-tier elite">Elite+</div>
       <div class="cmd-desc">Use the local API server for programmatic access</div>
     </div>
-    <div class="cmd-row locked-row">
+    <div class="cmd-row locked-row" aria-describedby="cmd-locked-enterprise">
       <div class="cmd-name">Batch inference<span class="cmd-lock">Locked</span></div>
       <div class="cmd-tier enterprise">Enterprise</div>
       <div class="cmd-desc">Multi-file processing and batch prompting</div>
     </div>
+    <div class="sr-only" id="cmd-locked-pro">Requires Pro tier or higher. Pay to unlock.</div>
+    <div class="sr-only" id="cmd-locked-elite">Requires Elite tier or higher. Pay to unlock.</div>
+    <div class="sr-only" id="cmd-locked-enterprise">Requires Enterprise tier. Pay to unlock.</div>
   </div>
 </div>
 
@@ -435,6 +439,8 @@
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
   }
 
+  var lastFocusedElement = null
+
   function showEmailModal(tier, amount, tierName) {
     var emailModal = document.getElementById('emailModal')
     var emailInput = document.getElementById('emailModalInput')
@@ -445,17 +451,48 @@
     emailInput.value = ''
     emailError.textContent = ''
     emailInput.classList.remove('email-input-error')
+    emailInput.setAttribute('aria-invalid', 'false')
     emailModal.classList.add('show')
     document.body.style.overflow = 'hidden'
+    var pageEl = document.querySelector('.page')
+    if (pageEl) pageEl.setAttribute('aria-hidden', 'true')
+    lastFocusedElement = document.activeElement
     setTimeout(function() { emailInput.focus() }, 100)
     pendingCheckout = { tier: tier, amount: amount, tierName: tierName }
   }
 
   function hideEmailModal() {
-    document.getElementById('emailModal').classList.remove('show')
+    var emailModal = document.getElementById('emailModal')
+    emailModal.classList.remove('show')
     document.body.style.overflow = ''
+    var pageEl = document.querySelector('.page')
+    if (pageEl) pageEl.removeAttribute('aria-hidden')
     pendingCheckout = null
+    if (lastFocusedElement) {
+      lastFocusedElement.focus()
+      lastFocusedElement = null
+    }
   }
+
+  // Focus trap inside email modal
+  document.addEventListener('keydown', function(e) {
+    var em = document.getElementById('emailModal')
+    if (!em || !em.classList.contains('show')) return
+    if (e.key === 'Escape') {
+      hideEmailModal()
+      return
+    }
+    if (e.key !== 'Tab') return
+    var focusable = em.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+    if (focusable.length === 0) return
+    var first = focusable[0]
+    var last = focusable[focusable.length - 1]
+    if (e.shiftKey) {
+      if (document.activeElement === first) { e.preventDefault(); last.focus() }
+    } else {
+      if (document.activeElement === last) { e.preventDefault(); first.focus() }
+    }
+  })
 
   function showToastMsg(msg) {
     var t = document.getElementById('toast')
@@ -549,12 +586,14 @@
       if (!email) {
         emailError.textContent = 'Email is required'
         emailInput.classList.add('email-input-error')
+        emailInput.setAttribute('aria-invalid', 'true')
         emailInput.focus()
         return
       }
       if (!validateEmail(email)) {
         emailError.textContent = 'Please enter a valid email address'
         emailInput.classList.add('email-input-error')
+        emailInput.setAttribute('aria-invalid', 'true')
         emailInput.focus()
         return
       }
@@ -569,6 +608,7 @@
       if (emailError.textContent) {
         emailError.textContent = ''
         emailInput.classList.remove('email-input-error')
+        emailInput.setAttribute('aria-invalid', 'false')
       }
     })
   }
@@ -576,14 +616,6 @@
   // Close email modal on overlay click
   document.addEventListener('click', function(e) {
     if (e.target.id === 'emailModal') hideEmailModal()
-  })
-
-  // Close email modal on Escape key
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-      var em = document.getElementById('emailModal')
-      if (em && em.classList.contains('show')) hideEmailModal()
-    }
   })
 })()</script>
 
