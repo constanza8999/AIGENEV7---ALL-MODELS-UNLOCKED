@@ -1,0 +1,79 @@
+# 📢 Telegram Update Bot
+#
+# Posts AIGENEV7 updates to the Telegram channel.
+#
+# Triggers:
+#   - On new GitHub Release published → posts release announcement
+#   - On push to main with feat:/fix: prefix → posts update
+#   - Manual trigger from Actions tab
+#
+# Required secrets:
+#   TELEGRAM_BOT_TOKEN  — Bot token from @BotFather
+#   TELEGRAM_CHANNEL_ID — Channel @username or numeric ID
+
+name: Telegram Updates
+
+on:
+  release:
+    types: [published]
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'freebuff/wiki/**'
+  workflow_dispatch:
+    inputs:
+      message:
+        description: 'Custom message to post'
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  post-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Post release announcement
+        if: github.event_name == 'release'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}
+        run: |
+          VERSION="${{ github.event.release.tag_name }}"
+          VERSION="${VERSION#v}"
+          echo "📢 Posting release v${VERSION} to Telegram..."
+          node freebuff/telegram/bot.js post-release "${VERSION}"
+
+      - name: Post feature/fix update
+        if: github.event_name == 'push'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}
+        run: |
+          MSG=$(git log -1 --pretty=format:"%s" | head -c 200)
+          if [[ "$MSG" == feat:* ]]; then
+            FEATURE="${MSG#feat: }"
+            echo "✨ Posting feature: ${FEATURE}..."
+            node freebuff/telegram/bot.js post-feature "${FEATURE}"
+          elif [[ "$MSG" == fix:* ]]; then
+            FIX="${MSG#fix: }"
+            echo "🔧 Posting fix: ${FIX}..."
+            node freebuff/telegram/bot.js post-update "🔧 <b>Bug Fix:</b> ${FIX}"
+          else
+            echo "📢 Posting general update..."
+            node freebuff/telegram/bot.js post-update "${MSG}"
+          fi
+
+      - name: Post custom message
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.message != ''
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}
+        run: |
+          echo "📤 Posting custom message..."
+          node freebuff/telegram/bot.js post "${{ github.event.inputs.message }}"

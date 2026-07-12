@@ -20,6 +20,9 @@
   // DOM refs
   var chips = document.getElementById('agentChips')
   var modelSel = document.getElementById('modelSelect')
+  var modelSearchInput = document.getElementById('modelSearchInput')
+  var modelSearchCount = document.getElementById('modelSearchCount')
+  var modelFilterChips = document.getElementById('modelFilterChips')
   var chatMsgs = document.getElementById('chatMessages')
   var chatInput = document.getElementById('chatInput')
   var sendBtn = document.getElementById('sendBtn')
@@ -29,13 +32,20 @@
   var clearBtn = document.getElementById('clearChatBtn')
   var errToast = document.getElementById('errorToast')
 
+  // ── Filter state ─────────────────────────────────
+  var activeProviderFilter = null
+  var activeTierFilter = null
+  var searchQuery = ''
+
   // ── Init ───────────────────────────────────────────
   function init() {
     if (!chips) return
 
     renderAgentChips()
+    renderModelFilterChips()
     renderModelSelect()
     renderModelQuickPicks()
+    bindModelSearch()
 
     var savedAgent = localStorage.getItem('aigenev7_agent')
     var savedModel = localStorage.getItem('aigenev7_model')
@@ -146,14 +156,106 @@
     }
   }
 
+  function getFilteredModels() {
+    var q = searchQuery.toLowerCase()
+    return models.filter(function (m) {
+      if (activeProviderFilter && m.provider.toLowerCase() !== activeProviderFilter.toLowerCase()) return false
+      if (activeTierFilter && m.tier !== activeTierFilter) return false
+      if (q) {
+        var name = (m.displayName || m.id).toLowerCase()
+        var desc = (m.description || '').toLowerCase()
+        var prov = (m.provider || '').toLowerCase()
+        if (name.indexOf(q) === -1 && desc.indexOf(q) === -1 && prov.indexOf(q) === -1) return false
+      }
+      return true
+    })
+  }
+
+  function renderModelFilterChips() {
+    if (!modelFilterChips) return
+    modelFilterChips.innerHTML = ''
+
+    // Collect unique providers and tiers
+    var providers = []
+    var tiers = []
+    var seenP = {}
+    var seenT = {}
+    for (var i = 0; i < models.length; i++) {
+      if (!seenP[models[i].provider]) { seenP[models[i].provider] = true; providers.push(models[i].provider) }
+      if (models[i].tier && !seenT[models[i].tier]) { seenT[models[i].tier] = true; tiers.push(models[i].tier) }
+    }
+
+    // Tier chips
+    var tierLabels = { free: '🆓 Free', pro: '⭐ Pro', elite: '💎 Elite', enterprise: '🏢 Enterprise' }
+    for (var t = 0; t < tiers.length; t++) {
+      var btn = document.createElement('button')
+      btn.className = 'model-filter-chip'
+      btn.dataset.tier = tiers[t]
+      btn.textContent = tierLabels[tiers[t]] || tiers[t]
+      if (activeTierFilter === tiers[t]) btn.classList.add('active')
+      ;(function (tier) {
+        btn.addEventListener('click', function () {
+          activeTierFilter = activeTierFilter === tier ? null : tier
+          renderModelFilterChips()
+          renderModelSelect()
+          renderModelQuickPicks()
+        })
+      })(tiers[t])
+      modelFilterChips.appendChild(btn)
+    }
+
+    // Provider chips (show top 8)
+    var showProviders = providers.slice(0, 8)
+    for (var p = 0; p < showProviders.length; p++) {
+      var pbtn = document.createElement('button')
+      pbtn.className = 'model-filter-chip provider'
+      pbtn.dataset.provider = showProviders[p]
+      pbtn.textContent = showProviders[p]
+      if (activeProviderFilter === showProviders[p]) pbtn.classList.add('active')
+      ;(function (prov) {
+        pbtn.addEventListener('click', function () {
+          activeProviderFilter = activeProviderFilter === prov ? null : prov
+          renderModelFilterChips()
+          renderModelSelect()
+          renderModelQuickPicks()
+        })
+      })(showProviders[p])
+      modelFilterChips.appendChild(pbtn)
+    }
+  }
+
+  function bindModelSearch() {
+    if (!modelSearchInput) return
+    modelSearchInput.addEventListener('input', function () {
+      searchQuery = modelSearchInput.value.trim()
+      renderModelSelect()
+      renderModelQuickPicks()
+      updateSearchCount()
+    })
+  }
+
+  function updateSearchCount() {
+    if (!modelSearchCount) return
+    var filtered = getFilteredModels()
+    if (searchQuery || activeProviderFilter || activeTierFilter) {
+      modelSearchCount.textContent = filtered.length + ' / ' + models.length
+      modelSearchCount.style.display = 'inline'
+    } else {
+      modelSearchCount.style.display = 'none'
+    }
+  }
+
   function renderModelSelect() {
     if (!modelSel) return
     modelSel.innerHTML = ''
 
+    var filtered = getFilteredModels()
+    updateSearchCount()
+
     // Group by provider
     var byProvider = {}
-    for (var i = 0; i < models.length; i++) {
-      var m = models[i]
+    for (var i = 0; i < filtered.length; i++) {
+      var m = filtered[i]
       if (!byProvider[m.provider]) byProvider[m.provider] = []
       byProvider[m.provider].push(m)
     }
@@ -168,20 +270,31 @@
         for (var j = 0; j < pModels.length; j++) {
           var o = document.createElement('option')
           o.value = pModels[j].id
-          o.textContent = pModels[j].displayName || pModels[j].id
-          if (pModels[j].multimodal) o.textContent += ' \uD83D\uDCF7'
+          var label = pModels[j].displayName || pModels[j].id
+          if (pModels[j].multimodal) label += ' \uD83D\uDCF7'
+          if (pModels[j].localOnly) label += ' \uD83D\uDCBB Local'
+          o.textContent = label
           g.appendChild(o)
         }
         modelSel.appendChild(g)
       }
     } else {
-      for (var k = 0; k < models.length; k++) {
+      for (var k = 0; k < filtered.length; k++) {
         var o2 = document.createElement('option')
-        o2.value = models[k].id
-        o2.textContent = models[k].displayName || models[k].id
-        if (models[k].multimodal) o2.textContent += ' \uD83D\uDCF7'
+        o2.value = filtered[k].id
+        var label2 = filtered[k].displayName || filtered[k].id
+        if (filtered[k].multimodal) label2 += ' \uD83D\uDCF7'
+        if (filtered[k].localOnly) label2 += ' \uD83D\uDCBB Local'
+        o2.textContent = label2
         modelSel.appendChild(o2)
       }
+    }
+
+    // Keep current selection if still in filtered list
+    if (currentModelId && filtered.some(function (m) { return m.id === currentModelId })) {
+      modelSel.value = currentModelId
+    } else if (filtered.length > 0) {
+      selectModel(filtered[0].id)
     }
 
     modelSel.addEventListener('change', function () { selectModel(modelSel.value) })

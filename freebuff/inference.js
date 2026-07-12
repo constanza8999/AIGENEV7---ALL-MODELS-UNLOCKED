@@ -439,6 +439,37 @@ const PROVIDER_URLS = {
   ollama: 'http://localhost:11434/v1',
 }
 
+// ── Model Fallback Chains ──────────────────────────────────────────────
+// When a model fails, try the next model in the chain.
+const FALLBACK_CHAINS = {
+  'fable-5': ['claude-sonnet-4', 'deepseek-v4-pro', 'gpt-4o'],
+  'claude-opus-4': ['claude-sonnet-4', 'claude-sonnet-4.5', 'gpt-4.1'],
+  'claude-4-opus': ['claude-opus-4', 'claude-sonnet-4', 'gpt-4.1'],
+  'claude-4-sonnet': ['claude-sonnet-4', 'claude-sonnet-4.5', 'deepseek-v4-pro'],
+  'gpt-5': ['gpt-4.1', 'gpt-4o', 'deepseek-v4-pro'],
+  'gpt-5-plus': ['gpt-5', 'gpt-4.1', 'claude-sonnet-4'],
+  'o3-pro': ['o3', 'gpt-4.1', 'deepseek-v4-pro'],
+  'o4': ['o3', 'o3-pro', 'gpt-4.1'],
+  'grok-4': ['grok-3', 'gpt-4o', 'deepseek-v4-pro'],
+  'gemini-2.5-pro': ['gemini-2.5-flash', 'gemini-2.0-flash', 'deepseek-v4-pro'],
+  'gemini-2.5-ultra': ['gemini-2.5-pro', 'gemini-2.5-flash', 'gpt-4.1'],
+}
+
+/**
+ * Get the next model in the fallback chain.
+ * @param {string} failedModelId
+ * @param {Set<string>} alreadyTried
+ * @returns {string|undefined}
+ */
+function getNextFallbackModel(failedModelId, alreadyTried, getModel) {
+  const chain = FALLBACK_CHAINS[failedModelId]
+  if (!chain) return undefined
+  for (const candidateId of chain) {
+    if (!alreadyTried.has(candidateId) && getModel(candidateId)) return candidateId
+  }
+  return undefined
+}
+
 // ── Main Inference Function ─────────────────────────────────────────────
 
 /**
@@ -466,18 +497,15 @@ export async function infer(opts = {}) {
   // writeToStdout is set to true only when running as a standalone CLI script
   const writeToStdout = opts.writeToStdout ?? (process.argv[1] && (process.argv[1].endsWith('/inference.js') || process.argv[1].endsWith('\\inference.js')))
   const onChunk = opts.onChunk
+  const enableFallback = opts.fallback !== false // default true
 
   // Dynamic import models catalog
-  let model
-  try {
-    const { getModel, detectBestModel } = await import('./models.js')
-    model = getModel(modelId)
-    if (!model) {
-      model = detectBestModel()
-      if (!model) throw new Error('No models available. Configure at least one API key.')
-    }
-  } catch (err) {
-    throw new Error(`Model "${modelId}" not found: ${err.message}`)
+  const { getModel, detectBestModel, isProviderAvailable } = await import('./models.js')
+
+  let model = getModel(modelId)
+  if (!model) {
+    model = detectBestModel()
+    if (!model) throw new Error('No models available. Configure at least one API key.')
   }
 
   if (!uncensored) {
@@ -500,15 +528,43 @@ export async function infer(opts = {}) {
     console.error(`[AIGENEV7] ${model.displayName} (${model.provider}) — inferring...`)
   }
 
+  // ── Try inference with automatic fallback ──
   let result
+  const triedModels = new Set()
+  triedModels.add(model.id)
+  let currentModel = model
 
-  if (model.provider === 'anthropic') {
-    result = await callAnthropic(model, messages, { maxTokens, temperature, stream, writeToStdout, onChunk, uncensored })
-  } else if (model.provider === 'google') {
-    result = await callGemini(model, messages, { maxTokens, temperature, stream, writeToStdout, onChunk, uncensored })
-  } else {
-    // All other providers use OpenAI-compatible API
-    result = await callOpenAICompatible(model, messages, { maxTokens, temperature, stream, writeToStdout, onChunk, uncensored })
+  while (currentModel) {
+    try {
+      if (currentModel.provider === 'anthropic') {
+        result = await callAnthropic(currentModel, messages, { maxTokens, temperature, stream, writeToStdout, onChunk, uncensored })
+      } else if (currentModel.provider === 'google') {
+        result = await callGemini(currentModel, messages, { maxTokens, temperature, stream, writeToStdout, onChunk, uncensored })
+      } else {
+        result = await callOpenAICompatible(currentModel, messages, { maxTokens, temperature, stream, writeToStdout, onChunk, uncensored })
+      }
+      break // success
+    } catch (err) {
+      if (writeToStdout) {
+        console.error(`\n[AIGENEV7] ⚠ ${currentModel.displayName} failed: ${err.message}`)
+      }
+
+      if (enableFallback) {
+        const nextId = getNextFallbackModel(currentModel.id, triedModels, getModel)
+        if (nextId) {
+          const nextModel = getModel(nextId)
+          if (nextModel && isProviderAvailable(nextModel.provider)) {
+            if (writeToStdout) {
+              console.error(`[AIGENEV7] ↻ Falling back to ${nextModel.displayName}...`)
+            }
+            triedModels.add(nextId)
+            currentModel = nextModel
+            continue
+          }
+        }
+      }
+      throw err
+    }
   }
 
   const elapsed = ((Date.now() - startTime) / 1000).toFixed(1)
@@ -516,7 +572,7 @@ export async function infer(opts = {}) {
   const totalTokens = inputTokens + outputTokens
 
   // ── Deduct tokens from balance ──
-  const deduction = deductTokens(totalTokens)
+  deductTokens(totalTokens)
 
   if (writeToStdout) {
     const bal = getTokenBalance()
@@ -525,7 +581,7 @@ export async function infer(opts = {}) {
     const barLen = 20
     const filled = Math.round((bal.used / Math.max(1, bal.max)) * barLen)
     const bar = '█'.repeat(Math.min(filled, barLen)) + '░'.repeat(Math.max(0, barLen - filled))
-    console.error(`\n[AIGENEV7] ✓ Done (${elapsed}s, ~${totalTokens} tokens)`)
+    console.error(`\n[AIGENEV7] ✓ Done (${elapsed}s, ~${totalTokens} tokens)${triedModels.size > 1 ? ` (${triedModels.size} models tried)` : ''}`)
     console.error(`[AIGENEV7] 📊 Balance: ${formatTokens(remaining)} / ${formatTokens(bal.max)} remaining [${bar}] ${pct}% used`)
   }
 

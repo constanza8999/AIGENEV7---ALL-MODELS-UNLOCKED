@@ -50,9 +50,9 @@ describe('custom-agents.js', () => {
 
   // ── listAgents() ──────────────────────────────────
   describe('listAgents()', () => {
-    it('returns all 30 default agents (12 core + 9 defensive + 9 offensive)', async () => {
+    it('returns all 45 default agents (27 core + 9 defensive + 9 offensive)', async () => {
       const { listAgents } = await freshModule()
-      expect(listAgents().length).toBe(30)
+      expect(listAgents().length).toBe(45)
     })
 
     it('returns agents with all required fields', async () => {
@@ -75,7 +75,7 @@ describe('custom-agents.js', () => {
       // The module caches the agents array and returns the same reference
       // for performance. Modifications are done via the cache itself.
       expect(first).toBe(second)
-      expect(second.length).toBe(30)
+      expect(second.length).toBe(45)
     })
 
     it('reflects newly created agents', async () => {
@@ -410,14 +410,14 @@ describe('custom-agents.js', () => {
 
   // ── resetAgents() ─────────────────────────────────
   describe('resetAgents()', () => {
-    it('resets to exactly 30 default agents after creating custom ones', async () => {
+    it('resets to exactly 45 default agents after creating custom ones', async () => {
       const { createAgent, listAgents, resetAgents } = await freshModule()
       createAgent('custom-before-reset', 'Custom', 'Desc', 'Prompt')
-      expect(listAgents().length).toBeGreaterThan(30)
+      expect(listAgents().length).toBeGreaterThan(45)
 
       resetAgents()
       const agents = listAgents()
-      expect(agents.length).toBe(30)
+      expect(agents.length).toBe(45)
       expect(agents.find(a => a.id === 'custom-before-reset')).toBeUndefined()
     })
 
@@ -516,7 +516,7 @@ describe('custom-agents.js', () => {
       const mod = await import('./custom-agents.js')
       mod.resetAgents()
       const agents = mod.listAgents()
-      expect(agents.length).toBe(30) // falls back to defaults
+      expect(agents.length).toBe(45) // falls back to defaults
     })
   })
 })

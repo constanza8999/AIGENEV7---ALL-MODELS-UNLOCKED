@@ -1,0 +1,17 @@
+{
+  "name": "aigenev7-telegram",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Telegram bot and channel integration for AIGENEV7 updates",
+  "scripts": {
+    "post": "node bot.js post",
+    "post:release": "node bot.js post-release",
+    "post:update": "node bot.js post-update",
+    "post:feature": "node bot.js post-feature",
+    "test": "node bot.js test"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

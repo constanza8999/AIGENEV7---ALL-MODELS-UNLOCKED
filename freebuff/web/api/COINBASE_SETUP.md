@@ -1,103 +1,97 @@
-# Coinbase Commerce Integration — Setup Guide
+# Coinbase Commerce Setup Guide for AIGENEV7
 
-## Overview
+## Step 1: Create Coinbase Commerce Account
 
-This guide walks you through setting up crypto payments for AIGENEV7 using Coinbase Commerce.
-
-## Step 1: Create a Coinbase Commerce Account
-
-1. Go to [commerce.coinbase.com](https://commerce.coinbase.com)
-2. Click **"Get Started"** and sign up with your business email
-3. Complete identity verification (KYC) if required
-4. Once verified, you'll have access to your dashboard
+1. Go to [commerce.coinbase.com](https://commerce.coinbase.com/)
+2. Click **Get Started** or **Sign Up**
+3. Create an account with your email
+4. Verify your email and complete KYC if required
 
 ## Step 2: Get Your API Key
 
-1. Log into your [Coinbase Commerce dashboard](https://commerce.coinbase.com)
-2. Go to **Settings** → **Security**
-3. Find the **API Keys** section
-4. Click **"Create an API Key"**
-5. **Important:** Copy the key immediately — it won't be shown again!
+1. Log in to your Coinbase Commerce dashboard
+2. Go to **Settings** → **API Keys**
+3. Click **Create API Key**
+4. Copy the API key immediately (it won't be shown again)
+5. Store it securely
 
-## Step 3: Get Your Store ID
+## Step 3: Configure Webhooks
 
-The Store ID (also called "Merchant ID") can be found:
+1. In **Settings** → **Webhooks**, click **Add an endpoint**
+2. Enter your webhook URL:
+   ```
+   https://aigenev7-payment-worker.<your-subdomain>.workers.dev/api/webhook
+   ```
+3. Click **Add**
+4. Copy the **Webhook Shared Secret** (hex string)
 
-1. Go to **Settings** → **Business Information**
-2. Look for **"Store ID"** or **"Merchant ID"**
-3. It's typically a UUID format like: `a1b2c3d4-e5f6-7890-abcd-ef1234567890`
+## Step 4: Authenticate with Cloudflare
 
-## Step 4: Configure Webhooks
+```bash
+# If not already authenticated, run:
+npx wrangler login
+```
 
-1. Go to **Settings** → **Webhooks**
-2. Click **"Add an endpoint"**
-3. Enter your worker URL: `https://aigenev7-payment-worker.<your-subdomain>.workers.dev/api/webhook`
-4. Select events: `charge:confirmed`, `charge:resolved`
-5. Click **Save**
-6. Copy the **Webhook Shared Secret** (this is your `WEBHOOK_SECRET`)
+## Step 5: Set Cloudflare Worker Secrets
 
-## Step 5: Deploy the Cloudflare Worker
+```bash
+# Navigate to the worker directory
+cd freebuff/web/api
 
-Follow the instructions in `freebuff/web/api/DEPLOYMENT.md` to deploy the worker.
+# Set the Coinbase Commerce API key
+echo "your_api_key_here" | npx wrangler secret put COINBASE_COMMERCE_API_KEY
 
-## Step 6: Update data.js
+# Set the webhook secret
+echo "your_webhook_secret_here" | npx wrangler secret put WEBHOOK_SECRET
 
-Once you have your credentials, update both `docs/web/js/data.js` and `freebuff/web/js/data.js`:
+# Set the GitHub token (for triggering key generation)
+echo "ghp_your_github_token_here" | npx wrangler secret put GITHUB_TOKEN
+
+# Verify all secrets are set (shows names only, not values)
+npx wrangler secret list
+```
+
+## Step 6: Deploy the Worker
+
+```bash
+npx wrangler deploy
+```
+
+## Step 7: Update Premium Page
+
+Set the worker URL in **both** data.js files:
+
+1. `docs/web/js/data.js`
+2. `freebuff/web/js/data.js`
 
 ```javascript
-// Line 768 - Set your Coinbase Commerce Store ID
-window.AIGENEV7_COINCOMMERCE_STORE_ID = 'your-store-id-here'
-
-// Line 769 - Set your Cloudflare Worker URL
 window.AIGENEV7_PAYMENT_WORKER_URL = 'https://aigenev7-payment-worker.<your-subdomain>.workers.dev'
 ```
 
-## Step 7: Set Worker Secrets
+> ⚠️ Replace `<your-subdomain>` with your Cloudflare account subdomain.
+> Find it in the Cloudflare dashboard → Workers & Pages.
 
-Run the deploy script to set your secrets:
+## Step 8: Test the Integration
 
-```bash
-cd freebuff/web/api
-./deploy.sh secrets
-```
+1. Go to the premium page
+2. Click **Pay with Crypto** on any tier
+3. Enter your email
+4. You should be redirected to Coinbase Commerce checkout
+5. Complete a test payment (requires cryptocurrency in your Coinbase wallet)
 
-Enter these values when prompted:
-- **COINBASE_COMMERCE_API_KEY**: Your API key from Step 2
-- **GITHUB_TOKEN**: Your GitHub personal access token (needs `repo` scope)
-- **WEBHOOK_SECRET**: Your webhook signing secret from Step 4
-
-## Step 8: Test
-
-1. Deploy the worker: `./deploy.sh production`
-2. Visit your premium page
-3. Click **"₿ Pay with Crypto"** on any tier
-4. Enter your email
-5. You should be redirected to a Coinbase Commerce checkout page
+> 💡 Coinbase Commerce does not have a sandbox mode for testing.
+> Use a small amount of cryptocurrency (e.g., $1 USDC) for testing.
 
 ## Troubleshooting
 
-### "Crypto checkout is being configured"
-- Your `AIGENEV7_COINCOMMERCE_STORE_ID` or `AIGENEV7_PAYMENT_WORKER_URL` is empty
-- Make sure both are set in `data.js`
-
-### "Could not create automatic checkout"
-- Check your worker is deployed and accessible
-- Verify `COINBASE_COMMERCE_API_KEY` is set in the worker
-- Check worker logs: `./deploy.sh logs`
-
-### Webhook not receiving events
-- Verify the webhook URL is correct in Coinbase Commerce settings
-- Make sure `WEBHOOK_SECRET` is set in the worker
-- Check that the events `charge:confirmed` and `charge:resolved` are selected
-
-### Key not received after payment
-- Check the GitHub Actions workflow is triggered
-- Verify `GITHUB_TOKEN` has `repo` scope
-- Check the workflow logs in your GitHub repository
+- **401 Unauthorized**: Check your API key is correct (`npx wrangler secret list`)
+- **Webhook not received**: Verify the webhook URL matches your deployed worker URL
+- **Payment not processed**: Check Cloudflare Worker logs in the dashboard
+- **Worker not found**: Run `npx wrangler deploy` to deploy/update the worker
 
 ## Security Notes
 
-- Never commit API keys or secrets to git
-- Use environment variables or Cloudflare Worker secrets
-- Always verify webhook signatures before processing payments
-- The worker uses HMAC-SHA256 to verify webhook authenticity
+- Never commit API keys to git
+- Use Cloudflare Worker secrets for production
+- Keep your webhook secret secure
+- Rotate keys if compromised via Coinbase Commerce dashboard

@@ -413,6 +413,63 @@ section { scroll-margin-top: 80px; }
 .model-select:hover, .model-select:focus { border-color: var(--text-muted); }
 .model-select option { background: var(--bg-card); color: var(--text); }
 
+/* ── Model Search & Filter ── */
+.model-search-wrap {
+  display: flex; align-items: center; gap: 0.4rem;
+  flex: 0 0 auto;
+}
+.model-search-input {
+  background: var(--bg-input); border: 1px solid var(--border);
+  border-radius: var(--radius-xs); color: var(--text);
+  font-family: var(--font-sans); font-size: 0.75rem;
+  padding: 0.35rem 0.6rem; outline: none;
+  width: 170px; transition: all 0.25s;
+}
+.model-search-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--accent-glow);
+  width: 220px;
+}
+.model-search-input::placeholder { color: var(--text-muted); }
+.model-search-count {
+  font-family: var(--font-mono); font-size: 0.65rem;
+  color: var(--accent); background: rgba(0, 255, 136, 0.08);
+  padding: 0.15rem 0.4rem; border-radius: 999px;
+  white-space: nowrap; display: none;
+}
+.model-filter-chips {
+  display: flex; gap: 0.3rem; flex-wrap: wrap;
+}
+.model-filter-chip {
+  padding: 0.2rem 0.55rem; border-radius: 999px;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--text-dim); font-family: var(--font-sans);
+  font-size: 0.68rem; cursor: pointer;
+  transition: all 0.2s; white-space: nowrap;
+}
+.model-filter-chip:hover {
+  border-color: var(--text-muted); color: var(--text);
+  background: var(--bg-hover);
+}
+.model-filter-chip.active {
+  border-color: var(--accent);
+  background: rgba(0, 255, 136, 0.08);
+  color: var(--accent);
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+.model-filter-chip.provider {
+  border-color: rgba(136, 85, 255, 0.2);
+}
+.model-filter-chip.provider.active {
+  border-color: var(--purple);
+  background: rgba(136, 85, 255, 0.08);
+  color: var(--purple);
+  box-shadow: 0 0 8px var(--purple-glow);
+}
+.model-filter-chip.provider:hover {
+  border-color: var(--purple); color: var(--purple);
+}
+
 /* ── Model Quick Picks ── */
 .model-quick-picks {
   display: flex; gap: 0.3rem; flex-wrap: wrap; flex: 1;

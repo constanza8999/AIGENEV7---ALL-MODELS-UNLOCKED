@@ -1,112 +1,177 @@
-# 🔒 Security Policy
+# AIGENEV7 Security Policy
 
-## Supported Versions
+## Overview
 
-| Version | Supported |
-|---------|-----------|
-| 7.0.x   | ✅ Active support |
-| < 7.0   | ❌ Not supported |
+AIGENEV7 takes security seriously. This document outlines the security measures implemented across all components and provides guidance for reporting vulnerabilities.
 
-## Reporting a Vulnerability
+## Security Architecture
 
-We take security seriously. If you discover a security vulnerability in AIGENEV7, please report it privately.
+### 1. Web Application Security
 
-**Do NOT report security issues in the public issue tracker.**
+#### Content Security Policy (CSP)
+All web pages include CSP headers to prevent XSS attacks:
+- `default-src 'self'` — Only load resources from same origin
+- `script-src 'self'` — No inline scripts allowed
+- `style-src 'self' 'unsafe-inline'` — Styles from same origin
+- `connect-src 'self' https://api.commerce.coinbase.com` — API calls restricted
+- `frame-ancestors 'none'` — Prevents clickjacking
 
-### How to Report
+#### Security Headers
+Every response includes:
+- `X-Content-Type-Options: nosniff` — Prevents MIME type sniffing
+- `X-Frame-Options: DENY` — Prevents framing/clickjacking
+- `X-XSS-Protection: 1; mode=block` — Enables XSS filtering
+- `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload` — Enforces HTTPS
+- `Referrer-Policy: strict-origin-when-cross-origin` — Controls referrer information
+- `Permissions-Policy: camera=(), microphone=(), geolocation=()` — Restricts browser features
 
-1. **GitHub**: Open a private security advisory at:
-   `https://github.com/constanza8999/AIGENEV7---ALL-MODELS-UNLOCKED/security/advisories/new`
+### 2. API Security
 
-2. **Direct**: Reach out to **@constanza8999** via GitHub
+#### Rate Limiting
+- **Window:** 60 seconds (configurable via `RATE_LIMIT_WINDOW`)
+- **Max Requests:** 30 per window per IP (configurable via `RATE_LIMIT_MAX`)
+- **Response:** HTTP 429 with `Retry-After` header when exceeded
+- **Cleanup:** Automatic cleanup of old entries when store exceeds 1000 entries
 
-You should receive a response within **48 hours**. If you don't, please follow up.
+#### Input Validation
+All API inputs are validated:
+- **Tier:** Must be one of `pro`, `elite`, `enterprise`
+- **Amount:** Must be a positive number ≤ 10,000
+- **Email:** Valid email format, max 254 characters
+- **Name:** Max 200 characters
+- **Currency:** Must be one of `USD`, `EUR`, `GBP`, `CAD`, `AUD`
 
-### What to Include
+#### Input Sanitization
+All string inputs are sanitized:
+- Removed angle brackets (`<`, `>`)
+- Removed `javascript:` protocol
+- Removed event handler attributes (`onclick`, `onload`, etc.)
+- Trimmed whitespace
 
-- Type of vulnerability
-- Steps to reproduce
-- Affected versions
-- Potential impact
-- Any suggested fix (if available)
+### 3. Payment Security
 
----
+#### Coinbase Commerce Integration
+- **API Key:** Stored as Cloudflare Worker secret (never exposed)
+- **Webhook Verification:** HMAC-SHA256 signature verification using constant-time comparison
+- **Webhook Secret:** Stored as Cloudflare Worker secret
+- **Body Size Limit:** 1MB maximum for webhook payloads
 
-## 🛡️ Security Best Practices for Contributors
-
-### API Keys & Secrets
-
-**Never commit API keys, tokens, or passwords to the repository.** The project's `.gitignore` already excludes `.env` and `.env.*` files. Keep your keys safe:
-
-```env
-# BAD — Don't add real keys to any file committed to git
-DEEPSEEK_API_KEY=sk-real-key-here  # ❌
-
-# GOOD — Use .env (already gitignored)
-DEEPSEEK_API_KEY=sk-your-key  # ✅
+#### Signature Verification
+```javascript
+// Uses crypto.subtle.verify for constant-time comparison
+// Prevents timing attacks that could leak signature information
+const isValid = await crypto.subtle.verify('HMAC', key, signatureBytes, encoder.encode(rawBody))
 ```
 
-### Environment Files
+### 4. CORS Configuration
 
-- `.env` — **Never commit** (contains secrets, already gitignored)
-- `.env.example` — Safe to commit (contains placeholder values only)
-- `.env.local` / `.env.*.local` — Should not be committed
+#### Allowed Origins
+Configurable via `ALLOWED_ORIGINS` environment variable:
+```
+https://constanza8999.github.io,https://aigenev7.com,http://localhost:3000
+```
 
-### Personal Access Tokens
+#### CORS Headers
+- `Access-Control-Allow-Origin`: Specific origin (not wildcard `*`)
+- `Access-Control-Allow-Methods`: `POST, OPTIONS` only
+- `Access-Control-Allow-Headers`: `Content-Type` only
+- `Access-Control-Max-Age`: 86400 seconds (24 hours)
+- `Vary: Origin` — Ensures proper caching
 
-If you expose a GitHub token:
-1. **Revoke it immediately** at https://github.com/settings/tokens
-2. **Create a new one** with minimal required permissions
-3. **Never paste tokens** in issues, PRs, or discussions
+### 5. Data Protection
+
+#### What We Store
+- **Payment emails:** Used only for key delivery, not stored permanently
+- **Charge IDs:** Used for payment verification only
+- **No credit card data:** All payments processed by Coinbase Commerce
+
+#### What We Don't Store
+- Credit card numbers
+- API keys in logs
+- Passwords (no authentication system)
+- Personal information beyond email
+
+### 6. Infrastructure Security
+
+#### Cloudflare Workers
+- Edge deployment with DDoS protection
+- Automatic SSL/TLS termination
+- Global CDN with low latency
+- Built-in rate limiting (can be configured in dashboard)
+
+#### GitHub Actions
+- Secrets stored in GitHub repository secrets
+- Tokens have minimal required permissions
+- Workflow logs don't expose secrets
+
+## Reporting Vulnerabilities
+
+If you discover a security vulnerability, please report it responsibly:
+
+1. **Email:** constanza@aigen7ev.ai
+2. **Subject:** [SECURITY] Vulnerability Report
+3. **Include:**
+   - Description of the vulnerability
+   - Steps to reproduce
+   - Potential impact
+   - Suggested fix (if any)
+
+**Do NOT** create public GitHub issues for security vulnerabilities.
+
+## Security Checklist
+
+### For Developers
+- [ ] Never commit API keys or secrets to git
+- [ ] Use environment variables for all sensitive configuration
+- [ ] Validate all user inputs on both client and server
+- [ ] Use HTTPS for all API calls
+- [ ] Implement proper error handling without leaking details
+- [ ] Regularly update dependencies
+
+### For Deployment
+- [ ] Set all required secrets in Cloudflare Workers
+- [ ] Configure allowed origins for CORS
+- [ ] Enable rate limiting in Cloudflare dashboard
+- [ ] Monitor worker logs for suspicious activity
+- [ ] Set up alerts for failed webhook verifications
+
+### For Users
+- [ ] Keep API keys secure and rotate periodically
+- [ ] Use strong, unique passwords for related services
+- [ ] Monitor your Coinbase Commerce dashboard for unauthorized charges
+- [ ] Report any suspicious activity immediately
+
+## Recent Security Updates
+
+### v1.1.0 (July 2026)
+- Added rate limiting to all API endpoints
+- Implemented input validation and sanitization
+- Hardened CORS configuration (no more wildcard origins)
+- Added security headers to all responses
+- Improved webhook signature verification with constant-time comparison
+- Added HTTPS enforcement
+- Added request body size limits
+
+## Compliance
+
+### GDPR
+- Minimal data collection (email only for key delivery)
+- No tracking cookies
+- No analytics without consent
+- Right to deletion upon request
+
+### PCI DSS
+- No credit card data processed or stored
+- All payments handled by Coinbase Commerce (PCI compliant)
+- No cardholder data environment
+
+## Contact
+
+For security-related questions or concerns:
+- **Email:** constanza@aigen7ev.ai
+- **GitHub:** [@constanza8999](https://github.com/constanza8999)
 
 ---
 
-## 🔐 GitHub Account Security Checklist
-
-### For Your Account
-
-- [ ] **Two-Factor Authentication (2FA)** — Enable at https://github.com/settings/security
-- [ ] **Strong password** — Unique, not reused from other sites
-- [ ] **Review authorized applications** — https://github.com/settings/applications
-- [ ] **Review SSH keys** — https://github.com/settings/keys
-- [ ] **Personal access tokens** — Use fine-grained tokens with minimal scopes
-- [ ] **Recovery methods** — Add recovery codes and backup email
-
-### For Your Repositories
-
-- [ ] **Branch protection** — Protect `main` branch from force pushes
-- [ ] **Required reviews** — Require PR reviews before merging
-- [ ] **Dependency graph** — Enable Dependabot alerts
-- [ ] **Code scanning** — Enable CodeQL analysis
-- [ ] **Secret scanning** — GitHub automatically scans for exposed keys
-- [ ] **Deploy keys** — Use deploy keys instead of personal tokens in CI
-
-### Recommended GitHub Settings
-
-| Setting | Recommendation |
-|---------|---------------|
-| Two-factor authentication | ✅ **Required** |
-| Session expiration | Set to 30 days |
-| Authorized apps | Review quarterly |
-| Personal tokens | Use fine-grained, repo-specific tokens |
-| SSH keys | Rotate keys every 6 months |
-
----
-
-## 🔄 Dependency Security
-
-AIGENEV7 uses automated dependency management:
-
-- Dependencies are audited during build
-- Keep `bun.lock` and `package.json` up to date
-- Review dependency updates before merging
-
----
-
-## 📝 License & Legal
-
-AIGENEV7 is provided under the MIT License. The software is provided "as is", without warranty of any kind.
-
----
-
-*Last updated: July 2026*
+**Last Updated:** July 12, 2026
+**Version:** 1.1.0
