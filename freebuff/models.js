@@ -290,6 +290,17 @@ export const MODELS = [
     premium: false,
   },
 
+  // ── Ollama (Local) ───────────────────────────────────────────────────
+  {
+    id: 'claude-fable-5q',
+    displayName: 'Claude Fable 5Q (Local)',
+    provider: 'ollama',
+    providerModel: 'oroboroslabs/claude-fable-5Q',
+    multimodal: false,
+    description: 'Local open-weights via Ollama — free & unlimited',
+    premium: false,
+  },
+
   // ── NVIDIA NIM ────────────────────────────────────────────────────────
   {
     id: 'nvidia-llama-3.1-8b',
@@ -438,6 +449,7 @@ export const PROVIDER_URLS = {
   xai: 'https://api.x.ai/v1',
   nvidia: 'https://integrate.api.nvidia.com/v1',
   openrouter: 'https://openrouter.ai/api/v1',
+  ollama: 'http://localhost:11434/v1',
 }
 
 /**
@@ -454,6 +466,7 @@ export const PROVIDER_ENV_KEYS = {
   xai: 'XAI_API_KEY',
   nvidia: 'NVIDIA_API_KEY',
   openrouter: 'OPENROUTER_API_KEY',
+  ollama: 'OLLAMA_API_KEY',
 }
 
 /**
@@ -513,6 +526,7 @@ export function getBestAvailableModel(provider) {
  */
 export function detectBestModel() {
   const priority = [
+    'ollama',
     'anthropic',
     'deepseek',
     'openai',

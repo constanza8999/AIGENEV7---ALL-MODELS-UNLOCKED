@@ -19,6 +19,7 @@ const COMMANDS_LIST = [
   '/model', '/models', '/ls', '/current', '/clear',
   '/agent', '/agents', '/agent-show', '/agent-new', '/agent-edit',
   '/agent-delete', '/agent-export', '/agent-import', '/agent-reset',
+  '/defensive', '/offensive', '/framework',
   '/quantum', '/pay', '/keygen', '/menu',
   '/auto', '/auto-stop', '/auto-status',
   '/save', '/snippet', '/search', '/context', '/debug', '/balance',
@@ -34,9 +35,9 @@ describe('CLI Tab Completion', () => {
 
   it('returns all commands when typing just "/"', () => {
     const [suggestions, line] = completer('/')
-    // Should show all 32 commands in the list
+    // Should show all 35 commands in the list
     expect(suggestions).toEqual(COMMANDS_LIST)
-    expect(suggestions.length).toBe(32)
+    expect(suggestions.length).toBe(35)
     expect(line).toBe('/')
   })
 
@@ -91,7 +92,7 @@ describe('CLI Tab Completion', () => {
     const [suggestions, line] = completer('/x')
     // No match → shows ALL commands
     expect(suggestions).toEqual(COMMANDS_LIST)
-    expect(suggestions.length).toBe(32)
+    expect(suggestions.length).toBe(35)
   })
 
   it('returns empty array for non-slash input', () => {
@@ -112,15 +113,33 @@ describe('CLI Tab Completion', () => {
     expect(suggestions.length).toBe(3)
   })
 
-  it('filters by /d → /debug, /balance is NOT matched', () => {
+  it('filters by /d → /defensive and /debug (insertion order)', () => {
     const [suggestions, line] = completer('/d')
-    expect(suggestions).toEqual(['/debug'])
-    expect(suggestions.length).toBe(1)
+    expect(suggestions).toEqual(['/defensive', '/debug'])
+    expect(suggestions.length).toBe(2)
   })
 
   it('filters by /co → /context', () => {
     const [suggestions, line] = completer('/co')
     expect(suggestions).toEqual(['/context'])
+  })
+
+  it('filters by /de → /defensive and /debug (insertion order)', () => {
+    const [suggestions, line] = completer('/de')
+    expect(suggestions).toEqual(['/defensive', '/debug'])
+    expect(suggestions.length).toBe(2)
+  })
+
+  it('filters by /of → /offensive', () => {
+    const [suggestions, line] = completer('/of')
+    expect(suggestions).toEqual(['/offensive'])
+    expect(suggestions.length).toBe(1)
+  })
+
+  it('filters by /fr → /framework', () => {
+    const [suggestions, line] = completer('/fr')
+    expect(suggestions).toEqual(['/framework'])
+    expect(suggestions.length).toBe(1)
   })
 
   it('filters by /agent- → all agent-* subcommands', () => {
@@ -145,16 +164,18 @@ describe('CLI Tab Completion', () => {
 
   it('commands are organized by category groups', () => {
     // Verify category grouping order (not alphabetical):
-    // quit/exit → model → agent → quantum/pay/keygen/menu → auto → save/search/context/debug/balance
+    // quit/exit → model → agent → defensive/offensive/framework → quantum → auto → save/...
     const quitIdx = COMMANDS_LIST.indexOf('/quit')
     const modelIdx = COMMANDS_LIST.indexOf('/model')
     const agentIdx = COMMANDS_LIST.indexOf('/agent')
+    const defIdx = COMMANDS_LIST.indexOf('/defensive')
     const quantumIdx = COMMANDS_LIST.indexOf('/quantum')
     const autoIdx = COMMANDS_LIST.indexOf('/auto')
     const saveIdx = COMMANDS_LIST.indexOf('/save')
     expect(quitIdx).toBeLessThan(modelIdx)
     expect(modelIdx).toBeLessThan(agentIdx)
-    expect(agentIdx).toBeLessThan(quantumIdx)
+    expect(agentIdx).toBeLessThan(defIdx)
+    expect(defIdx).toBeLessThan(quantumIdx)
     expect(quantumIdx).toBeLessThan(autoIdx)
     expect(autoIdx).toBeLessThan(saveIdx)
   })
@@ -165,6 +186,7 @@ describe('CLI Tab Completion', () => {
       '/model', '/models', '/ls', '/current', '/clear',
       '/agent', '/agents', '/agent-show', '/agent-new', '/agent-edit',
       '/agent-delete', '/agent-export', '/agent-import', '/agent-reset',
+      '/defensive', '/offensive', '/framework',
       '/quantum', '/pay', '/keygen', '/menu',
       '/auto', '/auto-stop', '/auto-status',
       '/save', '/snippet', '/search', '/context', '/debug', '/balance',

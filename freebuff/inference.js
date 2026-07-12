@@ -195,6 +195,7 @@ async function callOpenAICompatible(model, messages, opts) {
     minimax: 'MINIMAX_API_KEY',
     xai: 'XAI_API_KEY',
     nvidia: 'NVIDIA_API_KEY',
+    ollama: 'OLLAMA_API_KEY',
   }
   const apiKey = process.env[envMap[provider]]
   if (!apiKey) throw new Error(`${envMap[provider]} not set`)
@@ -435,6 +436,7 @@ const PROVIDER_URLS = {
   xai: 'https://api.x.ai/v1',
   nvidia: 'https://integrate.api.nvidia.com/v1',
   openrouter: 'https://openrouter.ai/api/v1',
+  ollama: 'http://localhost:11434/v1',
 }
 
 // ── Main Inference Function ─────────────────────────────────────────────

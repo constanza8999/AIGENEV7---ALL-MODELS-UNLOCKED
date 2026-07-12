@@ -492,6 +492,206 @@ section { scroll-margin-top: 80px; }
 .msg-bubble pre { font-family: var(--font-mono); font-size: 0.8rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem; margin: 0.4rem 0; overflow-x: auto; }
 .msg-bubble pre code { background: none; padding: 0; }
 
+/* ── Code Block Wrapper (with header & copy button) ── */
+.code-block-wrapper {
+  margin: 0.5rem 0; border-radius: 6px;
+  overflow: hidden; border: 1px solid var(--border);
+  animation: codeBlockIn 0.3s ease-out;
+}
+@keyframes codeBlockIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.code-block-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.3rem 0.6rem;
+  background: rgba(255,255,255,0.04);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.68rem;
+}
+.code-lang {
+  color: var(--text-muted); font-family: var(--font-mono);
+  text-transform: uppercase; letter-spacing: 0.05em;
+  font-weight: 600;
+}
+.code-copy-btn {
+  background: none; border: 1px solid var(--border);
+  border-radius: 4px; color: var(--text-muted);
+  font-size: 0.65rem; padding: 0.1rem 0.4rem;
+  cursor: pointer; transition: all 0.2s;
+  font-family: var(--font-sans);
+}
+.code-copy-btn:hover {
+  border-color: var(--accent); color: var(--accent);
+  background: var(--accent-glow);
+}
+.code-copy-btn.copied {
+  border-color: var(--accent); color: var(--accent);
+  background: var(--accent-glow);
+}
+
+/* ── Tables ── */
+.md-table-wrap {
+  margin: 0.5rem 0; overflow-x: auto;
+  border: 1px solid var(--border); border-radius: 6px;
+}
+.md-table {
+  width: 100%; border-collapse: collapse;
+  font-size: 0.78rem; line-height: 1.5;
+}
+.md-table th {
+  background: rgba(255,255,255,0.04);
+  padding: 0.45rem 0.7rem; text-align: left;
+  font-weight: 700; color: var(--text);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.md-table td {
+  padding: 0.35rem 0.7rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-dim);
+}
+.md-table tr:last-child td { border-bottom: none; }
+.md-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+/* ── Blockquotes ── */
+.md-blockquote {
+  margin: 0.5rem 0; padding: 0.5rem 0.8rem;
+  border-left: 3px solid var(--purple);
+  background: rgba(136, 85, 255, 0.05);
+  border-radius: 0 4px 4px 0;
+  animation: quoteIn 0.3s ease-out;
+}
+@keyframes quoteIn {
+  from { opacity: 0; transform: translateX(-4px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.md-blockquote p {
+  font-size: 0.85rem; color: var(--text-dim);
+  font-style: italic; margin: 0 !important;
+}
+
+/* ── Headings ── */
+.md-h1 {
+  font-family: var(--font-mono); font-size: 1.2rem;
+  font-weight: 900; color: var(--accent);
+  margin: 0.7rem 0 0.3rem; line-height: 1.3;
+  padding-bottom: 0.2rem;
+  border-bottom: 1px solid rgba(0, 255, 136, 0.1);
+}
+.md-h2 {
+  font-family: var(--font-mono); font-size: 1rem;
+  font-weight: 700; color: var(--purple);
+  margin: 0.6rem 0 0.25rem; line-height: 1.3;
+}
+.md-h3 {
+  font-size: 0.92rem; font-weight: 700;
+  color: var(--orange); margin: 0.5rem 0 0.2rem;
+}
+.md-h4 {
+  font-size: 0.88rem; font-weight: 600;
+  color: var(--text); margin: 0.4rem 0 0.15rem;
+}
+.md-h5 {
+  font-size: 0.84rem; font-weight: 600;
+  color: var(--text-dim); margin: 0.3rem 0 0.1rem;
+}
+
+/* ── Task Lists ── */
+.task-item {
+  display: flex; align-items: center; gap: 0.4rem;
+  padding: 0.2rem 0; font-size: 0.85rem;
+  animation: taskIn 0.3s ease-out;
+}
+@keyframes taskIn {
+  from { opacity: 0; transform: translateX(-4px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.task-item input[type="checkbox"] {
+  appearance: none; -webkit-appearance: none;
+  width: 16px; height: 16px; border-radius: 3px;
+  border: 2px solid var(--text-muted);
+  background: transparent; cursor: default;
+  transition: all 0.2s; flex-shrink: 0;
+  position: relative; display: inline-flex;
+  align-items: center; justify-content: center;
+}
+.task-item input[type="checkbox"]:checked {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+.task-item input[type="checkbox"]:checked::after {
+  content: '✓'; font-size: 0.65rem;
+  color: #000; font-weight: 700;
+}
+.task-item label {
+  color: var(--text-dim); cursor: default;
+}
+.task-item input[type="checkbox"]:checked + label {
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+/* ── Lists ── */
+.md-ul, .md-ol {
+  margin: 0.3rem 0 0.3rem 1.2rem;
+  padding: 0;
+}
+.md-ul li, .md-ol li {
+  font-size: 0.85rem; color: var(--text-dim);
+  line-height: 1.6; padding: 0.1rem 0;
+}
+.md-ul li::marker { color: var(--accent); }
+.md-ol li::marker { color: var(--purple); font-weight: 600; }
+
+/* ── Horizontal Rule ── */
+.md-hr {
+  border: none; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  margin: 0.8rem 0;
+}
+
+/* ── Links ── */
+.md-link {
+  color: var(--accent); text-decoration: none;
+  border-bottom: 1px dotted rgba(0, 255, 136, 0.3);
+  transition: all 0.2s;
+}
+.md-link:hover {
+  color: var(--accent-dim);
+  border-bottom-color: var(--accent);
+}
+
+/* ── Streaming Text ── */
+.streaming-text {
+  white-space: pre-wrap; word-break: break-word;
+}
+.streaming-cursor {
+  display: inline-block; width: 2px; height: 1em;
+  background: var(--accent); margin-left: 1px;
+  animation: cursorBlink 0.6s step-end infinite;
+  vertical-align: text-bottom;
+}
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ── Message Rendered Animation ── */
+.msg-bubble.msg-rendered {
+  animation: renderedIn 0.4s ease-out;
+}
+@keyframes renderedIn {
+  0% { opacity: 0.7; transform: translateY(2px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Strikethrough ── */
+.msg-bubble del {
+  color: var(--text-muted);
+  text-decoration: line-through wavy var(--red);
+}
+
 /* ── Typing Indicator ── */
 .typing-indicator {
   display: none; align-items: center; gap: 0.4rem;

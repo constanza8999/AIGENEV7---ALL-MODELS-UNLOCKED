@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIGENEV7 — System Architecture</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0a0a0f;
+  --bg-card: #111118;
+  --bg-hover: #1a1a28;
+  --text: #e0e0ee;
+  --text-dim: #8888aa;
+  --text-muted: #55557a;
+  --accent: #00ff88;
+  --accent-dim: #00cc66;
+  --accent-glow: rgba(0, 255, 136, 0.12);
+  --purple: #8855ff;
+  --purple-glow: rgba(136, 85, 255, 0.12);
+  --red: #ff4466;
+  --orange: #ff8844;
+  --blue: #4488ff;
+  --yellow: #ffdd44;
+  --border: #1e1e30;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-sans: 'Inter', -apple-system, sans-serif;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  padding: 1.5rem;
+}
+
+.bg-grid {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+.page { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; }
+
+header {
+  display: flex; align-items: center; gap: 0.75rem;
+  margin-bottom: 1.5rem; padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+header .logo {
+  font-family: var(--font-mono); font-weight: 900; font-size: 1.2rem;
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+header .subtitle { color: var(--text-dim); font-size: 0.85rem; margin-left: auto; }
+header .version { color: var(--text-muted); font-size: 0.75rem; }
+
+/* ── Legend ── */
+.legend {
+  display: flex; gap: 1.5rem; flex-wrap: wrap;
+  padding: 0.75rem 1rem; margin-bottom: 1.5rem;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+}
+.legend-item { display: flex; align-items: center; gap: 0.4rem; color: var(--text-dim); }
+.legend-box {
+  width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0;
+}
+.legend-box.cli { background: var(--accent); }
+.legend-box.agent { background: var(--purple); }
+.legend-box.infra { background: var(--blue); }
+.legend-box.web { background: var(--orange); }
+.legend-box.shared { background: var(--red); }
+.legend-line { display: flex; align-items: center; gap: 0.3rem; }
+.legend-line svg { width: 30px; height: 16px; }
+.legend-line .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.dot.uses { background: var(--accent); }
+.dot.provides { background: var(--purple); }
+.dot.renders { background: var(--orange); }
+
+/* ── Diagram Container ── */
+.diagram {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  padding: 2rem 1.5rem;
+  min-height: 600px;
+}
+
+/* ── SVG Layers ── */
+.diagram svg {
+  width: 100%; height: auto;
+  display: block;
+}
+
+/* ── Node hover tooltips ── */
+.node-group { cursor: pointer; }
+.node-bg { transition: all 0.3s; }
+.node-group:hover .node-bg { filter: brightness(1.3); }
+.node-group:hover .node-icon { transform: scale(1.15); }
+.node-icon { transition: transform 0.3s; }
+.node-label { font-family: var(--font-mono); font-weight: 600; pointer-events: none; }
+.node-sublabel { font-family: var(--font-sans); pointer-events: none; }
+
+/* ── Arrow animations ── */
+.arrow-path { stroke-dasharray: 6,4; animation: arrowFlow 1s linear infinite; }
+@keyframes arrowFlow { to { stroke-dashoffset: 10; } }
+.arrow-solid { stroke-dasharray: none; }
+
+/* ── Pulse animation for core nodes ── */
+.node-pulse { animation: nodePulse 3s ease-in-out infinite; transform-origin: center; }
+@keyframes nodePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* ── Tag labels on arrows ── */
+.arrow-tag {
+  font-family: var(--font-mono); font-size: 9px;
+  fill: var(--text-dim);
+}
+
+/* ── Info Panel ── */
+.info-panel {
+  margin-top: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.info-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+  transition: all 0.3s;
+}
+.info-card:hover {
+  border-color: var(--text-muted);
+  transform: translateY(-2px);
+}
+.info-card .card-header {
+  display: flex; align-items: center; gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.info-card .card-icon { font-size: 1.2rem; }
+.info-card .card-title {
+  font-family: var(--font-mono); font-weight: 700;
+  font-size: 0.85rem;
+}
+.info-card .card-file {
+  font-family: var(--font-mono); font-size: 0.68rem;
+  color: var(--text-muted);
+  background: var(--bg-hover);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  margin-left: auto;
+}
+.info-card .card-desc {
+  font-size: 0.78rem; color: var(--text-dim);
+  line-height: 1.5; margin-bottom: 0.5rem;
+}
+.info-card .card-tools {
+  display: flex; gap: 0.3rem; flex-wrap: wrap;
+}
+.info-card .card-tag {
+  font-family: var(--font-mono); font-size: 0.62rem;
+  padding: 0.1rem 0.4rem; border-radius: 4px;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.card-tag.cli { border-color: rgba(0,255,136,0.2); color: var(--accent); }
+.card-tag.agent { border-color: rgba(136,85,255,0.2); color: var(--purple); }
+.card-tag.infra { border-color: rgba(68,136,255,0.2); color: var(--blue); }
+.card-tag.web { border-color: rgba(255,136,68,0.2); color: var(--orange); }
+.card-tag.shared { border-color: rgba(255,68,102,0.2); color: var(--red); }
+
+/* ── Responsive ── */
+@media (max-width: 700px) {
+  body { padding: 0.75rem; }
+  .diagram { padding: 1rem 0.5rem; }
+  header { flex-wrap: wrap; }
+  header .subtitle { margin-left: 0; width: 100%; }
+  .legend { font-size: 0.7rem; gap: 0.75rem; }
+  .info-panel { grid-template-columns: 1fr; }
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+
+<div class="page">
+
+<header>
+  <div class="logo">🏗️ AIGENEV7</div>
+  <span class="subtitle">System Architecture — Agent Relationships</span>
+  <span class="version">v7.0.0</span>
+</header>
+
+<!-- ── Legend ── -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-box cli"></div> CLI / Entry</div>
+  <div class="legend-item"><div class="legend-box agent"></div> Agent Module</div>
+  <div class="legend-item"><div class="legend-box infra"></div> Infrastructure</div>
+  <div class="legend-item"><div class="legend-box web"></div> Web UI</div>
+  <div class="legend-item"><div class="legend-box shared"></div> Shared Layer</div>
+  <div class="legend-item">
+    <svg width="30" height="16" viewBox="0 0 30 16"><line x1="2" y1="8" x2="22" y2="8" stroke="var(--accent)" stroke-width="1.5"/><polygon points="22,4 28,8 22,12" fill="var(--accent)"/></svg>
+    imports / calls
+  </div>
+  <div class="legend-item">
+    <svg width="30" height="16" viewBox="0 0 30 16"><line x1="2" y1="8" x2="22" y2="8" stroke="var(--purple)" stroke-width="1.5" stroke-dasharray="4,3"/><polygon points="22,4 28,8 22,12" fill="var(--purple)"/></svg>
+    serves / provides
+  </div>
+</div>
+
+<!-- ── SVG Diagram ── -->
+<div class="diagram">
+<svg viewBox="0 0 1000 620" xmlns="http://www.w3.org/2000/svg" style="background: transparent;">
+
+  <!-- ═══════════════════ LAYER 1 — CLI ENTRY (top) ═══════════════════ -->
+  <rect x="320" y="0" width="360" height="52" rx="8" fill="rgba(0,255,136,0.08)" stroke="rgba(0,255,136,0.2)" stroke-width="1.2"/>
+  <text x="500" y="20" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="var(--text-muted)">LAYER 1: CLI ENTRY</text>
+
+  <!-- CLI Node (Main) -->
+  <g class="node-group">
+    <rect class="node-bg" x="350" y="28" width="300" height="46" rx="8" fill="rgba(0,255,136,0.12)" stroke="var(--accent)" stroke-width="1.5"/>
+    <rect x="352" y="30" width="296" height="42" rx="7" fill="rgba(0,255,136,0.06)"/>
+    <text class="node-icon" x="370" y="56" font-size="18">🚀</text>
+    <text class="node-label" x="398" y="53" font-size="13" fill="var(--accent)">inference-cli.js</text>
+    <text class="node-sublabel" x="398" y="65" font-size="9" fill="var(--text-dim)">Orchestrator · /ask · /chat · /models · /serve</text>
+  </g>
+
+  <!-- ═══════════════════ LAYER 2 — AGENT MODULES ═══════════════════ -->
+  <rect x="320" y="120" width="360" height="52" rx="8" fill="rgba(136,85,255,0.08)" stroke="rgba(136,85,255,0.2)" stroke-width="1.2"/>
+  <text x="500" y="140" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="var(--text-muted)">LAYER 2: AGENT MODULES</text>
+
+  <!-- Auto Agent -->
+  <g class="node-group">
+    <rect class="node-bg" x="80" y="160" width="260" height="70" rx="8" fill="rgba(136,85,255,0.08)" stroke="var(--purple)" stroke-width="1.5"/>
+    <rect x="82" y="162" width="256" height="66" rx="7" fill="rgba(136,85,255,0.04)"/>
+    <text class="node-icon" x="100" y="194" font-size="20">🤖</text>
+    <text class="node-label" x="130" y="188" font-size="12" fill="var(--purple)">Auto Agent</text>
+    <text class="node-sublabel" x="130" y="202" font-size="8" fill="var(--text-dim)">auto-agent.js</text>
+    <text class="node-sublabel" x="130" y="214" font-size="8" fill="var(--text-dim)">runAutoAgent() — 17 tools · 20-iters max</text>
+  </g>
+
+  <!-- Debug Agent -->
+  <g class="node-group">
+    <rect class="node-bg" x="370" y="160" width="260" height="70" rx="8" fill="rgba(136,85,255,0.08)" stroke="var(--purple)" stroke-width="1.5"/>
+    <rect x="372" y="162" width="256" height="66" rx="7" fill="rgba(136,85,255,0.04)"/>
+    <text class="node-icon" x="390" y="194" font-size="20">🔧</text>
+    <text class="node-label" x="420" y="188" font-size="12" fill="var(--purple)">Debug Agent</text>
+    <text class="node-sublabel" x="420" y="202" font-size="8" fill="var(--text-dim)">debug-agent.js</text>
+    <text class="node-sublabel" x="420" y="214" font-size="8" fill="var(--text-dim)">runDebugLoop() — Run → Error → Fix → Retry</text>
+  </g>
+
+  <!-- Chat Agents -->
+  <g class="node-group">
+    <rect class="node-bg" x="660" y="160" width="260" height="70" rx="8" fill="rgba(136,85,255,0.08)" stroke="var(--purple)" stroke-width="1.5"/>
+    <rect x="662" y="162" width="256" height="66" rx="7" fill="rgba(136,85,255,0.04)"/>
+    <text class="node-icon" x="680" y="194" font-size="20">🧑‍💻</text>
+    <text class="node-label" x="710" y="188" font-size="12" fill="var(--purple)">Chat Agents (30)</text>
+    <text class="node-sublabel" x="710" y="202" font-size="8" fill="var(--text-dim)">custom-agents.js</text>
+    <text class="node-sublabel" x="710" y="214" font-size="8" fill="var(--text-dim)">listAgents() · getAgent() · CRUD</text>
+  </g>
+
+  <!-- Agent Tooltip: Defensive / Offensive -->
+  <g class="node-group">
+    <rect class="node-bg" x="660" y="250" width="260" height="46" rx="6" fill="rgba(136,85,255,0.05)" stroke="var(--border)" stroke-width="1" stroke-dasharray="4,3"/>
+    <text text-anchor="middle" x="790" y="270" font-size="9" fill="var(--text-dim)">🛡️ Defensive (9) · ⚔️ Offensive (9)</text>
+    <text text-anchor="middle" x="790" y="284" font-size="8" fill="var(--text-muted)">defensive-offensive.js — Intensity ratings</text>
+  </g>
+
+  <!-- ═══════════════════ LAYER 3 — INFRASTRUCTURE ═══════════════════ -->
+  <rect x="320" y="340" width="360" height="52" rx="8" fill="rgba(68,136,255,0.08)" stroke="rgba(68,136,255,0.2)" stroke-width="1.2"/>
+  <text x="500" y="360" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="var(--text-muted)">LAYER 3: INFRASTRUCTURE</text>
+
+  <!-- Inference Engine -->
+  <g class="node-group">
+    <rect class="node-bg" x="80" y="380" width="350" height="70" rx="8" fill="rgba(68,136,255,0.08)" stroke="var(--blue)" stroke-width="1.5"/>
+    <rect x="82" y="382" width="346" height="66" rx="7" fill="rgba(68,136,255,0.04)"/>
+    <text class="node-icon" x="100" y="414" font-size="18">🧠</text>
+    <text class="node-label" x="128" y="408" font-size="12" fill="var(--blue)">Inference Engine</text>
+    <text class="node-sublabel" x="128" y="422" font-size="8" fill="var(--text-dim)">inference.js — infer() · Streaming · Chunked Gen</text>
+    <text class="node-sublabel" x="128" y="434" font-size="8" fill="var(--text-dim)">10+ providers: OpenRouter, Anthropic, DeepSeek, Ollama...</text>
+  </g>
+
+  <!-- Models Registry -->
+  <g class="node-group">
+    <rect class="node-bg" x="460" y="380" width="240" height="70" rx="8" fill="rgba(68,136,255,0.08)" stroke="var(--blue)" stroke-width="1.5"/>
+    <rect x="462" y="382" width="236" height="66" rx="7" fill="rgba(68,136,255,0.04)"/>
+    <text class="node-icon" x="480" y="414" font-size="18">📋</text>
+    <text class="node-label" x="508" y="408" font-size="12" fill="var(--blue)">Models Registry</text>
+    <text class="node-sublabel" x="508" y="422" font-size="8" fill="var(--text-dim)">models.js — 40+ models · 10 providers</text>
+    <text class="node-sublabel" x="508" y="434" font-size="8" fill="var(--text-dim)">detectBestModel() · Premium gating</text>
+  </g>
+
+  <!-- Premium / Token System -->
+  <g class="node-group">
+    <rect class="node-bg" x="730" y="380" width="200" height="70" rx="8" fill="rgba(68,136,255,0.08)" stroke="var(--blue)" stroke-width="1.5"/>
+    <rect x="732" y="382" width="196" height="66" rx="7" fill="rgba(68,136,255,0.04)"/>
+    <text class="node-icon" x="750" y="414" font-size="18">💎</text>
+    <text class="node-label" x="778" y="408" font-size="12" fill="var(--blue)">Premium System</text>
+    <text class="node-sublabel" x="778" y="422" font-size="8" fill="var(--text-dim)">premium.js — Key gen · Tiers</text>
+    <text class="node-sublabel" x="778" y="434" font-size="8" fill="var(--text-dim)">Token balance · Feature gates</text>
+  </g>
+
+  <!-- ═══════════════════ LAYER 4 — WEB UI ═══════════════════ -->
+  <rect x="320" y="515" width="360" height="52" rx="8" fill="rgba(255,136,68,0.08)" stroke="rgba(255,136,68,0.2)" stroke-width="1.2"/>
+  <text x="500" y="535" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="var(--text-muted)">LAYER 4: WEB UI (Browser)</text>
+
+  <!-- Web UI -- Chat Interface -->
+  <g class="node-group">
+    <rect class="node-bg" x="80" y="555" width="260" height="55" rx="8" fill="rgba(255,136,68,0.08)" stroke="var(--orange)" stroke-width="1.5"/>
+    <rect x="82" y="557" width="256" height="51" rx="7" fill="rgba(255,136,68,0.04)"/>
+    <text class="node-icon" x="100" y="585" font-size="16">💬</text>
+    <text class="node-label" x="124" y="582" font-size="11" fill="var(--orange)">Chat Interface</text>
+    <text class="node-sublabel" x="124" y="596" font-size="8" fill="var(--text-dim)">chat.js · Agent / Model selectors</text>
+  </g>
+
+  <!-- Web UI -- Auto Agent Panel -->
+  <g class="node-group">
+    <rect class="node-bg" x="370" y="555" width="260" height="55" rx="8" fill="rgba(255,136,68,0.08)" stroke="var(--orange)" stroke-width="1.5"/>
+    <rect x="372" y="557" width="256" height="51" rx="7" fill="rgba(255,136,68,0.04)"/>
+    <text class="node-icon" x="390" y="585" font-size="16">🤖</text>
+    <text class="node-label" x="414" y="582" font-size="11" fill="var(--orange)">Auto Agent Panel</text>
+    <text class="node-sublabel" x="414" y="596" font-size="8" fill="var(--text-dim)">auto-agent-web.js · Streaming log · Results</text>
+  </g>
+
+  <!-- Web UI -- Static Assets -->
+  <g class="node-group">
+    <rect class="node-bg" x="660" y="555" width="260" height="55" rx="8" fill="rgba(255,136,68,0.08)" stroke="var(--orange)" stroke-width="1.5"/>
+    <rect x="662" y="557" width="256" height="51" rx="7" fill="rgba(255,136,68,0.04)"/>
+    <text class="node-icon" x="680" y="585" font-size="16">🎨</text>
+    <text class="node-label" x="704" y="582" font-size="11" fill="var(--orange)">Static Assets</text>
+    <text class="node-sublabel" x="704" y="596" font-size="8" fill="var(--text-dim)">index.html · style.css · animations.js</text>
+  </g>
+
+  <!-- ═══════════════════ ARROWS (Connections) ═══════════════════ -->
+
+  <!-- CLI → Auto Agent -->
+  <path d="M 425,74 L 210,160" fill="none" stroke="var(--accent)" stroke-width="1.5"
+    marker-end="url(#arrowAccent)"/>
+  <text x="300" y="110" font-family="'JetBrains Mono',monospace" font-size="8" fill="var(--text-dim)">/auto command</text>
+
+  <!-- CLI → Debug Agent -->
+  <path d="M 500,74 L 500,160" fill="none" stroke="var(--accent)" stroke-width="1.5"
+    marker-end="url(#arrowAccent)"/>
+  <text x="508" y="120" font-family="'JetBrains Mono',monospace" font-size="8" fill="var(--text-dim)">/debug command</text>
+
+  <!-- CLI → Chat Agents -->
+  <path d="M 575,74 L 790,160" fill="none" stroke="var(--accent)" stroke-width="1.5"
+    marker-end="url(#arrowAccent)"/>
+  <text x="700" y="110" font-family="'JetBrains Mono',monospace" font-size="8" fill="var(--text-dim)">/agent · /agents</text>
+
+  <!-- Auto Agent → Inference -->
+  <path d="M 210,230 L 210,380" fill="none" stroke="var(--purple)" stroke-width="1.5" stroke-dasharray="5,3"
+    marker-end="url(#arrowPurple)"/>
+  <text x="130" y="310" font-family="'JetBrains Mono',monospace" font-size="8" fill="var(--text-dim)">infer()</text>
+
+  <!-- Debug Agent → Inference -->
+  <path d="M 470,230 L 350,380" fill="none" stroke="var(--purple)" stroke-width="1.5" stroke-dasharray="5,3"
+    marker-end="url(#arrowPurple)"/>
+  <text x="380" y="315" font-family="'JetBrains Mono',monospace" font-size="8" fill="var(--text-dim)">infer()</text>
+
+  <!-- CLI → Inference (chat ask) -->
+  <path d="M 530,74 L 350,380" fill="none" stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="4,3"
+    marker-end="url(#arrowAccent)"/>
+  <text x="420" y="220" font-family="'JetBrains Mono',monospace" font-size="7" fill="var(--text-dim)">chat → infer()</text>
+
+  <!-- Inference → Models -->
+  <path d="M 460,410 L 460,410" fill="none" stroke="none"/>
+  <rect x="425" y="395" width="5" height="5" rx="2" fill="var(--blue)" opacity="0.4"/>
+
+  <!-- Inference ↔ Models (side-by-side, just show relationship) -->
+  <path d="M 430,415 L 460,415" fill="none" stroke="var(--blue)" stroke-width="1" stroke-dasharray="3,3"/>
+  <text x="445" y="412" font-family="'JetBrains Mono',monospace" font-size="7" fill="var(--text-muted)" text-anchor="middle">uses</text>
+
+  <!-- Chat Agents → CLI chat -->
+  <path d="M 750,230 L 550,74" fill="none" stroke="var(--purple)" stroke-width="1.2"
+    marker-end="url(#arrowPurpleDir)"/>
+  <text x="680" y="145" font-family="'JetBrains Mono',monospace" font-size="7" fill="var(--text-dim)" text-anchor="end">system prompts</text>
+
+  <!-- Web UI → CLI (serve) -->
+  <path d="M 210,555 L 400,74" fill="none" stroke="var(--orange)" stroke-width="1.5" stroke-dasharray="6,3"
+    marker-end="url(#arrowOrange)"/>
+  <text x="240" y="310" font-family="'JetBrains Mono',monospace" font-size="8" fill="var(--text-dim)">/api/infer · /api/agents</text>
+
+  <!-- Web Auto Agent → CLI -->
+  <path d="M 500,555 L 500,74" fill="none" stroke="var(--orange)" stroke-width="1.5" stroke-dasharray="6,3"
+    marker-end="url(#arrowOrange)"/>
+  <text x="600" y="320" font-family="'JetBrains Mono',monospace" font-size="8" fill="var(--text-dim)">/api/auto-agent</text>
+
+  <!-- CLI → Static Assets -->
+  <path d="M 760,555 L 550,74" fill="none" stroke="var(--orange)" stroke-width="1.2" stroke-dasharray="4,3"
+    marker-end="url(#arrowOrange)"/>
+  <text x="775" y="310" font-family="'JetBrains Mono',monospace" font-size="7" fill="var(--text-dim)">serve static</text>
+
+  <!-- Def/Off related to Chat Agents -->
+  <path d="M 790,250 L 790,230" fill="none" stroke="var(--border)" stroke-width="1"/>
+
+  <!-- CLI → Premium -->
+  <path d="M 830,74 L 830,380" fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3,3"
+    marker-end="url(#arrowAccent)"/>
+  <text x="840" y="220" font-family="'JetBrains Mono',monospace" font-size="7" fill="var(--text-dim)">keygen</text>
+
+  <!-- ═══════════════════ ARROW MARKERS ═══════════════════ -->
+  <defs>
+    <marker id="arrowAccent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0,0 L 10,5 L 0,10" fill="var(--accent)"/>
+    </marker>
+    <marker id="arrowPurple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0,0 L 10,5 L 0,10" fill="var(--purple)"/>
+    </marker>
+    <marker id="arrowOrange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0,0 L 10,5 L 0,10" fill="var(--orange)"/>
+    </marker>
+    <marker id="arrowPurpleDir" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0,0 L 10,5 L 0,10" fill="var(--purple)"/>
+    </marker>
+  </defs>
+
+</svg>
+</div>
+
+<!-- ── Info Cards ── -->
+<div class="info-panel">
+
+  <!-- Card 1: CLI Entry -->
+  <div class="info-card">
+    <div class="card-header">
+      <span class="card-icon">🚀</span>
+      <span class="card-title">CLI Entry</span>
+      <span class="card-file">inference-cli.js</span>
+    </div>
+    <div class="card-desc">Main entry point. Parses commands (ask, chat, models, serve) and routes to the appropriate agents. Also serves the web UI on <code>serve</code>.</div>
+    <div class="card-tools">
+      <span class="card-tag cli">ask</span>
+      <span class="card-tag cli">chat</span>
+      <span class="card-tag cli">models</span>
+      <span class="card-tag cli">serve</span>
+      <span class="card-tag cli">/api/auto-agent</span>
+      <span class="card-tag cli">/api/infer</span>
+    </div>
+  </div>
+
+  <!-- Card 2: Auto Agent -->
+  <div class="info-card">
+    <div class="card-header">
+      <span class="card-icon">🤖</span>
+      <span class="card-title">Auto Agent</span>
+      <span class="card-file">auto-agent.js</span>
+    </div>
+    <div class="card-desc">Autonomous coding agent with 17 tools. Multi-iteration loop: AI thinks → parses tool calls → executes → returns results → loops until [DONE] or max iterations.</div>
+    <div class="card-tools">
+      <span class="card-tag agent">READ</span>
+      <span class="card-tag agent">WRITE</span>
+      <span class="card-tag agent">EDIT</span>
+      <span class="card-tag agent">APPEND</span>
+      <span class="card-tag agent">INSERT</span>
+      <span class="card-tag agent">DELETE</span>
+      <span class="card-tag agent">RENAME</span>
+      <span class="card-tag agent">COPY</span>
+      <span class="card-tag agent">REPLACEALL</span>
+      <span class="card-tag agent">LIST</span>
+      <span class="card-tag agent">GLOB</span>
+      <span class="card-tag agent">GREP</span>
+      <span class="card-tag agent">RUN</span>
+      <span class="card-tag agent">DIFF</span>
+      <span class="card-tag agent">FETCH</span>
+      <span class="card-tag agent">STATUS</span>
+      <span class="card-tag agent">DONE</span>
+    </div>
+  </div>
+
+  <!-- Card 3: Debug Agent -->
+  <div class="info-card">
+    <div class="card-header">
+      <span class="card-icon">🔧</span>
+      <span class="card-title">Debug Agent</span>
+      <span class="card-file">debug-agent.js</span>
+    </div>
+    <div class="card-desc">Auto-debug loop. Runs a command, captures stderr/stdout on failure, sends to AI for analysis, applies [WRITE]/[EDIT] fixes, retries. Max 5 iterations.</div>
+    <div class="card-tools">
+      <span class="card-tag agent">WRITE</span>
+      <span class="card-tag agent">EDIT</span>
+      <span class="card-tag agent">EXEC</span>
+      <span class="card-tag agent">RETRY</span>
+    </div>
+  </div>
+
+  <!-- Card 4: Chat Agents -->
+  <div class="info-card">
+    <div class="card-header">
+      <span class="card-icon">🧑‍💻</span>
+      <span class="card-title">Chat Agents (30)</span>
+      <span class="card-file">custom-agents.js</span>
+    </div>
+    <div class="card-desc">30 predefined agent personas (12 core + 9 defensive + 9 offensive). Each has id, name, emoji, description, and systemPrompt. CRUD operations via CLI commands.</div>
+    <div class="card-tools">
+      <span class="card-tag agent">12 Core</span>
+      <span class="card-tag agent">🛡️ 9 Defensive</span>
+      <span class="card-tag agent">⚔️ 9 Offensive</span>
+      <span class="card-tag agent">CRUD</span>
+      <span class="card-tag agent">Export/Import</span>
+    </div>
+  </div>
+
+  <!-- Card 5: Inference Engine -->
+  <div class="info-card">
+    <div class="card-header">
+      <span class="card-icon">🧠</span>
+      <span class="card-title">Inference Engine</span>
+      <span class="card-file">inference.js</span>
+    </div>
+    <div class="card-desc">Shared LLM inference layer. Routes to providers via OpenAI-compatible API. Supports streaming, chunked generation, and automatic provider selection.</div>
+    <div class="card-tools">
+      <span class="card-tag shared">infer()</span>
+      <span class="card-tag shared">Streaming</span>
+      <span class="card-tag shared">10 Providers</span>
+      <span class="card-tag shared">Chunked Gen</span>
+    </div>
+  </div>
+
+  <!-- Card 6: Web UI -->
+  <div class="info-card">
+    <div class="card-header">
+      <span class="card-icon">🌐</span>
+      <span class="card-title">Web UI (Browser)</span>
+      <span class="card-file">web/</span>
+    </div>
+    <div class="card-desc">Static HTML/JS/CSS served by the CLI. Chat interface with agent/model selection. Auto Agent panel with streaming log and file change results.</div>
+    <div class="card-tools">
+      <span class="card-tag web">Chat</span>
+      <span class="card-tag web">Auto Agent</span>
+      <span class="card-tag web">Quantum Lab</span>
+      <span class="card-tag web">Store</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Data Flow Description ── -->
+<div style="margin-top: 1.5rem; padding: 1.25rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm);">
+  <h3 style="font-family: var(--font-mono); font-size: 0.9rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+    <span>📊</span> Data Flow Summary
+  </h3>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+    <div style="padding: 0.75rem; background: var(--bg-hover); border-radius: var(--radius-xs); border-left: 3px solid var(--purple);">
+      <div style="font-size: 0.82rem; font-weight: 600; margin-bottom: 0.3rem;">🤖 Auto Agent Flow</div>
+      <div style="font-size: 0.75rem; color: var(--text-dim); line-height: 1.6;">
+        <code style="color:var(--accent)">/auto "refactor X"</code> → CLI calls <code style="color:var(--purple)">runAutoAgent()</code><br>
+        → AI responds with tool calls → <code style="color:var(--purple)">parseToolCalls()</code> extracts [READ], [WRITE], [EDIT], ...<br>
+        → Safe file operations execute → results formatted → next iteration<br>
+        → <code style="color:var(--accent)">[DONE]</code> → Returns summary
+      </div>
+    </div>
+
+    <div style="padding: 0.75rem; background: var(--bg-hover); border-radius: var(--radius-xs); border-left: 3px solid var(--blue);">
+      <div style="font-size: 0.82rem; font-weight: 600; margin-bottom: 0.3rem;">🔧 Debug Agent Flow</div>
+      <div style="font-size: 0.75rem; color: var(--text-dim); line-height: 1.6;">
+        <code style="color:var(--accent)">/debug "bun run build"</code> → CLI calls <code style="color:var(--blue)">runDebugLoop()</code><br>
+        → Runs command → <span style="color:var(--red)">Fails (exit ≠ 0)</span> → Captures stderr/stdout<br>
+        → Sends error to AI → AI returns [WRITE]/[EDIT] fix → Applies fix → Retries<br>
+        → If succeeds → ✅ Done. If fails 🤷 → <span style="color:var(--red)">Could not fix</span>
+      </div>
+    </div>
+
+    <div style="padding: 0.75rem; background: var(--bg-hover); border-radius: var(--radius-xs); border-left: 3px solid var(--orange);">
+      <div style="font-size: 0.82rem; font-weight: 600; margin-bottom: 0.3rem;">💬 Chat Flow</div>
+      <div style="font-size: 0.75rem; color: var(--text-dim); line-height: 1.6;">
+        <code style="color:var(--accent)">chat mode</code> → Select agent persona + model → Type message<br>
+        → Agent system prompt + conversation history built → <code style="color:var(--orange)">infer()</code> called → Streaming response<br>
+        → File operations detected in response → <span style="color:var(--orange)">User confirms (y/N)</span> → Changes applied
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /page -->
+
+</body>
+</html>

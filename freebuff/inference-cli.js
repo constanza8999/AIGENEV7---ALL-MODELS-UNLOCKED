@@ -318,6 +318,7 @@ async function chatMode() {
     '/model', '/models', '/ls', '/current', '/clear',
     '/agent', '/agents', '/agent-show', '/agent-new', '/agent-edit',
     '/agent-delete', '/agent-export', '/agent-import', '/agent-reset',
+    '/defensive', '/offensive', '/framework',
     '/quantum', '/pay', '/keygen', '/menu',
     '/auto', '/auto-stop', '/auto-status',
     '/save', '/snippet', '/search', '/context', '/debug', '/balance',
@@ -469,6 +470,11 @@ async function chatMode() {
         console.log('                           /quantum run H(0) CNOT(0,1) --shots=2048')
         console.log('                           /quantum run H(0) X(1) SWAP(0,1)')
         console.log('                           /quantum run H(0) CNOT(0,1) CNOT(0,2)')
+        console.log('  ── Defensive/Offensive Framework 🛡️⚔️ ──')
+        console.log('  /defensive [agent]      List or show details of a defensive agent')
+        console.log('  /offensive [agent]      List or show details of an offensive agent')
+        console.log('  /framework              Show framework summary with all agents')
+        console.log('  /framework <agent>      Show details of any framework agent')
         console.log('  /help, /h               Show this help')
         console.log()
         askQuestion()
@@ -1648,6 +1654,261 @@ async function chatMode() {
         console.log('  After payment, you will receive your real key.')
         console.log('  Visit https://aigen7ev.ai/premium/ for details.')
         console.log()
+        askQuestion()
+        return
+      }
+
+      // ════════════════════════════════════════════════════════════════
+      // 🛡️ DEFENSIVE / OFFENSIVE FRAMEWORK COMMANDS
+      // ════════════════════════════════════════════════════════════════
+
+      // ── Bare /defensive shows list of all defensive agents ──
+      if (trimmed === '/defensive') {
+        const agents = getDefensiveAgents()
+        console.log()
+        console.log('  ' + c('┄').repeat(50))
+        console.log('  ' + b('🛡️  Defensive Agents (Blue Team)'))
+        console.log('  ' + d('Protection, validation, security, stability, compliance'))
+        console.log('  ' + c('┄').repeat(50))
+        console.log()
+        for (const a of agents) {
+          const intensityBar = '█'.repeat(a.intensity) + '░'.repeat(5 - a.intensity)
+          const intensityColor = a.intensity >= 4 ? r : a.intensity >= 3 ? y : g
+          console.log('  ' + a.emoji + ' ' + b(a.name.padEnd(22)) + '  ' + d('[intensity ' + a.intensity + '/5] ') + intensityColor(intensityBar))
+          console.log('  ' + d('    ' + a.description))
+          console.log('  ' + d('    ID: ' + a.id))
+          console.log()
+        }
+        console.log('  ' + d('Usage: /defensive <agent name or id>  to show full details'))
+        console.log('         /defensive --intensity=<n>  to filter by minimum intensity')
+        console.log()
+        askQuestion()
+        return
+      }
+
+      // ── /defensive with filter or agent name ──
+      if (trimmed.startsWith('/defensive ')) {
+        const rest = trimmed.slice(11).trim()
+
+        // Check for intensity filter: /defensive --intensity=4
+        const intensityMatch = rest.match(/--intensity=(\d)/)
+        if (intensityMatch) {
+          const minIntensity = parseInt(intensityMatch[1], 10)
+          const agents = getDefensiveAgents({ minIntensity })
+          console.log()
+          console.log('  ' + c('┄').repeat(50))
+          console.log('  ' + b('🛡️  Defensive Agents (intensity ≥ ' + minIntensity + ')'))
+          console.log('  ' + c('┄').repeat(50))
+          console.log()
+          if (agents.length === 0) {
+            console.log('  ' + d('No defensive agents at intensity ≥ ' + minIntensity))
+          } else {
+            for (const a of agents) {
+              const intensityBar = '█'.repeat(a.intensity) + '░'.repeat(5 - a.intensity)
+              const intensityColor = a.intensity >= 4 ? r : a.intensity >= 3 ? y : g
+              console.log('  ' + a.emoji + ' ' + b(a.name.padEnd(22)) + '  ' + d('[intensity ' + a.intensity + '/5] ') + intensityColor(intensityBar))
+              console.log('  ' + d('    ' + a.description))
+              console.log()
+            }
+          }
+          console.log()
+          askQuestion()
+          return
+        }
+
+        // Show specific agent by name or ID
+        const agent = getDefensiveAgents().find(a => a.name.toLowerCase() === rest.toLowerCase() || a.id === rest)
+        if (agent) {
+          const intensityBar = '█'.repeat(agent.intensity) + '░'.repeat(5 - agent.intensity)
+          const intensityColor = agent.intensity >= 4 ? r : agent.intensity >= 3 ? y : g
+          console.log()
+          console.log('  ' + c('┄').repeat(50))
+          console.log('  ' + agent.emoji + ' ' + b(agent.name) + '  🛡️ ' + d('Defensive'))
+          console.log('  ' + c('┄').repeat(50))
+          console.log()
+          console.log('  ' + b('ID:') + '         ' + agent.id)
+          console.log('  ' + b('Intensity:') + '   ' + agent.intensity + '/5 ' + intensityColor(intensityBar))
+          console.log('  ' + b('Description:') + ' ' + agent.description)
+          console.log()
+          console.log('  ' + b('System Prompt:'))
+          console.log('  ' + d('┄').repeat(50))
+          console.log('  ' + agent.systemPrompt)
+          console.log('  ' + d('┄').repeat(50))
+          console.log()
+        } else {
+          console.log('  ✗ Unknown defensive agent: "' + rest + '"')
+          console.log('  ' + d('Use /defensive to list all defensive agents.'))
+        }
+        askQuestion()
+        return
+      }
+
+      // ── Bare /offensive shows list of all offensive agents ──
+      if (trimmed === '/offensive') {
+        const agents = getOffensiveAgents()
+        console.log()
+        console.log('  ' + c('┄').repeat(50))
+        console.log('  ' + b('⚔️  Offensive Agents (Red Team)'))
+        console.log('  ' + d('Creation, optimization, transformation, testing limits'))
+        console.log('  ' + c('┄').repeat(50))
+        console.log()
+        for (const a of agents) {
+          const intensityBar = '█'.repeat(a.intensity) + '░'.repeat(5 - a.intensity)
+          const intensityColor = a.intensity >= 4 ? r : a.intensity >= 3 ? y : g
+          console.log('  ' + a.emoji + ' ' + b(a.name.padEnd(22)) + '  ' + d('[intensity ' + a.intensity + '/5] ') + intensityColor(intensityBar))
+          console.log('  ' + d('    ' + a.description))
+          console.log('  ' + d('    ID: ' + a.id))
+          console.log()
+        }
+        console.log('  ' + d('Usage: /offensive <agent name or id>  to show full details'))
+        console.log('         /offensive --intensity=<n>  to filter by minimum intensity')
+        console.log()
+        askQuestion()
+        return
+      }
+
+      // ── /offensive with filter or agent name ──
+      if (trimmed.startsWith('/offensive ')) {
+        const rest = trimmed.slice(11).trim()
+
+        // Check for intensity filter: /offensive --intensity=4
+        const intensityMatch = rest.match(/--intensity=(\d)/)
+        if (intensityMatch) {
+          const minIntensity = parseInt(intensityMatch[1], 10)
+          const agents = getOffensiveAgents({ minIntensity })
+          console.log()
+          console.log('  ' + c('┄').repeat(50))
+          console.log('  ' + b('⚔️  Offensive Agents (intensity ≥ ' + minIntensity + ')'))
+          console.log('  ' + c('┄').repeat(50))
+          console.log()
+          if (agents.length === 0) {
+            console.log('  ' + d('No offensive agents at intensity ≥ ' + minIntensity))
+          } else {
+            for (const a of agents) {
+              const intensityBar = '█'.repeat(a.intensity) + '░'.repeat(5 - a.intensity)
+              const intensityColor = a.intensity >= 4 ? r : a.intensity >= 3 ? y : g
+              console.log('  ' + a.emoji + ' ' + b(a.name.padEnd(22)) + '  ' + d('[intensity ' + a.intensity + '/5] ') + intensityColor(intensityBar))
+              console.log('  ' + d('    ' + a.description))
+              console.log()
+            }
+          }
+          console.log()
+          askQuestion()
+          return
+        }
+
+        // Show specific agent by name or ID
+        const agent = getOffensiveAgents().find(a => a.name.toLowerCase() === rest.toLowerCase() || a.id === rest)
+        if (agent) {
+          const intensityBar = '█'.repeat(agent.intensity) + '░'.repeat(5 - agent.intensity)
+          const intensityColor = agent.intensity >= 4 ? r : agent.intensity >= 3 ? y : g
+          console.log()
+          console.log('  ' + c('┄').repeat(50))
+          console.log('  ' + agent.emoji + ' ' + b(agent.name) + '  ⚔️ ' + d('Offensive'))
+          console.log('  ' + c('┄').repeat(50))
+          console.log()
+          console.log('  ' + b('ID:') + '         ' + agent.id)
+          console.log('  ' + b('Intensity:') + '   ' + agent.intensity + '/5 ' + intensityColor(intensityBar))
+          console.log('  ' + b('Description:') + ' ' + agent.description)
+          console.log()
+          console.log('  ' + b('System Prompt:'))
+          console.log('  ' + d('┄').repeat(50))
+          console.log('  ' + agent.systemPrompt)
+          console.log('  ' + d('┄').repeat(50))
+          console.log()
+        } else {
+          console.log('  ✗ Unknown offensive agent: "' + rest + '"')
+          console.log('  ' + d('Use /offensive to list all offensive agents.'))
+        }
+        askQuestion()
+        return
+      }
+
+      // ── /framework — Framework summary or agent details ──
+      if (trimmed === '/framework') {
+        const summary = getFrameworkSummary()
+        console.log()
+        console.log('  ' + c('┄').repeat(50))
+        console.log('  ' + b('🏗️  Defensive/Offensive Framework'))
+        console.log('  ' + d('A structured framework of AI agent personas'))
+        console.log('  ' + c('┄').repeat(50))
+        console.log()
+        console.log('  ' + b('Total agents: ') + summary.total)
+        console.log()
+
+        // Defensive section
+        const def = summary.defensive
+        console.log('  ' + b('🛡️  Defensive (' + def.count + ' agents)') + '  ' + d('avg intensity: ' + def.averageIntensity + '/5'))
+        for (const a of def.agents) {
+          const bar = '█'.repeat(a.intensity) + '░'.repeat(5 - a.intensity)
+          const intensityColor = a.intensity >= 4 ? r : a.intensity >= 3 ? y : g
+          console.log('    ' + a.emoji + ' ' + b(a.name.padEnd(22)) + '  ' + intensityColor(bar) + ' ' + d(a.id))
+        }
+        console.log()
+
+        // Offensive section
+        const off = summary.offensive
+        console.log('  ' + b('⚔️  Offensive (' + off.count + ' agents)') + '  ' + d('avg intensity: ' + off.averageIntensity + '/5'))
+        for (const a of off.agents) {
+          const bar = '█'.repeat(a.intensity) + '░'.repeat(5 - a.intensity)
+          const intensityColor = a.intensity >= 4 ? r : a.intensity >= 3 ? y : g
+          console.log('    ' + a.emoji + ' ' + b(a.name.padEnd(22)) + '  ' + intensityColor(bar) + ' ' + d(a.id))
+        }
+        console.log()
+
+        console.log('  ' + d('Usage: /framework <agent-id>  to show full agent details'))
+        console.log('         /defensive             to list defensive agents')
+        console.log('         /offensive             to list offensive agents')
+        console.log()
+        askQuestion()
+        return
+      }
+
+      // ── /framework with agent ID ──
+      if (trimmed.startsWith('/framework ')) {
+        const agentId = trimmed.slice(11).trim().toLowerCase()
+        if (!agentId) {
+          console.log('  ✗ Usage: /framework <agent-id>')
+          console.log('  ' + d('Example: /framework code-reviewer'))
+          askQuestion()
+          return
+        }
+
+        // Search in defensive first, then offensive
+        let agent = getDefensiveAgents().find(a => a.id === agentId || a.name.toLowerCase() === agentId)
+        let category = 'defensive'
+        let icon = '🛡️'
+        if (!agent) {
+          agent = getOffensiveAgents().find(a => a.id === agentId || a.name.toLowerCase() === agentId)
+          category = 'offensive'
+          icon = '⚔️'
+        }
+
+        if (agent) {
+          const intensityBar = '█'.repeat(agent.intensity) + '░'.repeat(5 - agent.intensity)
+          const intensityColor = agent.intensity >= 4 ? r : agent.intensity >= 3 ? y : g
+          const categoryLabel = category === 'defensive' ? '🛡️ Defensive' : '⚔️ Offensive'
+          console.log()
+          console.log('  ' + c('┄').repeat(50))
+          console.log('  ' + agent.emoji + ' ' + b(agent.name) + '  ' + d(categoryLabel))
+          console.log('  ' + c('┄').repeat(50))
+          console.log()
+          console.log('  ' + b('ID:') + '         ' + agent.id)
+          console.log('  ' + b('Category:') + '   ' + categoryLabel)
+          console.log('  ' + b('Intensity:') + '   ' + agent.intensity + '/5 ' + intensityColor(intensityBar))
+          console.log('  ' + b('Description:') + ' ' + agent.description)
+          console.log()
+          console.log('  ' + b('System Prompt:'))
+          console.log('  ' + d('┄').repeat(50))
+          console.log('  ' + agent.systemPrompt)
+          console.log('  ' + d('┄').repeat(50))
+          console.log()
+        } else {
+          console.log('  ✗ Unknown agent: "' + agentId + '"')
+          console.log('  ' + d('Use /framework to list all agents. Try IDs like:'))
+          console.log('  ' + d('  code-reviewer, security-auditor, test-engineer, zero-day-engineer'))
+          console.log('  ' + d('  code-optimizer, refactor-agent, feature-implementer, api-generator'))
+        }
         askQuestion()
         return
       }

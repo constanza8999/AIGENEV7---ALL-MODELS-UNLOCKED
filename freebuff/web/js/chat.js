@@ -342,8 +342,11 @@
                   else if (d.done && d.text && !full) full = d.text
                 } catch (e) {}
               }
-              if (bubble) bubble.textContent = full || '[Empty response]'
-              if (bubble) bubble.innerHTML = renderMarkdown(full || '[Empty response]')
+              if (bubble) {
+                bubble.innerHTML = renderMarkdown(full || '[Empty response]')
+                // Trigger entrance animation
+                bubble.classList.add('msg-rendered')
+              }
               if (full) messages.push({ role: 'assistant', content: full })
               finish()
               return
@@ -358,11 +361,14 @@
                 var d = JSON.parse(line)
                 if (d.chunk) {
                   full += d.chunk
-                  if (bubble) bubble.textContent = full
+                  if (bubble) {
+                    // Show streaming text with cursor during streaming
+                    bubble.innerHTML = '<span class="streaming-text">' + escHtml(full) + '</span><span class="streaming-cursor"></span>'
+                  }
                   chatMsgs.scrollTop = chatMsgs.scrollHeight
                 } else if (d.done && d.text && !full) {
                   full = d.text
-                  if (bubble) bubble.textContent = full
+                  if (bubble) bubble.innerHTML = '<span class="streaming-text">' + escHtml(full) + '</span><span class="streaming-cursor"></span>'
                 } else if (d.error) {
                   throw new Error(d.error)
                 }
@@ -469,46 +475,148 @@
     setTimeout(function () { errToast.classList.remove('show') }, 4000)
   }
 
-  // ── Markdown Renderer ─────────────────────────────
+  // ── Markdown Renderer (enhanced) ────────────────────
   function escHtml(str) {
     var d = document.createElement('div')
     d.textContent = str
     return d.innerHTML
   }
 
+  // Global copyCode function for code block copy buttons
+  window.copyCode = function (btn) {
+    var wrapper = btn.closest('.code-block-wrapper')
+    var codeEl = wrapper ? wrapper.querySelector('code') : null
+    var text = codeEl ? codeEl.textContent : ''
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        btn.textContent = '✓ Copied!'
+        btn.classList.add('copied')
+        setTimeout(function () { btn.textContent = '📋 Copy'; btn.classList.remove('copied') }, 2000)
+      }).catch(function () { fallbackCopyCode(text, btn) })
+    } else { fallbackCopyCode(text, btn) }
+  }
+  function fallbackCopyCode(text, btn) {
+    var ta = document.createElement('textarea')
+    ta.value = text
+    ta.style.position = 'fixed'; ta.style.opacity = '0'
+    document.body.appendChild(ta); ta.select()
+    try {
+      document.execCommand('copy')
+      btn.textContent = '✓ Copied!'
+      btn.classList.add('copied')
+      setTimeout(function () { btn.textContent = '📋 Copy'; btn.classList.remove('copied') }, 2000)
+    } catch (e) {}
+    document.body.removeChild(ta)
+  }
+
   function renderMarkdown(text) {
     if (!text) return ''
     var html = escHtml(text)
 
-    // Code blocks
+    // ── 1. Code blocks ──
+    var codeBlocks = []
     html = html.replace(/```(\w*)\n([\s\S]*?)```/g, function (_, lang, code) {
-      var langClass = lang ? ' class="lang-' + escHtml(lang) + '"' : ''
-      return '<pre><code' + langClass + '>' + code + '</code></pre>'
+      var idx = codeBlocks.length
+      var langAttr = lang ? ' data-lang="' + escHtml(lang) + '"' : ''
+      var langLabel = lang ? '<span class="code-lang">' + escHtml(lang) + '</span>' : '<span class="code-lang">Code</span>'
+      codeBlocks.push(
+        '<div class="code-block-wrapper">' +
+          '<div class="code-block-header">' +
+            langLabel +
+            '<button class="code-copy-btn" onclick="copyCode(this)">📋 Copy</button>' +
+          '</div>' +
+          '<pre><code' + langAttr + '>' + code + '</code></pre>' +
+        '</div>'
+      )
+      return '\x00CB' + idx + '\x00'
     })
 
-    // Inline code
+    // ── 2. Inline code ──
     html = html.replace(/`([^`]+)`/g, '<code>$1</code>')
-
-    // Protect code blocks from paragraph splitting
-    var blocks = []
-    html = html.replace(/<pre>[\s\S]*?<\/pre>/g, function (m) {
-      blocks.push(m)
-      return '\x00BLOCK' + (blocks.length - 1) + '\x00'
+    // Protect inline codes
+    var inlineCodes = []
+    html = html.replace(/<code>[\s\S]*?<\/code>/g, function (m) {
+      inlineCodes.push(m)
+      return '\x00IC' + (inlineCodes.length - 1) + '\x00'
     })
 
-    // Paragraphs
+    // ── 3. Horizontal rules ──
+    html = html.replace(/^---+$/gm, '<hr class="md-hr">')
+
+    // ── 4. Headings ──
+    html = html.replace(/^##### (.+)$/gm, '<h5 class="md-h5">$1</h5>')
+    html = html.replace(/^#### (.+)$/gm, '<h4 class="md-h4">$1</h4>')
+    html = html.replace(/^### (.+)$/gm, '<h3 class="md-h3">$1</h3>')
+    html = html.replace(/^## (.+)$/gm, '<h2 class="md-h2">$1</h2>')
+    html = html.replace(/^# (.+)$/gm, '<h1 class="md-h1">$1</h1>')
+
+    // ── 5. Blockquotes ──
+    html = html.replace(/^&gt; (.+)$/gm, '<blockquote class="md-blockquote"><p>$1</p></blockquote>')
+
+    // ── 6. Task lists ──
+    html = html.replace(/^- \[ \] (.+)$/gm, '<div class="task-item"><input type="checkbox" disabled> <label>$1</label></div>')
+    html = html.replace(/^- \[x\] (.+)$/gm, '<div class="task-item"><input type="checkbox" disabled checked> <label>$1</label></div>')
+
+    // ── 7. Unordered lists ──
+    html = html.replace(/((?:^- .+\n?)+)/gm, function (match) {
+      var items = match.split('\n').filter(Boolean)
+      var lis = items.map(function (item) {
+        var content = item.replace(/^- (.+)/, '$1')
+        return '<li>' + content + '</li>'
+      }).join('')
+      return '<ul class="md-ul">' + lis + '</ul>'
+    })
+
+    // ── 8. Ordered lists ──
+    html = html.replace(/((?:^\d+\. .+\n?)+)/gm, function (match) {
+      var items = match.split('\n').filter(Boolean)
+      var lis = items.map(function (item) {
+        var content = item.replace(/^\d+\. (.+)/, '$1')
+        return '<li>' + content + '</li>'
+      }).join('')
+      return '<ol class="md-ol">' + lis + '</ol>'
+    })
+
+    // ── 9. Tables ──
+    html = html.replace(/^(\|.+\|)\n\|[-| ]+\|\n((?:\|.+\|\n?)*)/gm, function (_, header, body) {
+      var headers = header.split('|').filter(Boolean).map(function (h) { return '<th>' + h.trim() + '</th>' }).join('')
+      var rows = body.trim().split('\n').map(function (row) {
+        var cells = row.split('|').filter(Boolean).map(function (c) { return '<td>' + c.trim() + '</td>' }).join('')
+        return '<tr>' + cells + '</tr>'
+      }).join('')
+      return '<div class="md-table-wrap"><table class="md-table"><thead><tr>' + headers + '</tr></thead><tbody>' + rows + '</tbody></table></div>'
+    })
+
+    // ── 10. Bold, Italic, Strikethrough ──
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    html = html.replace(/\*(.+?)\*/g, '<em>$1</em>')
+    html = html.replace(/~~(.+?)~~/g, '<del>$1</del>')
+
+    // ── 11. Auto-link URLs ──
+    html = html.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener" class="md-link">$1</a>')
+
+    // ── 12. Restore inline codes ──
+    html = html.replace(/\x00IC(\d+)\x00/g, function (_, i) { return inlineCodes[+i] || '' })
+
+    // ── 13. Paragraphs (protect block elements) ──
+    var blockEls = []
+    // Use RegExp constructor to avoid escaping issues with <\/ in regex literals
+    var blockProtectRE = new RegExp('<(' + ['pre','table','ul','ol','blockquote','h[1-5]','div class="(?:code-block-wrapper|task-item|md-table-wrap)"'].join('|') + ')[\\s\\S]*?<\\/(pre|table|ul|ol|blockquote|h[1-5]|div)>', 'g')
+    html = html.replace(blockProtectRE, function (m) {
+      blockEls.push(m)
+      return '\x00BLOCK' + (blockEls.length - 1) + '\x00'
+    })
+
     html = html.split(/\n{2,}/).map(function (p) {
       var trimmed = p.trim()
       if (!trimmed) return ''
       return '<p>' + trimmed.replace(/\n/g, '<br>') + '</p>'
     }).join('')
 
-    // Restore code blocks
-    html = html.replace(/\x00BLOCK(\d+)\x00/g, function (_, i) { return blocks[+i] || '' })
+    html = html.replace(/\x00BLOCK(\d+)\x00/g, function (_, i) { return blockEls[+i] || '' })
 
-    // Bold & italic
-    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    html = html.replace(/\*(.+?)\*/g, '<em>$1</em>')
+    // ── 14. Restore code blocks ──
+    html = html.replace(/\x00CB(\d+)\x00/g, function (_, i) { return codeBlocks[+i] || '' })
 
     return html
   }

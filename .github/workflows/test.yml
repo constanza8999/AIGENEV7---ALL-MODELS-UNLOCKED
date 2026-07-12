@@ -1,0 +1,55 @@
+# 🧪 Freebuff — Test Suite
+#
+# Runs all freebuff unit tests on push/PR to main.
+# Triggered by:
+#   - Push to main (freebuff/ changes)
+#   - Any PR targeting main
+#   - Manual dispatch from Actions tab
+
+name: Test Suite
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'freebuff/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'freebuff/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.3.14"
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Run freebuff tests
+        working-directory: freebuff
+        run: |
+          bun test \
+            auto-agent.test.js \
+            custom-agents.test.js \
+            auto-agent-integration.test.js \
+            debug-agent-integration.test.js \
+            context-test.test.js \
+            tab-completion.test.js \
+            --test-threads=1 \
+            --timeout=30000
